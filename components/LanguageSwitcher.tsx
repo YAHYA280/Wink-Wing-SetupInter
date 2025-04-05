@@ -6,8 +6,8 @@ import { useState, useRef, useEffect } from "react";
 
 // Define supported languages with their flags
 const languages = [
-  { code: "en", name: "English", flag: "/en-flag.png" },
-  { code: "nl", name: "Nederlands", flag: "/nl-flag.png" },
+  { code: "en", name: "En", flag: "/en-flag.png" },
+  { code: "nl", name: "Nl", flag: "/nl-flag.png" },
 ];
 
 export default function LanguageSwitcher() {

@@ -1,74 +1,117 @@
+// components/Nav.tsx
 "use client";
-// next
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import LanguageSwitcher from "./LanguageSwitcher";
-
-// react-icons
 import { AiOutlineMenu } from "react-icons/ai";
 import { GrClose } from "react-icons/gr";
-
-// redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { logout } from "@/store/features/authSlice";
 
-export default function Nav() {
-  // links for nav
-  const navLinks = [
-    {
-      id: 1,
-      title: "How it works",
-      href: "/how-it-works",
-    },
-    {
-      id: 2,
-      title: "Reviews",
-      href: "/reviews",
-    },
-    {
-      id: 3,
-      title: "Pricing",
-      href: "/pricing",
-    },
-    {
-      id: 4,
-      title: "Contact",
-      href: "/contact",
-    },
-  ];
-  const [data, setData] = useState([]);
+// Default navigation links and button texts
+const defaultLinks = [
+  { id: 1, title: "How it works", href: "/how-it-works" },
+  { id: 2, title: "Reviews", href: "/reviews" },
+  { id: 3, title: "Pricing", href: "/pricing" },
+  { id: 4, title: "Contact", href: "/contact" },
+];
 
-  const memoizedNavLinks = useMemo(() => navLinks, []);
+const defaultRegisterButton = "Start my search";
+const defaultLoginButton = "Login";
+
+export default function Nav() {
+  // State to hold the navbar data
+  const [navbarData, setNavbarData] = useState({
+    links: defaultLinks,
+    registerButton: defaultRegisterButton,
+    loginButton: defaultLoginButton,
+  });
+
+  // State to show loading/error state
+  const [dataStatus, setDataStatus] = useState({
+    isLoading: true,
+    error: null as string | null,
+  });
+
+  // Get the current pathname to detect language changes
+  const pathname = usePathname();
+
+  // Extract the locale from the pathname
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch the navbar data directly when component mounts and when locale changes
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchNavbarData() {
+      try {
+        if (isMounted) setDataStatus({ isLoading: true, error: null });
+
+        const apiUrl =
+          process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
+        const apiToken = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "";
+
+        const response = await fetch(
+          `${apiUrl}/api/navbar?populate=*&locale=${locale}`,
+          {
+            headers: {
+              Authorization: `Bearer ${apiToken}`,
+              "Content-Type": "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const strapiData = data.data;
+        if (
+          strapiData &&
+          strapiData.Navbar &&
+          strapiData.Navbar[0] &&
+          isMounted
+        ) {
+          setNavbarData({
+            links: strapiData.Navbar[0].links || defaultLinks,
+            registerButton:
+              strapiData.Navbar[0].registerButton || defaultRegisterButton,
+            loginButton: strapiData.Navbar[0].loginButton || defaultLoginButton,
+          });
+        }
+
+        if (isMounted) setDataStatus({ isLoading: false, error: null });
+      } catch (error) {
+        if (isMounted) {
+          setDataStatus({
+            isLoading: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
+        }
+      }
+    }
+
+    fetchNavbarData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [locale]);
 
   const router = useRouter();
-
-  // State to toggle the navigation menu visibility on mobile devices
   const [navActive, setNavActive] = useState<boolean>(false);
-
   const { token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
     await dispatch(logout());
-    router.push("/login");
+    router.push(`/${locale}/login`);
   };
 
-  // useEffect(() => {
-  //   async function fetchFromStrapi() {
-  //     const res = await axios.get(
-  //       "http://localhost:1337/api/navbar?populate=*&locale=en"
-  //     );
-  //     setData(res.data);
-  //   }
-
-  //   fetchFromStrapi();
-  // }, []);
-
-  // console.log(data);
-
-  // Disable mobile mode when clicking outside of the designated area.
   useEffect(() => {
     const closeNav = () => setNavActive(false);
     window.addEventListener("click", closeNav);
@@ -93,11 +136,15 @@ export default function Nav() {
     [navActive]
   );
 
+  // Helper function to prefix links with the current locale
+  const localizedHref = (href: string) =>
+    href.startsWith("/") ? `/${locale}${href}` : href;
+
   return (
     <div className="fixed w-full shadow-lg z-50 bg-white">
       <nav className="flex items-center justify-between max-w-[1164px] mx-auto w-full py-[15px] px-2">
         <div className="flex items-center gap-8">
-          <Link className="cursor-pointer" href="/">
+          <Link className="cursor-pointer" href={`/${locale}`}>
             <Image
               src="/winkwing-logo.svg"
               alt="Logo"
@@ -109,11 +156,11 @@ export default function Nav() {
         </div>
         <div className="hidden lg:flex items-center gap-[21px] xl:gap-[41px]">
           <div className="flex items-center gap-[20px] xl:gap-[37px]">
-            {memoizedNavLinks.map((link) => (
+            {navbarData.links.map((link: any) => (
               <Link
-                className="font-medium text-[15px] xl:text-lg text-center xl:text-left hover:underline"
-                href={link.href}
                 key={link.id}
+                className="font-medium text-[15px] xl:text-lg text-center xl:text-left hover:underline"
+                href={localizedHref(link.href)}
               >
                 {link.title}
               </Link>
@@ -121,7 +168,7 @@ export default function Nav() {
             {token && (
               <Link
                 className="font-medium text-[15px] xl:text-lg text-center xl:text-left hover:underline"
-                href="/dashboard"
+                href={`/${locale}/dashboard`}
               >
                 Dashboard
               </Link>
@@ -153,7 +200,6 @@ export default function Nav() {
                   strokeLinejoin="round"
                 />
               </svg>
-
               <span className="text-white font-semibold group-hover:text-secondary">
                 Log out
               </span>
@@ -161,8 +207,8 @@ export default function Nav() {
           ) : (
             <div className="flex items-center gap-8">
               <Link
-                href="/signup"
-                className="flex items-center gap-4 bg-main group text-white border border-main font-semibold xl:hover:bg-transparent  px-8 py-3 rounded-lg transition-all duration-300 ease-in-out"
+                href={`/${locale}/signup`}
+                className="flex items-center gap-4 bg-main group text-white border border-main font-semibold xl:hover:bg-transparent px-8 py-3 rounded-lg transition-all duration-300 ease-in-out"
               >
                 <span>
                   <svg
@@ -188,11 +234,11 @@ export default function Nav() {
                   </svg>
                 </span>
                 <span className="text-white font-semibold xl:group-hover:text-main">
-                  Start my search
+                  {navbarData.registerButton}
                 </span>
               </Link>
               <Link
-                href="/login"
+                href={`/${locale}/login`}
                 className="flex items-center gap-3 bg-secondary border border-secondary px-8 py-3 group rounded-lg xl:hover:bg-transparent transition-all duration-300"
               >
                 <svg
@@ -216,15 +262,15 @@ export default function Nav() {
                     strokeLinejoin="round"
                   />
                 </svg>
-
                 <span className="text-white font-semibold group-hover:text-secondary">
-                  Login
+                  {navbarData.loginButton}
                 </span>
               </Link>
             </div>
           )}
         </div>
-        {/* mobile nav */}
+
+        {/* Mobile nav */}
         <button
           onClick={toggleNav}
           className="block lg:hidden relative z-[100] bg-white p-3 rounded-full"
@@ -238,17 +284,20 @@ export default function Nav() {
 
         <div className={mobileNavClasses}>
           <div className="flex flex-col items-center justify-center h-full gap-6 text-white">
-            {memoizedNavLinks.map((link) => (
+            {navbarData.links.map((link: any) => (
               <Link
-                className="font-semibold text-2xl"
                 key={link.id}
-                href={link.href}
+                className="font-semibold text-2xl"
+                href={localizedHref(link.href)}
               >
                 {link.title}
               </Link>
             ))}
             {token && (
-              <Link className="font-semibold text-2xl" href="/dashboard">
+              <Link
+                className="font-semibold text-2xl"
+                href={`/${locale}/dashboard`}
+              >
                 Dashboard
               </Link>
             )}
@@ -278,7 +327,6 @@ export default function Nav() {
                     strokeLinejoin="round"
                   />
                 </svg>
-
                 <span className="text-white font-semibold group-hover:text-secondary">
                   Log out
                 </span>
@@ -286,8 +334,8 @@ export default function Nav() {
             ) : (
               <div className="flex flex-col items-center gap-8">
                 <Link
-                  href="/signup"
-                  className="flex items-center gap-4 bg-main group text-white border border-main font-semibold xl:hover:bg-transparent  px-8 py-3 rounded-lg transition-all duration-300 ease-in-out"
+                  href={`/${locale}/signup`}
+                  className="flex items-center gap-4 bg-main group text-white border border-main font-semibold xl:hover:bg-transparent px-8 py-3 rounded-lg transition-all duration-300 ease-in-out"
                 >
                   <span>
                     <svg
@@ -313,11 +361,11 @@ export default function Nav() {
                     </svg>
                   </span>
                   <span className="text-white font-semibold xl:group-hover:text-main">
-                    Start my search
+                    {navbarData.registerButton}
                   </span>
                 </Link>
                 <Link
-                  href="/login"
+                  href={`/${locale}/login`}
                   className="flex items-center gap-3 bg-secondary border border-secondary px-8 py-3 group rounded-lg xl:hover:bg-transparent transition-all duration-300"
                 >
                   <svg
@@ -341,17 +389,14 @@ export default function Nav() {
                       strokeLinejoin="round"
                     />
                   </svg>
-
                   <span className="text-white font-semibold group-hover:text-secondary">
-                    Login
+                    {navbarData.loginButton}
                   </span>
                 </Link>
               </div>
             )}
           </div>
         </div>
-
-        {/* mobile nav end */}
       </nav>
     </div>
   );

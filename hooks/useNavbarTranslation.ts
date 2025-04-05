@@ -1,26 +1,29 @@
-"use client";
 // hooks/useNavbarTranslation.ts
+"use client";
 import { useTranslations } from "next-intl";
+
+// Define the navbar data structure
+export interface NavbarLink {
+  id: number;
+  href: string;
+  title: string;
+}
 
 /**
  * Custom hook to access Navbar translations from Strapi
  */
 export function useNavbarTranslation() {
-  let navbarData = null;
+  let t;
   let error = null;
 
   try {
-    // Try to access Strapi translation data from next-intl
-    const strapiTranslations = useTranslations("strapi.navbar");
-
-    if (strapiTranslations) {
-      navbarData = strapiTranslations;
-    }
+    // Access the translations
+    t = useTranslations("strapi.navbar");
   } catch (err) {
-    // If we can't access Strapi translations, fall back to defaults
     error = err;
     console.warn("No Strapi translations found for navbar, using defaults");
+    return { t: null, error };
   }
 
-  return { navbarData, error };
+  return { t, error };
 }

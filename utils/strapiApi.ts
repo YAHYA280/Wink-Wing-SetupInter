@@ -4,7 +4,7 @@ import axios from "axios";
 // Base URL and token for Strapi API
 const API_URL =
   process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
-const API_TOKEN = process.env.STRAPI_API_TOKEN || "";
+const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "";
 
 /**
  * Create axios instance with predefined headers for Strapi API
