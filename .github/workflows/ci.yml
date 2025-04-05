@@ -1,0 +1,32 @@
+name: Check PR
+
+on: [pull_request]
+
+jobs:
+  run-ci:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    name: Run Type Check & Linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: yarn install # Replaced pnpm with yarn
+
+      - name: Check types
+        run: yarn type-check # Make sure you have a script for type-checking in your package.json
+
+      - name: Check linting
+        run: yarn lint # Ensure you have a lint script in your package.json
+

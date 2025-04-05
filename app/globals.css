@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  color: #212529;
+}
+
+/* react-phone-input-2 */
+.selected-flag {
+  @apply rounded-lg;
+}
+
+.country {
+  @apply flex items-center justify-evenly border-b pb-1;
+}
+
+.country-name {
+  @apply text-lg;
+}
+
+.flag .mw {
+  @apply w-[40px] h-[40px] bg-main rounded-full;
+}
+
+.dial-code {
+  @apply text-black text-lg;
+}
+
+/* multi select */
+.p-placeholder {
+  @apply font-medium text-lg text-[#808080];
+}
+
+.p-multiselect-panel {
+  @apply bg-white mt-2 border rounded-lg p-3 w-[218px];
+}
+
+.p-multiselect-item {
+  @apply flex items-center gap-2 font-medium text-lg px-2 xl:hover:bg-main xl:hover:text-white xl:hover:rounded-lg transition-all duration-300;
+}
+
+.p-multiselect-header {
+  @apply hidden;
+}
+
+.p-multiselect-item span {
+  @apply xl:hover:text-white w-full;
+}
+
+.p-multiselect-checkbox {
+  @apply fill-white text-white;
+}
+
+.p-multiselect-label {
+  @apply flex items-center gap-1 font-medium text-lg text-[#808080];
+}
+
+.p-multiselect-token {
+  @apply flex items-center gap-1 font-medium text-lg text-[#808080];
+}
+
+.p-checkbox-input {
+  @apply hidden;
+}
+
+.p-dropdown-items {
+  @apply flex flex-col items-start font-medium text-lg;
+}
+
+.p-multiselect-close {
+  @apply hidden;
+}
+
+.p-dropdown-item-label {
+  @apply xl:hover:bg-main xl:hover:text-white xl:hover:rounded-lg xl:hover:p-1 transition-all duration-300;
+}
+
+.p-dropdown-items-wrapper {
+  @apply bg-white mt-2 border rounded-lg p-4 w-[330px];
+}
