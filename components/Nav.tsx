@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 // react-icons
 import { AiOutlineMenu } from "react-icons/ai";
@@ -104,12 +105,7 @@ export default function Nav() {
               height={40}
             />
           </Link>
-          <Image
-            src="/language.png"
-            alt="Language icon"
-            width={60}
-            height={60}
-          />
+          <LanguageSwitcher />
         </div>
         <div className="hidden lg:flex items-center gap-[21px] xl:gap-[41px]">
           <div className="flex items-center gap-[20px] xl:gap-[37px]">

@@ -7,8 +7,17 @@ import {
   getFooter,
   getContact,
   getPricing,
-  getLoginPage,
+  getLogin,
+  getSignup,
+  getHowItWork,
   getMovingGuide,
+  getReviews,
+  getSearchCity,
+  getDashboard,
+  getDeleteAccount,
+  getChangePassword,
+  getForgotPassword,
+  getOTPCode,
 } from "../utils/strapiApi";
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -29,49 +38,44 @@ export default getRequestConfig(async ({ requestLocale }) => {
       contactData,
       pricingData,
       loginData,
+      signupData,
+      howItWorkData,
       movingGuideData,
+      reviewsData,
+      searchCityData,
+      dashboardData,
+      deleteAccountData,
+      changePasswordData,
+      forgotPasswordData,
+      otpCodeData,
     ] = await Promise.allSettled([
       getHomePage(locale),
       getNavbar(locale),
       getFooter(locale),
       getContact(locale),
       getPricing(locale),
-      getLoginPage(locale),
+      getLogin(locale),
+      getSignup(locale),
+      getHowItWork(locale),
       getMovingGuide(locale),
+      getReviews(locale),
+      getSearchCity(locale),
+      getDashboard(locale),
+      getDeleteAccount(locale),
+      getChangePassword(locale),
+      getForgotPassword(locale),
+      getOTPCode(locale),
     ]);
 
-    // Get static translations (create empty files if they don't exist yet)
+    // Create fallback static translation files if needed
     const globalTranslation = await import(`../messages/${locale}/global.json`)
       .then((module) => module.default)
       .catch(() => ({}));
-
-    const inputsTranslation = await import(`../messages/${locale}/inputs.json`)
-      .then((module) => module.default)
-      .catch(() => ({}));
-
-    const headerTranslation = await import(`../messages/${locale}/header.json`)
-      .then((module) => module.default)
-      .catch(() => ({}));
-
-    const footerTranslation = await import(`../messages/${locale}/footer.json`)
-      .then((module) => module.default)
-      .catch(() => ({}));
-
-    // Import more static translations as needed with error handling
 
     // Combine static translations with dynamic Strapi content
     const messages = {
       global: {
         ...globalTranslation,
-      },
-      inputs: {
-        ...inputsTranslation,
-      },
-      header: {
-        ...headerTranslation,
-      },
-      footer: {
-        ...footerTranslation,
       },
 
       // Strapi data
@@ -83,8 +87,29 @@ export default getRequestConfig(async ({ requestLocale }) => {
         contact: contactData.status === "fulfilled" ? contactData.value : null,
         pricing: pricingData.status === "fulfilled" ? pricingData.value : null,
         login: loginData.status === "fulfilled" ? loginData.value : null,
+        signup: signupData.status === "fulfilled" ? signupData.value : null,
+        howItWork:
+          howItWorkData.status === "fulfilled" ? howItWorkData.value : null,
         movingGuide:
           movingGuideData.status === "fulfilled" ? movingGuideData.value : null,
+        reviews: reviewsData.status === "fulfilled" ? reviewsData.value : null,
+        searchCity:
+          searchCityData.status === "fulfilled" ? searchCityData.value : null,
+        dashboard:
+          dashboardData.status === "fulfilled" ? dashboardData.value : null,
+        deleteAccount:
+          deleteAccountData.status === "fulfilled"
+            ? deleteAccountData.value
+            : null,
+        changePassword:
+          changePasswordData.status === "fulfilled"
+            ? changePasswordData.value
+            : null,
+        forgotPassword:
+          forgotPasswordData.status === "fulfilled"
+            ? forgotPasswordData.value
+            : null,
+        otpCode: otpCodeData.status === "fulfilled" ? otpCodeData.value : null,
       },
     };
 
@@ -100,15 +125,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
       .then((module) => module.default)
       .catch(() => ({}));
 
-    // Import more static translations as needed
-
     return {
       locale,
       messages: {
         global: {
           ...globalTranslation,
         },
-        // Add other static translations
       },
     };
   }
