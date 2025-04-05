@@ -1,6 +1,15 @@
+// i18n/request.js
 import { getRequestConfig } from "next-intl/server";
-
 import { routing } from "./routing";
+import {
+  getHomePage,
+  getNavbar,
+  getFooter,
+  getContact,
+  getPricing,
+  getLoginPage,
+  getMovingGuide,
+} from "../utils/strapiApi";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
@@ -11,98 +20,96 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  // Get all files depending on naming
-  const globalTranslation = (await import(`../messages/${locale}/global.json`))
-    .default;
+  try {
+    // Fetch dynamic content from Strapi
+    const [
+      homePageData,
+      navbarData,
+      footerData,
+      contactData,
+      pricingData,
+      loginData,
+      movingGuideData,
+    ] = await Promise.allSettled([
+      getHomePage(locale),
+      getNavbar(locale),
+      getFooter(locale),
+      getContact(locale),
+      getPricing(locale),
+      getLoginPage(locale),
+      getMovingGuide(locale),
+    ]);
 
-  // Inputs
-  const inputsTranslation = (await import(`../messages/${locale}/inputs.json`))
-    .default;
+    // Get static translations (create empty files if they don't exist yet)
+    const globalTranslation = await import(`../messages/${locale}/global.json`)
+      .then((module) => module.default)
+      .catch(() => ({}));
 
-  // Header
-  const headerTranslation = (await import(`../messages/${locale}/header.json`))
-    .default;
+    const inputsTranslation = await import(`../messages/${locale}/inputs.json`)
+      .then((module) => module.default)
+      .catch(() => ({}));
 
-  // Footer
-  const footerTranslation = (await import(`../messages/${locale}/footer.json`))
-    .default;
+    const headerTranslation = await import(`../messages/${locale}/header.json`)
+      .then((module) => module.default)
+      .catch(() => ({}));
 
-  const privacyPolicyTranslation = (
-    await import(`../messages/${locale}/privacy_policy.json`)
-  ).default;
-  const termsAndConditionsTranslation = (
-    await import(`../messages/${locale}/terms_and_conditions.json`)
-  ).default;
-  const dashboardTranslation = (
-    await import(`../messages/${locale}/dashboard.json`)
-  ).default;
-  const loginTranslation = (await import(`../messages/${locale}/login.json`))
-    .default;
+    const footerTranslation = await import(`../messages/${locale}/footer.json`)
+      .then((module) => module.default)
+      .catch(() => ({}));
 
-  // Home page components
-  const homeHeroTranslation = (
-    await import(`../messages/${locale}/home/hero.json`)
-  ).default;
-  const homeWhyChooseUsTranslation = (
-    await import(`../messages/${locale}/home/whyChooseUs.json`)
-  ).default;
-  const homeFaqsTranslation = (
-    await import(`../messages/${locale}/home/faqs.json`)
-  ).default;
-  const homePackagesTranslation = (
-    await import(`../messages/${locale}/home/packages.json`)
-  ).default;
-  const homeTestimonialsTranslation = (
-    await import(`../messages/${locale}/home/testimonials.json`)
-  ).default;
-  const homeLockInTranslation = (
-    await import(`../messages/${locale}/home/lockIn.json`)
-  ).default;
-  const homePortfolioTranslation = (
-    await import(`../messages/${locale}/home/portfolio.json`)
-  ).default;
+    // Import more static translations as needed with error handling
 
-  // The object that will hold all the translations
-  const messages = {
-    global: {
-      ...globalTranslation,
-    },
-    inputs: {
-      ...inputsTranslation,
-    },
-    header: {
-      ...headerTranslation,
-    },
-    footer: {
-      ...footerTranslation,
-    },
-    privacyPolicyTranslation: {
-      ...privacyPolicyTranslation,
-    },
-    termsAndConditionsTranslation: {
-      ...termsAndConditionsTranslation,
-    },
-    dashboardTranslation: {
-      ...dashboardTranslation,
-    },
-    loginTranslation: {
-      ...loginTranslation,
-    },
+    // Combine static translations with dynamic Strapi content
+    const messages = {
+      global: {
+        ...globalTranslation,
+      },
+      inputs: {
+        ...inputsTranslation,
+      },
+      header: {
+        ...headerTranslation,
+      },
+      footer: {
+        ...footerTranslation,
+      },
 
-    // Root Pages
-    home: {
-      ...homeHeroTranslation,
-      ...homeFaqsTranslation,
-      ...homeWhyChooseUsTranslation,
-      ...homePackagesTranslation,
-      ...homeTestimonialsTranslation,
-      ...homeLockInTranslation,
-      ...homePortfolioTranslation,
-    },
-  };
-  // console.log(messages)
-  return {
-    locale,
-    messages,
-  };
+      // Strapi data
+      strapi: {
+        homePage:
+          homePageData.status === "fulfilled" ? homePageData.value : null,
+        navbar: navbarData.status === "fulfilled" ? navbarData.value : null,
+        footer: footerData.status === "fulfilled" ? footerData.value : null,
+        contact: contactData.status === "fulfilled" ? contactData.value : null,
+        pricing: pricingData.status === "fulfilled" ? pricingData.value : null,
+        login: loginData.status === "fulfilled" ? loginData.value : null,
+        movingGuide:
+          movingGuideData.status === "fulfilled" ? movingGuideData.value : null,
+      },
+    };
+
+    return {
+      locale,
+      messages,
+    };
+  } catch (error) {
+    console.error("Error setting up translations:", error);
+
+    // Fallback to just static translations if API calls fail
+    const globalTranslation = await import(`../messages/${locale}/global.json`)
+      .then((module) => module.default)
+      .catch(() => ({}));
+
+    // Import more static translations as needed
+
+    return {
+      locale,
+      messages: {
+        global: {
+          ...globalTranslation,
+        },
+        // Add other static translations
+      },
+    };
+  }
 });
