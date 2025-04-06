@@ -1,9 +1,17 @@
+"use client";
 // next
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+import { useContactData } from "@/services/translationService";
 
 export default function ContactHero() {
-  // an array of contact info
-  const contactInfo = [
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: contactData, status } = useContactData();
+
+  // Default contact info that will be used as a fallback
+  const defaultContactInfo = [
     {
       id: 1,
       title: "Email us",
@@ -19,14 +27,44 @@ export default function ContactHero() {
       href: "#",
     },
   ];
+
+  // Use the data from the API or fall back to default values
+  const contactInfo = useMemo(() => {
+    if (status === "success" && contactData?.info) {
+      return contactData.info;
+    }
+    return defaultContactInfo;
+  }, [contactData, status]);
+
+  // Extract content from the API data with fallbacks
+  const subtitle = contactData?.subtitle || "Contact Winkwing";
+  const title = contactData?.title || "How can we <help>?";
+  const paragraphs = contactData?.text
+    ? contactData.text.split("\n\n")
+    : [
+        "If you have any questions regarding our service, your subscription or you just want to send us a kind email to catch up, be sure to shoot a message.",
+        "Our team is always ready to answer your questions during (and sometimes after) opening hours.",
+      ];
+
+  // Process the title to handle any HTML-like formatting
+  const formattedTitle = title.includes("<help>") ? (
+    <>
+      {title.split("<help>")[0]}
+      <span className="text-main">help</span>
+      {title.split("<help>")[1] || "?"}
+    </>
+  ) : (
+    title
+  );
+
   return (
     <div className="py-24 px-2 max-w-[1164px] mx-auto lg:px-12">
       <div className="flex flex-col items-center justify-center gap-4">
         <h5 className="text-main text-[16px] leading-[24px] text-center md:mt-[70px]">
-          Contact Winkwing
+          {subtitle}
         </h5>
         <h1 className="font-bold font-arial text-[30px] text-[#003956] sm:text-[48px] leading-[32px] sm:leading-[48px] text-center lg:mb-[96px]">
-          How can we <span className="text-main">help?</span>
+          {formattedTitle}
         </h1>
       </div>
       <div className="flex flex-col items-center justify-center gap-8 lg:flex-row-reverse lg:justify-between">
@@ -39,15 +77,14 @@ export default function ContactHero() {
           />
         </div>
         <div className="flex flex-col gap-6">
-          <p className="text-[16px] leading-[24px] text-center lg:text-left sm:max-w-[540px]">
-            If you have any questions regarding our service, your subscription
-            or you just want to send us a kind email to catch up, be sure to
-            shoot a message.
-          </p>
-          <p className="text-[16px] leading-[24px] text-center lg:text-left sm:max-w-[540px]">
-            Our team is always ready to answer your questions during (and
-            sometimes after) opening hours.
-          </p>
+          {paragraphs.map((paragraph, index) => (
+            <p
+              key={index}
+              className="text-[16px] leading-[24px] text-center lg:text-left sm:max-w-[540px]"
+            >
+              {paragraph}
+            </p>
+          ))}
           <div className="flex flex-col items-center justify-center gap-4">
             {contactInfo.map((contact) => (
               <a

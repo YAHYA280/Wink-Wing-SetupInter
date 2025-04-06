@@ -1,6 +1,9 @@
 "use client";
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
+import { useSignUpData } from "@/services/translationService";
 
 // data
 import {
@@ -9,9 +12,33 @@ import {
   minBedsOptions,
 } from "@/data/signupOptions";
 
+// Default content for fallback
+const defaultRequirementsContent = {
+  min_rental_price: "Minimum rental price",
+  max_rental_price: "Maximum rental price",
+  bedrooms: "Bedrooms",
+  surface: "Surface",
+};
+
 export default function SignUpRequirements() {
   const { setMinPrice, setMaxPrice, setMinBeds, setMinFloorArea } =
     useUserPreferences();
+
+  // Get translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: signupData, status } = useSignUpData();
+
+  // Merge API data with defaults using useMemo
+  const requirementsContent = useMemo(() => {
+    if (status === "success" && signupData?.SignupRequirements) {
+      return {
+        ...defaultRequirementsContent,
+        ...signupData.SignupRequirements,
+      };
+    }
+    return defaultRequirementsContent;
+  }, [signupData, status]);
 
   return (
     <div>
@@ -19,7 +46,7 @@ export default function SignUpRequirements() {
         <div className="flex flex-col md:flex-row gap-7">
           <div className="flex flex-col">
             <label className="font-bold text-[16px] leading-[24px]">
-              Minimum rental price
+              {requirementsContent.min_rental_price}
             </label>
             <select
               onChange={(e) => setMinPrice(Number(e.target.value))}
@@ -34,7 +61,7 @@ export default function SignUpRequirements() {
           </div>
           <div className="flex flex-col">
             <label className="font-bold text-[16px] leading-[24px]">
-              Maximum rental price
+              {requirementsContent.max_rental_price}
             </label>
             <select
               onChange={(e) => setMaxPrice(Number(e.target.value))}
@@ -51,7 +78,7 @@ export default function SignUpRequirements() {
         <div className="flex flex-col md:flex-row gap-7">
           <div className="flex flex-col">
             <label className="font-bold text-[16px] leading-[24px]">
-              Bedrooms
+              {requirementsContent.bedrooms}
             </label>
             <select
               onChange={(e) => setMinBeds(Number(e.target.value))}
@@ -66,7 +93,7 @@ export default function SignUpRequirements() {
           </div>
           <div className="flex flex-col">
             <label className="font-bold text-[16px] leading-[24px]">
-              Surface
+              {requirementsContent.surface}
             </label>
             <select
               onChange={(e) => setMinFloorArea(Number(e.target.value))}

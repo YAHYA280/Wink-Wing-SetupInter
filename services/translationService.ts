@@ -9,6 +9,19 @@ export interface NavbarData {
   registerButton: string;
   loginButton: string;
 }
+// Type for contact page data
+export interface ContactPageData {
+  info: Array<{
+    id: number;
+    href: string;
+    icon: string;
+    text: string;
+    title: string;
+  }>;
+  subtitle: string;
+  title: string;
+  text: string;
+}
 
 // Type for service items that appear in multiple sections
 export interface ServiceItem {
@@ -18,6 +31,74 @@ export interface ServiceItem {
   icon: string;
 }
 
+// sign up compoent
+
+export interface SignUpData {
+  subtitle: string;
+  title: string;
+  text: string;
+  SignupLocation: {
+    subtitle: string;
+    tablist: Array<{
+      type: string;
+      index: number;
+      title: string;
+    }>;
+    country: string;
+    city: string;
+    neighbourhoods: string;
+    four_searches_text: string;
+    radius: string;
+    i_need_to_live_near: string;
+    I_need_to_live_near_placeholder: string;
+    max_travel_time_label: string;
+    transport_type_label: string;
+    transport_type: Array<{
+      id: number;
+      label: string;
+      value: string;
+    }>;
+  };
+  SignupRequirements: {
+    min_rental_price: string;
+    max_rental_price: string;
+    bedrooms: string;
+    surface: string;
+  };
+  SignupDetails: {
+    furnished_label: string;
+    furnished: Array<{
+      id: number;
+      label: string;
+      value: string | null;
+    }>;
+    additional_features_label: string;
+    additional_features: any;
+    also_search_for_label: string;
+    also_search_for: any;
+    show_only_properties_for_label: string;
+    show_only_properties_for: any;
+  };
+  SignupCredentials: {
+    type_of_user: Array<{
+      id: number;
+      label: string;
+      value: string;
+    }>;
+    name_placeholder: string;
+    email_placeholder: string;
+    password_placeholder: string;
+    checkbox_text: string;
+    btn: string;
+  };
+}
+
+//How it works page
+
+export interface HowItWorksData {
+  subtitle: string;
+  title: string;
+}
 // Home page data structure based on the actual API response
 export interface HomePageData {
   Hero: {
@@ -264,4 +345,14 @@ export function useNavbarData() {
 
 export function useHomePageData() {
   return useStrapiContent<HomePageData>("home-page");
+}
+export function useContactData() {
+  return useStrapiContent<ContactPageData>("contact");
+}
+export function useHowItWorksData() {
+  return useStrapiContent<HowItWorksData>("how-it-work");
+}
+
+export function useSignUpData() {
+  return useStrapiContent<SignUpData>("signup");
 }

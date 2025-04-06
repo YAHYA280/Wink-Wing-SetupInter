@@ -1,7 +1,7 @@
 "use client";
 // next
 import dynamic from "next/dynamic";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 // react-tabs
@@ -10,6 +10,9 @@ import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 // context
 import { useStepForm } from "@/context/stepFormContext";
 import { useUserPreferences } from "@/context/userPreferencesContext";
+
+// translation service
+import { useSignUpData } from "@/services/translationService";
 
 // types
 import { Radius } from "@/types/types";
@@ -85,6 +88,47 @@ export default function SignUpLocation({
   // Track which tab is currently selected
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
+  // Get translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: signupData, status } = useSignUpData();
+
+  // Default content for fallback
+  const defaultContent = {
+    subtitle: "Find your new home the easy way",
+    tablist: [
+      { type: "NEIGHBOURHOODS", index: 0, title: "Neighbourhoods" },
+      { type: "RADIUS", index: 1, title: "Radius" },
+      { type: "TRAVEL_TIME", index: 2, title: "Travel Time" },
+    ],
+    country: "Country",
+    city: "City",
+    neighbourhoods: "Neighbourhoods",
+    four_searches_text: "👉Add up to 4 searches after signing up.",
+    radius: "Radius",
+    i_need_to_live_near: "I need to live near",
+    I_need_to_live_near_placeholder: "Enter address",
+    max_travel_time_label: "Max travel time",
+    transport_type_label: "Transport type",
+    transport_type: [
+      { id: 1, label: "walking", value: "WALKING" },
+      { id: 2, label: "cycling", value: "CYCLING" },
+      { id: 3, label: "driving", value: "DRIVING" },
+      { id: 4, label: "public transport", value: "PUBLIC_TRANSPORT" },
+    ],
+  };
+
+  // Merge API data with defaults using useMemo
+  const locationContent = useMemo(() => {
+    if (status === "success" && signupData?.SignupLocation) {
+      return {
+        ...defaultContent,
+        ...signupData.SignupLocation,
+      };
+    }
+    return defaultContent;
+  }, [signupData, status]);
+
   // CHANGED: we will rely on a single function to handle changes
   const [addressError, setAddressError] = useState<string>("");
 
@@ -100,8 +144,6 @@ export default function SignUpLocation({
 
   const addressInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
-  const pathname = usePathname();
 
   // -----------------------------
   // Fetch address suggestions
@@ -260,7 +302,7 @@ export default function SignUpLocation({
                 <path d="M4.37134 12.0156C0.949463 7.09375 0.340088 6.57812 0.340088 4.75C0.340088 2.26562 2.33228 0.25 4.84009 0.25C7.32446 0.25 9.34009 2.26562 9.34009 4.75C9.34009 6.57812 8.70728 7.09375 5.2854 12.0156C5.07446 12.3438 4.58228 12.3438 4.37134 12.0156ZM4.84009 6.625C5.87134 6.625 6.71509 5.80469 6.71509 4.75C6.71509 3.71875 5.87134 2.875 4.84009 2.875C3.7854 2.875 2.96509 3.71875 2.96509 4.75C2.96509 5.80469 3.7854 6.625 4.84009 6.625Z" />
               </svg>
             </span>
-            Neighbourhoods
+            {locationContent.tablist[0].title}
           </Tab>
           <Tab
             selectedClassName="bg-white shadow rounded-lg text-main"
@@ -277,7 +319,7 @@ export default function SignUpLocation({
                 <path d="M7.26001 1.1875C7.26001 0.8125 7.58813 0.53125 7.9397 0.625C10.4475 1.28125 12.3225 3.55469 12.3225 6.25C12.3225 9.46094 9.72095 12.0625 6.51001 12.0625C3.29907 12.0859 0.69751 9.50781 0.69751 6.29688C0.674072 3.57812 2.52563 1.28125 5.03345 0.625C5.40845 0.53125 5.76001 0.8125 5.76001 1.1875V1.5625C5.76001 1.82031 5.57251 2.03125 5.33813 2.10156C3.51001 2.61719 2.19751 4.28125 2.19751 6.25C2.19751 8.64062 4.11938 10.5625 6.51001 10.5625C8.8772 10.5625 10.8225 8.64062 10.8225 6.25C10.8225 4.28125 9.48657 2.61719 7.65845 2.10156C7.42407 2.03125 7.26001 1.82031 7.26001 1.5625V1.1875Z" />
               </svg>
             </span>
-            Radius
+            {locationContent.tablist[1].title}
           </Tab>
           <Tab
             selectedClassName="bg-white shadow rounded-lg text-main"
@@ -296,7 +338,7 @@ export default function SignUpLocation({
                 />
               </svg>
             </span>
-            Travel Time
+            {locationContent.tablist[2].title}
           </Tab>
         </TabList>
 
@@ -311,7 +353,7 @@ export default function SignUpLocation({
               <NeighbourhoodDropdown />
               <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-[300px]">
                 <span className="text-[#19191A] block text-center">
-                  👉 Add up to 4 searches after signing up.
+                  {locationContent.four_searches_text}
                 </span>
               </div>
             </div>
@@ -352,7 +394,9 @@ export default function SignUpLocation({
 
               {/* radius dropdown */}
               <div className="flex flex-col gap-1 items-start">
-                <h3 className="font-semibold text-lg text-[#615D5D]">Radius</h3>
+                <h3 className="font-semibold text-lg text-[#615D5D]">
+                  {locationContent.radius}
+                </h3>
                 <div className="relative z-20">
                   <div
                     onClick={(e) => {
@@ -389,7 +433,7 @@ export default function SignUpLocation({
                       <div className="p-4">
                         <div className="flex flex-col justify-start items-start">
                           <h3 className="font-semibold text-[#808080] text-[13px]">
-                            Radius
+                            {locationContent.radius}
                           </h3>
                           <div className="flex flex-col items-start w-full">
                             {radius.length ? (
@@ -424,7 +468,7 @@ export default function SignUpLocation({
 
               <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-[300px]">
                 <span className="text-[#19191A] block text-center">
-                  👉 Add up to 4 searches after signing up.
+                  {locationContent.four_searches_text}
                 </span>
               </div>
             </div>
@@ -464,7 +508,7 @@ export default function SignUpLocation({
             <div className="flex flex-col items-center justify-center gap-4 mt-5">
               <div>
                 <h3 className="font-semibold text-lg text-[#615D5D]">
-                  I need to live near
+                  {locationContent.i_need_to_live_near}
                 </h3>
                 <div className="relative">
                   <input
@@ -485,7 +529,9 @@ export default function SignUpLocation({
                         setShowSuggestions(true);
                       }
                     }}
-                    placeholder="Select an address from the suggestions"
+                    placeholder={
+                      locationContent.I_need_to_live_near_placeholder
+                    }
                   />
                   {addressError && (
                     <p className="text-red-500 text-sm mt-1">{addressError}</p>
@@ -514,7 +560,7 @@ export default function SignUpLocation({
               <div className="flex items-center justify-between gap-2 w-full">
                 <div className="flex flex-col w-full">
                   <label className="font-bold text-[16px] leading-[24px]">
-                    Max travel time
+                    {locationContent.max_travel_time_label}
                   </label>
                   <select
                     className="border border-[#CED4D9] rounded-lg py-2 px-3"
@@ -529,7 +575,7 @@ export default function SignUpLocation({
                 </div>
                 <div className="flex flex-col w-full">
                   <label className="font-bold text-[16px] leading-[24px]">
-                    Transport type
+                    {locationContent.transport_type_label}
                   </label>
                   <select
                     onChange={(e) => setTransportType(e.target.value)}
@@ -546,7 +592,7 @@ export default function SignUpLocation({
 
               <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-[300px]">
                 <span className="text-[#19191A] block text-center">
-                  👉 Add up to 4 searches after signing up.
+                  {locationContent.four_searches_text}
                 </span>
               </div>
             </div>
