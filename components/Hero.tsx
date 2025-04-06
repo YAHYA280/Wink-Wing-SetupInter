@@ -1,10 +1,16 @@
-// next
+// components/Hero.tsx
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+import { useHomePageData } from "@/services/translationService";
 
-export default function Hero() {
-  // Array containing details of hero services offered, including titles and descriptions
-  const heroServices = [
+// Default hero content as fallback
+const defaultHeroContent = {
+  title: "Find your next home before the pizza",
+  button: "Discover all benefits",
+  services: [
     {
       id: 1,
       title: "Receive real-time alerts",
@@ -23,7 +29,31 @@ export default function Hero() {
       text: "Our tools help you find a home in weeks instead of months.",
       icon: "/hero-services-three.svg",
     },
-  ];
+  ],
+};
+
+export default function Hero() {
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Use our custom hook to fetch the home page data
+  const { data: homePageData, status } = useHomePageData();
+
+  // Extract hero data from the response when it's available
+  const heroContent = useMemo(() => {
+    if (status === "success" && homePageData?.Hero) {
+      return {
+        title: homePageData.Hero.title || defaultHeroContent.title,
+        button: homePageData.Hero.button || defaultHeroContent.button,
+        services: homePageData.Hero.services || defaultHeroContent.services,
+      };
+    }
+    return defaultHeroContent;
+  }, [homePageData, status]);
+
+  // Helper function to localize href
+  const localizedHref = (href: string) =>
+    href.startsWith("/") ? `/${locale}${href}` : href;
 
   return (
     <div className="bg-hero bg-center bg-cover mb-8 mx-2 md:mx-[30px] rounded-2xl pt-12">
@@ -31,10 +61,10 @@ export default function Hero() {
         {/* hero content */}
         <div className="flex flex-col gap-[55px] max-w-[600px]">
           <h1 className="font-extrabold text-4xl sm:text-5xl md:text-6xl text-[#fff]">
-            Find your next home before the pizza
+            {heroContent.title}
           </h1>
           <div className="flex flex-col gap-5">
-            {heroServices.map((service) => (
+            {heroContent.services.map((service) => (
               <div
                 className="flex flex-col items-start gap-4 sm:flex-row"
                 key={service.id}
@@ -50,7 +80,7 @@ export default function Hero() {
                   <h1 className="font-bold text-lg text-white">
                     {service.title}
                   </h1>
-                  <p className="text-lg  max-w-[480px] text-white">
+                  <p className="text-lg max-w-[480px] text-white">
                     {service.text}
                   </p>
                 </div>
@@ -59,9 +89,9 @@ export default function Hero() {
           </div>
           <Link
             className="bg-main border border-main rounded-lg py-5 font-semibold text-lg sm:text-xl text-white text-center xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
-            href={"/how-it-works"}
+            href={localizedHref("/how-it-works")}
           >
-            Discover all benefits
+            {heroContent.button}
           </Link>
         </div>
       </div>

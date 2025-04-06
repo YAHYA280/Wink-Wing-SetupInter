@@ -1,5 +1,4 @@
 "use client";
-// next
 import { useEffect, useState, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -29,16 +28,47 @@ import CountryDropdown from "./CountryDropdown";
 import CityDropdown from "./CityDropdown";
 import NeighbourhoodDropdown from "./NeighbourhoodDropdown";
 
-/**
- * Types for Mapbox geocoding API
- */
+// -----------------------------
+// Define a type for the SearchMenu content
+// -----------------------------
+export interface SearchMenuContent {
+  id: number;
+  title: string;
+  services: Array<{
+    id: number;
+    icon: string;
+    text: string;
+    title: string;
+  }>;
+  boxSubtitle: string;
+  tablist: Array<{
+    type: string;
+    index: number;
+    title: string;
+  }>;
+  city_dropdown_label: string;
+  neighbourgoods_dropdown_label: string;
+  radius_dropdown_label: string;
+  I_need_to_live_near: string;
+  max_travel_time: string;
+  transport_type: string;
+  button: string;
+}
+
+// -----------------------------
+// Types for Mapbox geocoding API
+// -----------------------------
 interface GeocodingFeature {
   id: string;
   place_name: string;
   center: [number, number];
 }
 
-export default function SearchMenu() {
+export default function SearchMenu({
+  content,
+}: {
+  content: SearchMenuContent;
+}) {
   const router = useRouter();
   const { token } = useAppSelector((state) => state.auth);
 
@@ -124,7 +154,6 @@ export default function SearchMenu() {
     () => selectedNeighbourhood.map((n) => ({ id: n.id })),
     [selectedNeighbourhood]
   );
-
   const radiusValue = useMemo(() => radius.map((r) => r.value), [radius]);
 
   // ----------------------------------------------------------------------------
@@ -261,7 +290,6 @@ export default function SearchMenu() {
           geometry: {
             type: "MultiPolygon",
             coordinates: [
-              // Just a sample geometry
               [
                 [
                   [4.98051, 52.33078],
@@ -313,13 +341,11 @@ export default function SearchMenu() {
     setError(null);
     setAddressError("");
 
-    // If loading, do nothing
     if (isLoading) {
       e.preventDefault();
       return;
     }
 
-    // For Neighborhoods/Radius, city selection is mandatory
     if (type !== "TRAVEL_TIME") {
       if (!selectedCity || selectedCity === "Select a city") {
         setError("Please select a city/country first");
@@ -328,7 +354,6 @@ export default function SearchMenu() {
       }
     }
 
-    // For Travel Time tab, validate address
     if (type === "TRAVEL_TIME") {
       if (!address.trim()) {
         setAddressError("Please enter an address");
@@ -349,7 +374,7 @@ export default function SearchMenu() {
     <div className="w-full md:w-[770px] h-max bg-[#F8F8F8] rounded-xl px-4 md:px-[35px] py-[30px] mb-10">
       <div className="flex flex-col gap-5">
         <h3 className="font-semibold text-lg text-[#484848]">
-          Select location based on
+          {content.boxSubtitle}
         </h3>
 
         {/* TABS */}
@@ -359,8 +384,6 @@ export default function SearchMenu() {
             setSelectedIndex(index);
             setError(null);
             setAddressError("");
-
-            // set search type based on tab
             switch (index) {
               case 0:
                 setType("NEIGHBOURHOODS");
@@ -380,6 +403,7 @@ export default function SearchMenu() {
               className="flex items-center justify-center gap-1 cursor-pointer w-[240px] py-4 outline-none transition-all duration-100"
             >
               <span>
+                {/* You can keep the static SVG icon or adjust as needed */}
                 <svg
                   height="13"
                   viewBox="0 0 10 13"
@@ -390,9 +414,8 @@ export default function SearchMenu() {
                   <path d="M4.37134 12.0156C0.949463 7.09375 0.340088 6.57812 0.340088 4.75C0.340088 2.26562 2.33228 0.25 4.84009 0.25C7.32446 0.25 9.34009 2.26562 9.34009 4.75C9.34009 6.57812 8.70728 7.09375 5.2854 12.0156C5.07446 12.3438 4.58228 12.3438 4.37134 12.0156ZM4.84009 6.625C5.87134 6.625 6.71509 5.80469 6.71509 4.75C6.71509 3.71875 5.87134 2.875 4.84009 2.875C3.7854 2.875 2.96509 3.71875 2.96509 4.75C2.96509 5.80469 3.7854 6.625 4.84009 6.625Z" />
                 </svg>
               </span>
-              Neighbourhoods
+              {content.tablist[0].title}
             </Tab>
-
             <Tab
               selectedClassName="bg-main shadow rounded-lg text-white h-[50px]"
               className="flex items-center justify-center gap-1 cursor-pointer w-[240px] py-4 outline-none transition-all duration-100"
@@ -408,9 +431,8 @@ export default function SearchMenu() {
                   <path d="M7.26001 1.1875C7.26001 0.8125 7.58813 0.53125 7.9397 0.625C10.4475 1.28125 12.3225 3.55469 12.3225 6.25C12.3225 9.46094 9.72095 12.0625 6.51001 12.0625C3.29907 12.0859 0.69751 9.50781 0.69751 6.29688C0.674072 3.57812 2.52563 1.28125 5.03345 0.625C5.40845 0.53125 5.76001 0.8125 5.76001 1.1875V1.5625C5.76001 1.82031 5.57251 2.03125 5.33813 2.10156C3.51001 2.61719 2.19751 4.28125 2.19751 6.25C2.19751 8.64062 4.11938 10.5625 6.51001 10.5625C8.8772 10.5625 10.8225 8.64062 10.8225 6.25C10.8225 4.28125 9.48657 2.61719 7.65845 2.10156C7.42407 2.03125 7.26001 1.82031 7.26001 1.5625V1.1875Z" />
                 </svg>
               </span>
-              Radius
+              {content.tablist[1].title}
             </Tab>
-
             <Tab
               selectedClassName="bg-main shadow rounded-lg text-white h-[50px]"
               className="flex items-center justify-center gap-1 cursor-pointer w-[240px] py-4 outline-none transition-all duration-100"
@@ -428,25 +450,20 @@ export default function SearchMenu() {
                   />
                 </svg>
               </span>
-              Travel Time
+              {content.tablist[2].title}
             </Tab>
           </TabList>
 
           {/* NEIGHBOURHOODS TAB */}
           <TabPanel className="mt-6">
             <div className="flex flex-col gap-4">
-              {/* Country + City */}
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <CountryDropdown />
                 <CityDropdown />
               </div>
-
-              {/* Neighbourhood */}
               <div className="w-full">
                 <NeighbourhoodDropdown />
               </div>
-
-              {/* Map */}
               <div className="w-full h-full">
                 <Map
                   ref={mapRef}
@@ -468,17 +485,14 @@ export default function SearchMenu() {
           {/* RADIUS TAB */}
           <TabPanel className="mt-6">
             <div className="flex flex-col gap-4">
-              {/* Country + City */}
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <CountryDropdown />
                 <CityDropdown />
               </div>
-
-              {/* Radius */}
               <div className="w-full">
                 <div className="flex flex-col gap-1 items-start">
-                  <h3 className="font-semibold text-lg text-[#615D5D]">
-                    Radius
+                  <h3 className="font-semibold text-lg text-[#808080] mb-2">
+                    {content.radius_dropdown_label || "Radius"}
                   </h3>
                   <div className="relative z-20">
                     <div
@@ -514,7 +528,7 @@ export default function SearchMenu() {
                         <div className="p-4">
                           <div className="flex flex-col justify-start items-start">
                             <h3 className="font-semibold text-[#808080] text-[13px] mb-2">
-                              Radius
+                              {content.radius_dropdown_label || "Radius"}
                             </h3>
                             <div className="flex flex-col items-start w-full max-h-96 overflow-y-auto">
                               {radius.length ? (
@@ -567,10 +581,10 @@ export default function SearchMenu() {
           {/* TRAVEL TIME TAB */}
           <TabPanel className="mt-6">
             <div className="flex flex-col gap-4">
-              {/* "I need to live near" input only */}
+              {/* "I need to live near" input */}
               <div className="flex flex-col items-start w-full">
                 <h3 className="font-semibold text-lg text-[#615D5D] mb-1">
-                  I need to live near
+                  {content.I_need_to_live_near}
                 </h3>
                 <div className="relative w-full">
                   <input
@@ -593,7 +607,6 @@ export default function SearchMenu() {
                     <p className="text-red-500 text-sm mt-1">{addressError}</p>
                   )}
 
-                  {/* Suggestions */}
                   {showSuggestions && addressSuggestions.length > 0 && (
                     <div
                       ref={suggestionsRef}
@@ -617,7 +630,7 @@ export default function SearchMenu() {
               <div className="flex flex-col md:flex-row gap-4 items-start w-full">
                 <div className="flex flex-col w-full md:w-1/2">
                   <label className="font-bold text-[16px] leading-[24px] mb-1">
-                    Max travel time
+                    {content.max_travel_time}
                   </label>
                   <select
                     onChange={(e) => setMaxTravelTime(Number(e.target.value))}
@@ -632,7 +645,7 @@ export default function SearchMenu() {
                 </div>
                 <div className="flex flex-col w-full md:w-1/2">
                   <label className="font-bold text-[16px] leading-[24px] mb-1">
-                    Transport type
+                    {content.transport_type}
                   </label>
                   <select
                     onChange={(e) => setTransportType(e.target.value)}
@@ -669,14 +682,12 @@ export default function SearchMenu() {
 
         {/* Bottom Section */}
         <div className="flex flex-col items-center justify-center gap-5 mt-8">
-          {/* Global error (only if city needed or other issues) */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-center text-red-600 px-4 py-3 rounded-lg w-full">
               {error}
             </div>
           )}
 
-          {/* Show sign-up hint if not logged in */}
           {!token && (
             <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-full">
               <span className="text-[#19191A] block text-center">
@@ -686,25 +697,22 @@ export default function SearchMenu() {
           )}
 
           <h3 className="font-semibold text-lg">
-            With this search you can expect
-            <span className="text-main"> {isLoading ? "..." : matches} </span>
+            With this search you can expect{" "}
+            <span className="text-main">{isLoading ? "..." : matches}</span>{" "}
             matches per week.
           </h3>
 
           <Link
             href={token ? "/search" : "/signup"}
-            // Prevents navigation if loading
             onClick={(e) => handleStartSearch(e)}
-            className={`bg-main text-white border border-main text-[15px] md:text-[20px] py-3 px-24 font-semibold rounded-lg transition-all duration-300 ease-in-out w-max
-              ${
-                isLoading
-                  ? "opacity-75 cursor-not-allowed pointer-events-none"
-                  : "xl:hover:bg-transparent xl:hover:text-main"
-              }
-            `}
+            className={`bg-main text-white border border-main text-[15px] md:text-[20px] py-3 px-24 font-semibold rounded-lg transition-all duration-300 ease-in-out w-max ${
+              isLoading
+                ? "opacity-75 cursor-not-allowed pointer-events-none"
+                : "xl:hover:bg-transparent xl:hover:text-main"
+            }`}
             aria-disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "Start your search"}
+            {isLoading ? "Loading..." : content.button}
           </Link>
         </div>
       </div>
