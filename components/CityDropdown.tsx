@@ -1,14 +1,22 @@
 "use client";
 // next
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
 
+// translation service
+import { useSignUpData } from "@/services/translationService";
+
 // types
 import { City } from "@/types/types";
 
-export default function CityDropdown() {
+interface CityDropdownProps {
+  cityLabel?: string; // Optional prop to receive translated label
+}
+
+export default function CityDropdown({ cityLabel }: CityDropdownProps) {
   const [isCityActive, setIsCityActive] = useState<boolean>(false);
 
   const {
@@ -22,6 +30,22 @@ export default function CityDropdown() {
     setSelectedLng,
   } = useUserPreferences();
 
+  // Get translations (use this as a fallback if the prop isn't provided)
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: signupData, status } = useSignUpData();
+
+  // If cityLabel prop is not provided, use the one from API
+  const labelFromApi = useMemo(() => {
+    if (status === "success" && signupData?.SignupLocation) {
+      return signupData.SignupLocation.city;
+    }
+    return "City"; // Default fallback
+  }, [signupData, status]);
+
+  // Use the prop if provided, otherwise use the one from API
+  const displayLabel = cityLabel || labelFromApi;
+
   // turn off dropdown menu when clicking outside of menu
   useEffect(() =>
     window.addEventListener("click", () => setIsCityActive(false))
@@ -29,7 +53,7 @@ export default function CityDropdown() {
 
   return (
     <div className="flex flex-col gap-1 items-start">
-      <h3 className="font-semibold text-lg text-[#615D5D]">City</h3>
+      <h3 className="font-semibold text-lg text-[#615D5D]">{displayLabel}</h3>
       <div className="relative z-30">
         <div
           onClick={(e) => {
@@ -71,7 +95,7 @@ export default function CityDropdown() {
               />
               <div className="flex flex-col justify-start items-start">
                 <h3 className="font-semibold text-[#808080] text-[13px]">
-                  Cities
+                  {displayLabel}s
                 </h3>
                 <div className="flex flex-col items-start w-full">
                   {cities.length ? (
@@ -99,7 +123,7 @@ export default function CityDropdown() {
                     </div>
                   ) : (
                     <h3 className="flex items-center justify-center text-lg font-semibold text-[#484848]">
-                      Cities Not Found
+                      {displayLabel}s Not Found
                     </h3>
                   )}
                 </div>

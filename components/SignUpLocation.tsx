@@ -348,9 +348,11 @@ export default function SignUpLocation({
         <TabPanel>
           <div className="flex flex-col md:flex-row items-center justify-center gap-9">
             <div className="flex flex-col items-center justify-center gap-4 mt-5">
-              <CountryDropdown />
-              <CityDropdown />
-              <NeighbourhoodDropdown />
+              <CountryDropdown countryLabel={locationContent.country} />
+              <CityDropdown cityLabel={locationContent.city} />
+              <NeighbourhoodDropdown
+                neighbourhoodLabel={locationContent.neighbourhoods}
+              />
               <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-[300px]">
                 <span className="text-[#19191A] block text-center">
                   {locationContent.four_searches_text}
@@ -373,7 +375,7 @@ export default function SignUpLocation({
               />
             </div>
           </div>
-          {pathname === "/signup" && (
+          {pathname === `/${locale}/signup` && (
             <button
               onClick={next}
               className="block mx-auto bg-main rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
@@ -389,8 +391,8 @@ export default function SignUpLocation({
         <TabPanel>
           <div className="flex flex-col md:flex-row items-center justify-center gap-9">
             <div className="flex flex-col items-center justify-center gap-4 mt-5">
-              <CountryDropdown />
-              <CityDropdown />
+              <CountryDropdown countryLabel={locationContent.country} />
+              <CityDropdown cityLabel={locationContent.city} />
 
               {/* radius dropdown */}
               <div className="flex flex-col gap-1 items-start">
@@ -490,7 +492,7 @@ export default function SignUpLocation({
             </div>
             {/* map end */}
           </div>
-          {pathname === "/signup" && (
+          {pathname === `/${locale}/signup` && (
             <button
               onClick={next}
               className="block mx-auto bg-main rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
@@ -581,7 +583,7 @@ export default function SignUpLocation({
                     onChange={(e) => setTransportType(e.target.value)}
                     className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
                   >
-                    {transportTypeOptions.map((option) => (
+                    {locationContent.transport_type.map((option) => (
                       <option key={option.id} value={option.value}>
                         {option.label}
                       </option>
@@ -614,7 +616,7 @@ export default function SignUpLocation({
             </div>
           </div>
 
-          {pathname === "/signup" && (
+          {pathname === `/${locale}/signup` && (
             <button
               onClick={handleNext}
               className="block mx-auto rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 bg-main xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"

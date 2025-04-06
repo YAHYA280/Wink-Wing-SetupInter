@@ -10,9 +10,6 @@ export default function FooterDropDown() {
     window.addEventListener("click", () => setDropdownActive(false))
   );
 
-  // Note: The logic for this component is not fully implemented yet.
-  // It will be completed once all necessary data is fetched.
-
   return (
     <div className="relative cursor-pointer">
       <div

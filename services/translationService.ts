@@ -3,6 +3,52 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
+/// FooterData interfaces
+export interface FooterLinkItem {
+  id: number;
+  href: string;
+  title: string;
+}
+
+export interface LinksSection {
+  id: number;
+  title: string;
+  links: FooterLinkItem[];
+}
+
+export interface CityItem {
+  id: number;
+  title: string;
+}
+
+export interface CitiesSection {
+  id: number;
+  title: string;
+  cities: CityItem[];
+}
+
+export interface SocialItem {
+  id: number;
+  href: string;
+  icon: string;
+  title: string;
+}
+
+export interface SocialsSection {
+  id: number;
+  title: string;
+  socials: SocialItem[];
+}
+
+export interface FooterData {
+  language: string;
+  country: string;
+  Links: LinksSection;
+  Cities: CitiesSection[];
+  Socials: SocialsSection;
+  locale?: string;
+}
+
 // Type definitions for various content types
 export interface NavbarData {
   links: Array<{ id: number; title: string; href: string }>;
@@ -30,7 +76,33 @@ export interface ServiceItem {
   text: string;
   icon: string;
 }
+// Seach city above footer
+export interface SearchCity {
+  title: string;
+  placeholder: string;
+  button: string;
+}
 
+// Pricing Pga hero section
+
+// PricingBox nested interface
+export interface PricingBoxData {
+  title: string;
+  one_month: string;
+  two_month: string;
+  three_month: string;
+  button: string;
+  text: string;
+  text_two: string;
+  referralCode: string;
+}
+
+// Main pricing data interface
+export interface PricingData {
+  subtitle: string;
+  title: string;
+  PricingBox: PricingBoxData;
+}
 // sign up compoent
 
 export interface SignUpData {
@@ -355,4 +427,15 @@ export function useHowItWorksData() {
 
 export function useSignUpData() {
   return useStrapiContent<SignUpData>("signup");
+}
+
+export function useSearchCity() {
+  return useStrapiContent<SearchCity>("search-city");
+}
+
+export function usePricingData() {
+  return useStrapiContent<PricingData>("pricing");
+}
+export function useFooterData() {
+  return useStrapiContent<FooterData>("footer");
 }

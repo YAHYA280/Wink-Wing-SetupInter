@@ -8,20 +8,24 @@ import { useState, useRef, useEffect } from "react";
 const languages = [
   { code: "en", name: "En", flag: "/en-flag.png" },
   { code: "nl", name: "Nl", flag: "/nl-flag.png" },
+  { code: "fr", name: "Français", flag: "/fr-flag.png" },
 ];
 
 export default function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Extract the current locale from the pathname
-  const currentLocale = pathname.split("/")[1];
+  // Extract the current locale from the pathname or default to "en"
+  const currentLocale = pathname.split("/")[1] || "en";
 
-  // Find the current language object
-  const currentLanguage =
-    languages.find((lang) => lang.code === currentLocale) || languages[0];
+  // Check if the current locale is a valid language code
+  const isValidLocale = languages.some((lang) => lang.code === currentLocale);
+
+  // Find the current language object or default to English
+  const currentLanguage = isValidLocale
+    ? languages.find((lang) => lang.code === currentLocale)
+    : languages[0];
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,61 +46,90 @@ export default function LanguageSwitcher() {
 
   // Create path for the target locale
   const createPathForLocale = (locale: string) => {
-    const pathSegments = pathname.split("/");
-    pathSegments[1] = locale; // Replace the locale part
-    return pathSegments.join("/");
+    const segments = pathname.split("/");
+
+    if (isValidLocale) {
+      // Replace the locale part in the path
+      segments[1] = locale;
+    } else {
+      // Add the locale if it doesn't exist
+      segments.splice(1, 0, locale);
+    }
+
+    return segments.join("/");
   };
 
   return (
-    <div className="relative z-50" ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Current Language Button */}
       <button
-        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-100 transition-all"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsOpen(!isOpen);
-        }}
-        aria-label="Change language"
+        className="flex items-center justify-between gap-2 px-3 py-2 bg-white rounded-lg w-[190px]"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
-        <Image
-          src={currentLanguage.flag}
-          alt={currentLanguage.name}
-          width={24}
-          height={24}
-          className="rounded-sm"
-        />
-        <span className="text-sm font-medium hidden sm:inline">
-          {currentLanguage.name}
-        </span>
+        <div className="flex items-center gap-2">
+          {currentLanguage && (
+            <>
+              <Image
+                src={currentLanguage.flag}
+                alt={currentLanguage.name}
+                width={24}
+                height={24}
+                className="rounded-sm"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                {currentLanguage.name}
+              </span>
+            </>
+          )}
+        </div>
+        <svg
+          className={`w-5 h-5 ml-2 -mr-1 transition-transform duration-200 ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50">
-          {languages.map((language) => (
-            <Link
-              key={language.code}
-              href={createPathForLocale(language.code)}
-              onClick={() => setIsOpen(false)}
-              className={`
-                flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left
-                ${
-                  language.code === currentLocale
-                    ? "bg-gray-50 font-medium"
-                    : ""
-                }
-              `}
-            >
-              <Image
-                src={language.flag}
-                alt={language.name}
-                width={20}
-                height={20}
-                className="rounded-sm"
-              />
-              <span>{language.name}</span>
-            </Link>
-          ))}
+        <div className="absolute right-0 z-10 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="py-1 max-h-60 overflow-auto">
+            {languages.map((language) => (
+              <Link
+                key={language.code}
+                href={createPathForLocale(language.code)}
+                className={`
+                  flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left
+                  ${
+                    language.code === currentLocale
+                      ? "bg-gray-50 font-medium"
+                      : ""
+                  }
+                `}
+                onClick={() => setIsOpen(false)}
+              >
+                <Image
+                  src={language.flag}
+                  alt={language.name}
+                  width={20}
+                  height={20}
+                  className="rounded-sm"
+                />
+                <span>{language.name}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

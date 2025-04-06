@@ -4,17 +4,42 @@ import { IoSearch } from "react-icons/io5";
 
 //next
 import Link from "next/link";
-import { FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
+
+// service for translations
+import { useSearchCity } from "@/services/translationService";
+
+// Default city search content (fallback)
+const defaultCitySearchContent = {
+  title: "Enter your desired city and let WinkWing do the rest",
+  placeholder: "Type your city",
+  button: "Search now",
+};
 
 export default function CitySearch() {
   const { searchCityQuery, setSearchCityQuery, setSelectedCity } =
     useUserPreferences();
 
   const router = useRouter();
+
+  // Get translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: citySearchData, status } = useSearchCity();
+
+  // Merge API data with defaults using useMemo
+  const citySearchContent = useMemo(() => {
+    if (status === "success" && citySearchData) {
+      return {
+        ...citySearchData,
+      };
+    }
+    return defaultCitySearchContent;
+  }, [citySearchData, status]);
 
   const handleSubmitSearch = (e: FormEvent) => {
     if (searchCityQuery) {
@@ -28,17 +53,9 @@ export default function CitySearch() {
     <div className="w-full bg-searchCity bg-cover bg-center">
       <div className="flex flex-col lg:flex-row lg:justify-between items-center justify-center gap-[70px] py-24 lg:py-[120px] px-2 max-w-[1164px] mx-auto text-white">
         <div className="flex flex-col items-center justify-center lg:items-start gap-9">
-          {/* reviews */}
-          {/* <div className="flex flex-wrap justify-center items-center gap-5">
-            <h1 className="text-[20px] font-semibold text-white">Excelent</h1>
-            <img src="/hero-review.svg" alt="Hero Review" />
-            <h3 className="font-medium text-lg text-white">1,215 Reviews on</h3>
-            <img src="/searchcity-trustpilot.svg" alt="TrustPilot" />
-          </div> */}
-
           {/* title */}
           <h1 className="font-extrabold text-4xl leading-[41px] text-center lg:text-left text-white max-w-[490px]">
-            Enter your desired city and let WinkWing do the rest
+            {citySearchContent.title}
           </h1>
         </div>
         <form
@@ -54,7 +71,7 @@ export default function CitySearch() {
             {/* Input Field */}
             <input
               className="bg-transparent border-[3px] outline-none text-[16px] border-white rounded-l-[38px] text-white placeholder:text-white pl-[40px] py-2 w-[200px] xs:w-[270px] h-[46px]"
-              placeholder="Type your city"
+              placeholder={citySearchContent.placeholder}
               type="text"
               value={searchCityQuery}
               onChange={(e) => setSearchCityQuery(e.target.value)}
@@ -68,7 +85,7 @@ export default function CitySearch() {
             type="submit"
             onClick={handleSubmitSearch}
           >
-            Search now
+            {citySearchContent.button}
           </button>
         </form>
       </div>

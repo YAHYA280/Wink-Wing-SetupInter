@@ -1,12 +1,16 @@
 "use client";
 // next
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // data
 import { countryOptions } from "@/data/signupOptions";
 
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
+
+// translation service
+import { useSignUpData } from "@/services/translationService";
 
 type CountryCode = "NL" | "UK";
 
@@ -15,7 +19,13 @@ const countryCoordinates: Record<CountryCode, { lat: number; lng: number }> = {
   UK: { lat: 51.5074, lng: -0.1278 }, // United Kingdom (London)
 };
 
-export default function CountryDropdown() {
+interface CountryDropdownProps {
+  countryLabel?: string; // Optional prop to receive translated label
+}
+
+export default function CountryDropdown({
+  countryLabel,
+}: CountryDropdownProps) {
   // Active status of the dropdown
   const [isCountryActive, setIsCountryActive] = useState(false);
 
@@ -28,6 +38,22 @@ export default function CountryDropdown() {
     setSelectedLng,
   } = useUserPreferences();
 
+  // Get translations (use this as a fallback if the prop isn't provided)
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: signupData, status } = useSignUpData();
+
+  // If countryLabel prop is not provided, use the one from API
+  const labelFromApi = useMemo(() => {
+    if (status === "success" && signupData?.SignupLocation) {
+      return signupData.SignupLocation.country;
+    }
+    return "Country"; // Default fallback
+  }, [signupData, status]);
+
+  // Use the prop if provided, otherwise use the one from API
+  const displayLabel = countryLabel || labelFromApi;
+
   useEffect(() => {
     const closeDropdown = () => setIsCountryActive(false);
     window.addEventListener("click", closeDropdown);
@@ -39,7 +65,7 @@ export default function CountryDropdown() {
 
   return (
     <div className="flex flex-col gap-1 items-start">
-      <h3 className="font-semibold text-lg text-[#615D5D]">Country</h3>
+      <h3 className="font-semibold text-lg text-[#615D5D]">{displayLabel}</h3>
       <div className="relative z-40">
         <div
           onClick={(e) => {
@@ -75,7 +101,7 @@ export default function CountryDropdown() {
             <div className="p-4">
               <div className="flex flex-col justify-start items-start">
                 <h3 className="font-semibold text-[#808080] text-[13px]">
-                  Countries
+                  {displayLabel}s
                 </h3>
                 <div className="flex flex-col items-start w-full">
                   <div className="flex flex-col items-start justify-start max-h-96 overflow-y-scroll w-full">

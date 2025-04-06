@@ -1,35 +1,77 @@
 "use client";
 // next
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 
 // components
 import PricingCard from "./PricingCard";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
-import { createCheckoutSession } from "@/store/features/paymentSlice";
+import {
+  createCheckoutSession,
+  clearError,
+} from "@/store/features/paymentSlice";
 
 // icons
 import { GrClose } from "react-icons/gr";
-import { clearError } from "@/store/features/paymentSlice";
+
+// service for translations
+import { usePricingData } from "@/services/translationService";
 
 export default function PricingBox() {
+  // Get translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: pricingData, status } = usePricingData();
+
+  // Pricing content from API with fallbacks
+  const pricingContent = useMemo(() => {
+    if (status === "success" && pricingData && pricingData.PricingBox) {
+      return {
+        title:
+          pricingData.PricingBox.title ||
+          "Sign up to be the first to receive matches.",
+        one_month: pricingData.PricingBox.one_month || "1 month",
+        two_month: pricingData.PricingBox.two_month || "2 month",
+        three_month: pricingData.PricingBox.three_month || "3 month",
+        button: pricingData.PricingBox.button || "Create search query",
+        text:
+          pricingData.PricingBox.text || "Try Winkwing risk-free for 14 days.",
+        text_two:
+          pricingData.PricingBox.text_two ||
+          "If you are not satisfied, you will simply get your money back.",
+        referralCode: pricingData.PricingBox.referralCode || "Referral Code",
+      };
+    }
+    return {
+      title: "Sign up to be the first to receive matches.",
+      one_month: "1 month",
+      two_month: "2 month",
+      three_month: "3 month",
+      button: "Create search query",
+      text: "Try Winkwing risk-free for 14 days.",
+      text_two:
+        "If you are not satisfied, you will simply get your money back.",
+      referralCode: "Referral Code",
+    };
+  }, [pricingData, status]);
+
   const pricings = [
     {
       id: 1,
-      month: "1 month",
+      month: pricingContent.one_month,
       price: "€29.95",
     },
     {
       id: 2,
-      month: "2 month",
+      month: pricingContent.two_month,
       price: "€19.95",
     },
     {
       id: 3,
-      month: "3 month",
+      month: pricingContent.three_month,
       price: "€16.95",
     },
   ];
@@ -87,8 +129,6 @@ export default function PricingBox() {
 
   const handleCheckout = async () => {
     if (!token) {
-      // alert("Please log in first!");
-      // router.push("/login");
       router.push("/signup");
       return;
     }
@@ -152,7 +192,7 @@ export default function PricingBox() {
       <div className="w-full md:w-[600px] bg-white shadow rounded-[20px] p-4 md:p-12">
         <div className="flex flex-col items-center justify-center text-center">
           <h3 className="text-[16px] leading-[24px] text-[#2F2F2F] mb-8">
-            Sign up to be the first to receive matches.
+            {pricingContent.title}
           </h3>
           <div className="w-full">
             <div className="flex flex-col items-center justify-center gap-4">
@@ -170,7 +210,7 @@ export default function PricingBox() {
                 <input
                   className={`flex items-center justify-between rounded-[10px] border p-3 outline-none w-full ${getReferralCodeStyles()}`}
                   type="text"
-                  placeholder="Referral Code"
+                  placeholder={pricingContent.referralCode}
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
                 />
@@ -262,7 +302,7 @@ export default function PricingBox() {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    Create search query with discount
+                    {pricingContent.button} with discount
                   </span>
                 </>
               ) : (
@@ -290,17 +330,15 @@ export default function PricingBox() {
                       />
                     </svg>
                   </span>
-                  Create search query
+                  {pricingContent.button}
                 </>
               )}
             </button>
             <div className="text-[16px] leading-[24px]">
               <Link className="text-[#0A806C] underline" href="/">
-                Try Winkwing risk-free for 14 days.
+                {pricingContent.text}
               </Link>
-              <h3 className="text-[#0A806C]">
-                If you are not satisfied, you will simply get your money back.
-              </h3>
+              <h3 className="text-[#0A806C]">{pricingContent.text_two}</h3>
             </div>
             {referralStatus === "valid" && referralCode !== "" && (
               <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-left">

@@ -2,7 +2,9 @@
 // next
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useMemo } from "react";
+
+import { usePathname } from "next/navigation";
 
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
@@ -10,6 +12,9 @@ import { useUserPreferences } from "@/context/userPreferencesContext";
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { clearError, register } from "@/store/features/authSlice";
+
+// translation service
+import { useSignUpData } from "@/services/translationService";
 
 // icons
 import { GrClose } from "react-icons/gr";
@@ -26,6 +31,40 @@ export default function SignUpCredentials() {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  // Get the current locale
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch signup translations
+  const { data: signupData, status } = useSignUpData();
+
+  // Default content for fallback
+  const defaultCredentialsContent = {
+    type_of_user: [
+      { id: 1, label: "Student", value: "STUDENT" },
+      { id: 2, label: "Expat", value: "EXPAT" },
+      { id: 3, label: "Family", value: "FAMILY" },
+      { id: 4, label: "Investor", value: "INVESTOR" },
+      { id: 5, label: "Business", value: "BUSINESS" },
+      { id: 6, label: "Other", value: "OTHER" },
+    ],
+    name_placeholder: "Your name",
+    email_placeholder: "E-mail",
+    password_placeholder: "Password",
+    checkbox_text: "I agree to the terms and conditions",
+    btn: "Signup",
+  };
+
+  // Merge API data with defaults using useMemo
+  const credentialsContent = useMemo(() => {
+    if (status === "success" && signupData?.SignupCredentials) {
+      return {
+        ...signupData.SignupCredentials,
+      };
+    }
+    return defaultCredentialsContent;
+  }, [signupData, status]);
 
   const {
     radius,
@@ -53,9 +92,10 @@ export default function SignUpCredentials() {
   const { type, selectedCountryValue } = useUserPreferences();
 
   const [isUserTypeActive, setIsUserTypeActive] = useState<boolean>(false);
+  const [selectedUserType, setSelectedUserType] = useState<string>(
+    credentialsContent.type_of_user[0]?.label || "Select user type"
+  );
 
-  const [selectedUserType, setSelectedUserType] =
-    useState<string>("Type of user");
   const [selectedUserTypeValue, setSelectedUserTypeValue] =
     useState<string>("");
 
@@ -252,7 +292,7 @@ export default function SignUpCredentials() {
             }
           >
             <div className="flex flex-col items-start font-medium text-lg pt-2">
-              {userTypeOptions.map((option) => (
+              {credentialsContent.type_of_user.map((option) => (
                 <button
                   type="button"
                   className="xl:hover:bg-main xl:hover:text-white w-full text-left px-2 rounded-lg transition-all duration-300"
@@ -278,7 +318,7 @@ export default function SignUpCredentials() {
           <input
             className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
             type="text"
-            placeholder="Your name"
+            placeholder={credentialsContent.name_placeholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -288,7 +328,7 @@ export default function SignUpCredentials() {
             <input
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
               type="email"
-              placeholder="E-mail"
+              placeholder={credentialsContent.email_placeholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -297,7 +337,7 @@ export default function SignUpCredentials() {
             <input
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
               type="password"
-              placeholder="Password"
+              placeholder={credentialsContent.password_placeholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -308,10 +348,17 @@ export default function SignUpCredentials() {
             <div className="flex items-center gap-2">
               <input type="checkbox" required aria-required="true" />
               <span className="flex items-center gap-1 font-semibold text-[15px] leading-[24px] text-[#808080]">
-                I agree to the
+                {
+                  credentialsContent.checkbox_text.split(
+                    "terms and conditions"
+                  )[0]
+                }
                 <Link className="text-main xl:hover:underline" href="/">
                   terms and conditions
                 </Link>
+                {credentialsContent.checkbox_text.split(
+                  "terms and conditions"
+                )[1] || ""}
               </span>
             </div>
             <button
@@ -319,7 +366,7 @@ export default function SignUpCredentials() {
               className="bg-main rounded-lg border border-main font-semibold text-[16px] leading-[24px] w-full lg:w-[290px] py-2 px-9 text-white xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
               type="submit"
             >
-              {loading ? "Loading..." : "Signup"}
+              {loading ? "Loading..." : credentialsContent.btn}
             </button>
           </div>
         </form>

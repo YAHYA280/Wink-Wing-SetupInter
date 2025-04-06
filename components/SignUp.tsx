@@ -14,64 +14,6 @@ const defaultSignupContent = {
   subtitle: "Find your new home the easy way",
   title: "Sign up for WinkWing today.",
   text: "Try Winkwing 14 days risk free. If you're not satisfied you'll always get your money back. Just email us at info@winkwing.com",
-  SignupLocation: {
-    subtitle: "Find your new home the easy way",
-    tablist: [
-      { type: "NEIGHBOURHOODS", index: 0, title: "Neighbourhoods" },
-      { type: "RADIUS", index: 1, title: "Radius" },
-      { type: "TRAVEL_TIME", index: 2, title: "Travel Time" },
-    ],
-    country: "Country",
-    city: "City",
-    neighbourhoods: "Neighbourhoods",
-    four_searches_text: "👉Add up to 4 searches after signing up.",
-    radius: "Radius",
-    i_need_to_live_near: "I need to live near",
-    I_need_to_live_near_placeholder: "Enter address",
-    max_travel_time_label: "Max travel time",
-    transport_type_label: "Transport type",
-    transport_type: [
-      { id: 1, label: "walking", value: "WALKING" },
-      { id: 2, label: "cycling", value: "CYCLING" },
-      { id: 3, label: "driving", value: "DRIVING" },
-      { id: 4, label: "public transport", value: "PUBLIC_TRANSPORT" },
-    ],
-  },
-  SignupRequirements: {
-    min_rental_price: "Minimum rental price",
-    max_rental_price: "Maximum rental price",
-    bedrooms: "Bedrooms",
-    surface: "Surface",
-  },
-  SignupDetails: {
-    furnished_label: "Furnished",
-    furnished: [
-      { id: 1, label: "Doesn't matter", value: null },
-      { id: 2, label: "Furnished", value: "Furnished" },
-      { id: 3, label: "Unfurnished", value: "Unfurnished" },
-    ],
-    additional_features_label: "Additional features",
-    additional_features: null,
-    also_search_for_label: "Also search for",
-    also_search_for: null,
-    show_only_properties_for_label: "Show only properties for",
-    show_only_properties_for: null,
-  },
-  SignupCredentials: {
-    type_of_user: [
-      { id: 1, label: "Student", value: "STUDENT" },
-      { id: 2, label: "Expat", value: "EXPAT" },
-      { id: 3, label: "Family", value: "FAMILY" },
-      { id: 4, label: "Investor", value: "INVESTOR" },
-      { id: 5, label: "Business", value: "BUSINESS" },
-      { id: 6, label: "Other", value: "OTHER" },
-    ],
-    name_placeholder: "Your name",
-    email_placeholder: "E-mail",
-    password_placeholder: "Password",
-    checkbox_text: "I agree to the terms and conditions",
-    btn: "Signup",
-  },
 };
 
 export default function SignUp({ bg }: { bg: string }) {
@@ -100,12 +42,13 @@ export default function SignUp({ bg }: { bg: string }) {
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
   const { data: signupData, status } = useSignUpData();
 
-  // Merge API data with defaults using useMemo
-  const signupContent = useMemo(() => {
+  // Merge API data with defaults using useMemo for just the main component data
+  const mainContent = useMemo(() => {
     if (status === "success" && signupData) {
       return {
-        ...defaultSignupContent,
-        ...signupData,
+        subtitle: signupData.subtitle || defaultSignupContent.subtitle,
+        title: signupData.title || defaultSignupContent.title,
+        text: signupData.text || defaultSignupContent.text,
       };
     }
     return defaultSignupContent;
@@ -116,21 +59,22 @@ export default function SignUp({ bg }: { bg: string }) {
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="flex flex-col items-center justify-center gap-4 text-center lg:text-left lg:items-start relative to-zinc-100">
           <h5 className="text-[16px] leading-[24px] text-main">
-            {signupContent.subtitle}
+            {mainContent.subtitle}
           </h5>
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-3xl xs:text-4xl md:text-5xl md:leading-[60px] text-[#003956]">
-            {signupContent.title.split("WinkWing")[0]}
+            {/* Handle WinkWing in the title by splitting and rendering with the logo */}
+            {mainContent.title.split("WinkWing")[0]}
             <img
               className="w-[250px] mt-[10px]"
               src="/winkwing-logo.svg"
               alt="Logo"
             />{" "}
-            {signupContent.title.includes("WinkWing")
-              ? signupContent.title.split("WinkWing")[1]
+            {mainContent.title.includes("WinkWing")
+              ? mainContent.title.split("WinkWing")[1]
               : ""}
           </h1>
           <p className="text-[16px] leading-[24px] max-w-[730px]">
-            {signupContent.text}
+            {mainContent.text}
           </p>
         </div>
         {/* stepper */}

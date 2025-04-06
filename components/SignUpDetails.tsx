@@ -1,6 +1,7 @@
 "use client";
 // next
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
@@ -10,6 +11,9 @@ import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 
 // data
 import { furnishedOptions } from "@/data/signupOptions";
+
+// translation service
+import { useSignUpData } from "@/services/translationService";
 
 export default function SignUpDetails() {
   const {
@@ -25,8 +29,39 @@ export default function SignUpDetails() {
     setSelectedShowOnlyPropertiesFor,
   } = useUserPreferences();
 
-  const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
+  // Get the current locale and fetch translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: signupData, status } = useSignUpData();
 
+  // Default content for fallback
+  const defaultDetailsContent = {
+    furnished_label: "Furnished",
+    furnished: [
+      { id: 1, label: "Doesn't matter", value: null },
+      { id: 2, label: "Furnished", value: "Furnished" },
+      { id: 3, label: "Unfurnished", value: "Unfurnished" },
+    ],
+    additional_features_label: "Additional features",
+    additional_features: null,
+    also_search_for_label: "Also search for",
+    also_search_for: null,
+    show_only_properties_for_label: "Show only properties for",
+    show_only_properties_for: null,
+  };
+
+  // Merge API data with defaults using useMemo
+  const detailsContent = useMemo(() => {
+    if (status === "success" && signupData?.SignupDetails) {
+      return {
+        ...defaultDetailsContent,
+        ...signupData.SignupDetails,
+      };
+    }
+    return defaultDetailsContent;
+  }, [signupData, status]);
+
+  const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
   const [selectedFurnished, setSelectedFurnished] =
     useState<string>("Doesn't matter");
 
@@ -81,7 +116,7 @@ export default function SignUpDetails() {
           className="flex flex-col relative"
         >
           <label className="font-bold text-[16px] leading-[24px] w-max">
-            Furnished
+            {detailsContent.furnished_label}
           </label>
           <button
             onClick={() => setIsFurnishedActive(!isFurnishedActive)}
@@ -114,7 +149,7 @@ export default function SignUpDetails() {
             }
           >
             <div className="flex flex-col items-start font-medium text-lg pt-2">
-              {furnishedOptions.map((option) => (
+              {detailsContent.furnished.map((option) => (
                 <button
                   className="xl:hover:bg-main xl:hover:text-white w-full text-left px-2 rounded-lg transition-all duration-300"
                   key={option.id}
@@ -139,7 +174,7 @@ export default function SignUpDetails() {
         </div>
         <div className="flex flex-col relative">
           <div className="flex items-center gap-1 font-bold text-[16px] leading-[24px] w-max">
-            Additional features
+            {detailsContent.additional_features_label}
             <button className="group relative">
               <svg
                 width="17"
@@ -172,7 +207,7 @@ export default function SignUpDetails() {
                     id="image0_4_446"
                     width="76"
                     height="90"
-                    xlinkHref="data:image/png;base64,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"
+                    xlinkHref="data:image/png;base64,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"
                   />
                 </defs>
               </svg>
@@ -201,7 +236,7 @@ export default function SignUpDetails() {
       <div className="flex flex-col md:flex-row gap-7">
         <div className="flex flex-col">
           <label className="font-bold text-[16px] leading-[24px] w-max">
-            Also search
+            {detailsContent.also_search_for_label}
           </label>
           <MultiSelect
             value={selectedAlsoSearchFor}
@@ -218,7 +253,7 @@ export default function SignUpDetails() {
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-1 font-bold text-[16px] leading-[24px] w-max">
-            Show only properties for
+            {detailsContent.show_only_properties_for_label}
             <button className="group relative">
               <svg
                 width="17"
@@ -251,7 +286,7 @@ export default function SignUpDetails() {
                     id="image0_4_446"
                     width="76"
                     height="90"
-                    xlinkHref="data:image/png;base64,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"
+                    xlinkHref="data:image/png;base64,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"
                   />
                 </defs>
               </svg>
