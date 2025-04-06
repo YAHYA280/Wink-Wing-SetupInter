@@ -3,6 +3,109 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
+//Dashboard Page
+
+export interface DashboardData {
+  TrialMessage: {
+    id: number;
+    text: string;
+  };
+  DashboardMovingGuide: {
+    id: number;
+    title: string;
+    text: string;
+    button: string;
+    first_guide: string;
+    second_guide: string;
+    third_guide: string;
+    forth_guide: string;
+    fifth_guide: string;
+    sixth_guide: string;
+    seventh_guide: string;
+    eighth_guide: string;
+    ninth_guide: string;
+    tenth_guide: string;
+  };
+  DashboardInfo: {
+    id: number;
+    MovingGuide: {
+      id: number;
+      title: string;
+    };
+    Notifications: {
+      id: number;
+      title: string;
+      email: string;
+      whatsapp: string;
+      enable_btn: string;
+      disable_btn: string;
+    };
+    SearchBuddy: {
+      id: number;
+      title: string;
+      btn: string | null;
+    };
+    ExpectedMatchesPerWeek: {
+      id: number;
+      title: string;
+    };
+    DaysSearching: {
+      id: number;
+      title: string;
+      searching: string;
+    };
+    StandardViewingResponse: {
+      id: number;
+      title: string;
+      btn: string;
+    };
+  };
+  DashboardServices: {
+    id: number;
+    ServiceOne: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+      button: string;
+    };
+    ServiceTwo: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+      button: string;
+    };
+    ServiceThree: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+      button: string;
+    };
+    ServiceFour: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+      button: string;
+    };
+    ServiceFive: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+    };
+    ServiceSix: {
+      id: number;
+      icon: string;
+      title: string;
+      text: string;
+      button: string;
+    };
+  };
+}
+
 /// FooterData interfaces
 export interface FooterLinkItem {
   id: number;
@@ -292,6 +395,68 @@ export function useStrapiContent<T>(contentType: string) {
   return { data, status, error, refetch: fetchContent };
 }
 
+// Helper function for fetching complex nested content that requires multiple requests
+export function useStrapiMultiPartContent<T>(
+  contentType: string,
+  parts: string[]
+) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "en"; // Extract locale from URL
+
+  const [data, setData] = useState<T | null>(null);
+  const [status, setStatus] = useState<FetchStatus>("idle");
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchContent = useCallback(async () => {
+    try {
+      setStatus("loading");
+      const apiUrl =
+        process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
+      const apiToken = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "";
+
+      // Create an array of promises for each part of the data
+      const requests = parts.map((part) =>
+        axios.get(
+          `${apiUrl}/api/${contentType}?populate[${part}][populate]=*&locale=${locale}`,
+          {
+            headers: {
+              Authorization: `Bearer ${apiToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        )
+      );
+
+      // Execute all requests in parallel
+      const responses = await Promise.all(requests);
+
+      // Combine all response data
+      const combinedData = responses.reduce((combined, response) => {
+        if (response.data && response.data.data) {
+          return { ...combined, ...response.data.data };
+        }
+        return combined;
+      }, {});
+
+      setData(combinedData as T);
+      setStatus("success");
+      console.log(`Successfully fetched ${contentType} data:`, combinedData);
+    } catch (err) {
+      console.error(`Error fetching ${contentType}:`, err);
+      setError(
+        err instanceof Error ? err : new Error("An unknown error occurred")
+      );
+      setStatus("error");
+    }
+  }, [contentType, locale, parts]);
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
+
+  return { data, status, error, refetch: fetchContent };
+}
+
 // Default data for development fallbacks
 function getDefaultData(contentType: string): any {
   switch (contentType) {
@@ -438,4 +603,13 @@ export function usePricingData() {
 }
 export function useFooterData() {
   return useStrapiContent<FooterData>("footer");
+}
+
+export function useDashboardData() {
+  return useStrapiMultiPartContent<DashboardData>("dashboard", [
+    "TrialMessage",
+    "DashboardMovingGuide",
+    "DashboardInfo",
+    "DashboardServices",
+  ]);
 }
