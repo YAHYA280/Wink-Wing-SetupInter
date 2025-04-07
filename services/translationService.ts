@@ -3,6 +3,69 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
+// Interface for Moving Guide Data
+
+export interface MovingGuideData {
+  AddSearchBuddy: {
+    id: number;
+    title: string;
+    text: string;
+    btn: string;
+  };
+  ActivateWhatsAppNotifications: {
+    id: number;
+    title: string;
+    text: string;
+    wa_notifications_title: string;
+    wa_notifications_text: string;
+    wa_notification_btn: string;
+    email_notifications_title: string;
+    email_notifications_text: string;
+  };
+  PrepareYourStandardResponse: {
+    id: number;
+    title: string;
+    text: string;
+    checkbox_text: string;
+    btn: string;
+  };
+  CollectAllNecessaryDocuments: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  SpreadTheWord: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  WriteAnIntroductionLetter: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  SignUpForFacebookGroups: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  SignUpForNewConstructionProjects: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  CleanUpYourOnlinePresence: {
+    id: number;
+    title: string;
+    text: string;
+  };
+  ReadOurViewingTips: {
+    id: number;
+    title: string;
+    text: string;
+  };
+}
+
 //Dashboard Page
 
 export interface DashboardData {
@@ -618,4 +681,7 @@ export function useDashboardData() {
     "DashboardInfo",
     "DashboardServices",
   ]);
+}
+export function useMovingGuideData() {
+  return useStrapiContent<MovingGuideData>("moving-guide");
 }
