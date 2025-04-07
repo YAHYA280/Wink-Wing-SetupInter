@@ -1,7 +1,7 @@
 "use client";
 // next
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 // react countdown
 import Countdown from "react-countdown";
@@ -10,6 +10,9 @@ import Countdown from "react-countdown";
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { setOtp } from "@/store/features/authSlice";
 
+// translation service
+import { useOtpCodeData } from "@/services/translationService";
+
 export default function ResetPasswordCode() {
   const [otpCode, setOtpCode] = useState<string>("");
 
@@ -17,6 +20,33 @@ export default function ResetPasswordCode() {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: otpCodeData, status } = useOtpCodeData();
+
+  // Default content for fallback
+  const defaultContent = {
+    subtitle: "Find your new home the easy way",
+    title: "OTP Code",
+    text: "Forgotten your password? Enter your OTP code below, and you can change your password.",
+    expireMessage: "OTP Code expires in:",
+    button: "Next",
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && otpCodeData) {
+      return {
+        ...defaultContent,
+        ...otpCodeData,
+      };
+    }
+    return defaultContent;
+  }, [otpCodeData, status]);
 
   const countdownTime = 10 * 60 * 1000;
 
@@ -31,19 +61,21 @@ export default function ResetPasswordCode() {
       <div className="flex flex-col items-center md:justify-center gap-8 min-h-screen py-24 px-2 bg-[#FFF7F5]">
         <div className="flex flex-col items-center text-center md:text-left md:items-start gap-4">
           <h5 className="text-[16px] leading-[24px] text-main">
-            Find your new home the easy way
+            {content.subtitle}
           </h5>
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-bold font-arial text-[#003956] text-3xl xs:text-4xl md:text-5xl">
-            OTP Code
+            {content.title}
           </h1>
         </div>
-        <div className="w-full md:w-[730px] bg-white  md:h-max rounded-lg p-6 relative z-10">
+        <div className="w-full md:w-[730px] bg-white md:h-max rounded-lg p-6 relative z-10">
           <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
             <h4 className="text-[16px] leading-[24px] md:text-left">
-              Forgotten your password? Enter your OTP code below, and you can
-              change your password.
+              {content.text}
             </h4>
-            <form className="flex flex-col gap-4 w-full">
+            <form
+              className="flex flex-col gap-4 w-full"
+              onSubmit={handleOtpCodeSubmit}
+            >
               <input
                 className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
                 type="number"
@@ -54,7 +86,7 @@ export default function ResetPasswordCode() {
               />
               <div className="flex items-end justify-end">
                 <h1 className="flex items-center gap-1 font-medium text-lg">
-                  OTP Code expires in:{" "}
+                  {content.expireMessage}{" "}
                   <span>
                     <Countdown
                       date={Date.now() + countdownTime}
@@ -71,10 +103,10 @@ export default function ResetPasswordCode() {
 
               <button
                 disabled={loading}
-                onClick={handleOtpCodeSubmit}
+                type="submit"
                 className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
               >
-                {loading ? "Loading..." : "Next"}
+                {loading ? "Loading..." : content.button}
               </button>
             </form>
           </div>

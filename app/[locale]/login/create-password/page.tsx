@@ -1,7 +1,7 @@
 "use client";
 // next
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 // react-icons
 import { GrClose } from "react-icons/gr";
@@ -14,6 +14,9 @@ import {
   setError,
 } from "@/store/features/authSlice";
 
+// translation service
+import { useChangePasswordData } from "@/services/translationService";
+
 export default function CreateNewPassword() {
   const [password, setPassword] = useState<string>("");
   const [repeatPassword, setRepeatPassword] = useState<string>("");
@@ -22,6 +25,34 @@ export default function CreateNewPassword() {
   const { loading, error, otp, email } = useAppSelector((state) => state.auth);
 
   const router = useRouter();
+
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: changePasswordData, status } = useChangePasswordData();
+
+  // Default content for fallback
+  const defaultContent = {
+    subtitle: "Find your new home the easy way",
+    title: "Change password",
+    text: "Forgotten your password? Enter your email address below, and we'll email instructions for setting a new one.",
+    password_placeholder: "New password",
+    repeatpassword_placeholder: "Repeat password",
+    button: "Submit",
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && changePasswordData) {
+      return {
+        ...defaultContent,
+        ...changePasswordData,
+      };
+    }
+    return defaultContent;
+  }, [changePasswordData, status]);
 
   const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
@@ -59,17 +90,16 @@ export default function CreateNewPassword() {
       <div className="flex flex-col items-center md:justify-center gap-8 min-h-screen py-24 px-2 bg-[#FFF7F5]">
         <div className="flex flex-col items-center text-center md:text-left md:items-start gap-4">
           <h5 className="text-[16px] leading-[24px] text-main">
-            Find your new home the easy way
+            {content.subtitle}
           </h5>
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-bold font-arial text-[#003956] text-3xl xs:text-4xl md:text-5xl">
-            Change password
+            {content.title}
           </h1>
         </div>
         <div className="w-full md:w-[730px] bg-white  md:h-max rounded-lg p-6 relative z-10">
           <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
             <h4 className="text-[16px] leading-[24px] md:text-left">
-              Forgotten your password? Enter your email address below, and we’ll
-              email instructions for setting a new one.
+              {content.text}
             </h4>
             <form
               onSubmit={handleResetPassword}
@@ -79,7 +109,7 @@ export default function CreateNewPassword() {
                 <input
                   className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
                   type="password"
-                  placeholder="New password"
+                  placeholder={content.password_placeholder}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -87,7 +117,7 @@ export default function CreateNewPassword() {
                 <input
                   className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
                   type="password"
-                  placeholder="Repeat password"
+                  placeholder={content.repeatpassword_placeholder}
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
                   required
@@ -107,7 +137,7 @@ export default function CreateNewPassword() {
                 </div>
               )}
               <button className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300">
-                {loading ? "Loading..." : "Submit"}
+                {loading ? "Loading..." : content.button}
               </button>
             </form>
           </div>

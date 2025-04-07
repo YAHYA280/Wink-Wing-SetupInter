@@ -1,8 +1,7 @@
 "use client";
 // next
-import { FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { FormEvent, useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
@@ -11,6 +10,9 @@ import {
   setEmail as setAuthEmail,
 } from "@/store/features/authSlice";
 
+// translation service
+import { useResetPasswordData } from "@/services/translationService";
+
 export default function ResetPassword() {
   const { loading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
@@ -18,6 +20,33 @@ export default function ResetPassword() {
   const router = useRouter();
 
   const [email, setEmail] = useState<string>("");
+
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: resetPasswordData, status } = useResetPasswordData();
+
+  // Default content for fallback
+  const defaultContent = {
+    Header: "Find your new home the easy way",
+    title: "Password Reset",
+    text: "Forgotten your password? Enter your email address below, and we'll email instructions",
+    PlaceHolder: "Email",
+    btn: "Reset",
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && resetPasswordData) {
+      return {
+        ...defaultContent,
+        ...resetPasswordData,
+      };
+    }
+    return defaultContent;
+  }, [resetPasswordData, status]);
 
   const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
@@ -38,17 +67,16 @@ export default function ResetPassword() {
       <div className="flex flex-col items-center md:justify-center gap-8 min-h-screen py-24 px-2 bg-[#FFF7F5]">
         <div className="flex flex-col items-center text-center md:text-left md:items-start gap-4">
           <h5 className="text-[16px] leading-[24px] text-main">
-            Find your new home the easy way
+            {content.Header}
           </h5>
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-bold font-arial text-[#003956] text-3xl xs:text-4xl md:text-5xl">
-            Password Reset
+            {content.title}
           </h1>
         </div>
         <div className="w-full md:w-[730px] bg-white  md:h-max rounded-lg p-6 relative z-10">
           <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
             <h4 className="text-[16px] leading-[24px] md:text-left">
-              Forgotten your password? Enter your email address below, and we’ll
-              email instructions for setting a new one.
+              {content.text}
             </h4>
             <form
               onSubmit={handleResetPassword}
@@ -57,7 +85,7 @@ export default function ResetPassword() {
               <input
                 className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
                 type="email"
-                placeholder="Email"
+                placeholder={content.PlaceHolder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -67,7 +95,7 @@ export default function ResetPassword() {
                 disabled={loading}
                 className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
               >
-                {loading ? "Loading..." : "Reset"}
+                {loading ? "Loading..." : content.btn}
               </button>
             </form>
           </div>

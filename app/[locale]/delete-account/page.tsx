@@ -2,6 +2,8 @@
 // next
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
@@ -10,11 +12,44 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import ProtectedRoutes from "@/components/ProtectedRoutes";
 import { deleteAccount } from "@/store/features/authSlice";
 
+// translation service
+import { useDeleteAccountData } from "@/services/translationService";
+
 export default function DeleteAccount() {
   const { token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: deleteAccountData, status } = useDeleteAccountData();
+
+  // Default content for fallback
+  const defaultContent = {
+    title: "Delete account",
+    text: "Are you sure you want to delete your account and cancel all subscriptions? This action cannot be undone and will permanently remove all your data, including:",
+    cancel_button: "Cancel",
+    delete_button: "Delete account",
+    personal_info: "Your personal information",
+    search_query: "Your search queries",
+    saved_matches: "Your saved matches",
+    subscription_details: "Subscription details",
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && deleteAccountData) {
+      return {
+        ...defaultContent,
+        ...deleteAccountData,
+      };
+    }
+    return defaultContent;
+  }, [deleteAccountData, status]);
 
   const handleDelete = async () => {
     try {
@@ -54,19 +89,15 @@ export default function DeleteAccount() {
                   />
                 </svg>
               </span>
-              Delete account
+              {content.title}
             </h1>
-            <p className="text-[16px] leading-[24px]">
-              Are you sure you want to delete your account and cancel all
-              subscriptions? This action cannot be undone and will permanently
-              remove all your data, including:
-            </p>
+            <p className="text-[16px] leading-[24px]">{content.text}</p>
 
             <ul className="list-disc ml-4 text-[16px] leading-[24px]">
-              <li>Your personal information</li>
-              <li>Your search queries</li>
-              <li>Your saved matches</li>
-              <li>Subscription details</li>
+              <li>{content.personal_info}</li>
+              <li>{content.search_query}</li>
+              <li>{content.saved_matches}</li>
+              <li>{content.subscription_details}</li>
             </ul>
 
             <div className="flex items-center justify-between gap-2 sm:gap-8">
@@ -74,13 +105,13 @@ export default function DeleteAccount() {
                 className="border border-main text-main py-2 px-4 rounded-lg flex items-center justify-center font-semibold text-md sm:text-lg w-full xl:hover:bg-main xl:hover:text-white transition-all duration-300"
                 href="/dashboard"
               >
-                Cancel
+                {content.cancel_button}
               </Link>
               <button
                 onClick={handleDelete}
                 className="bg-main border border-main py-2 px-4 rounded-lg flex items-center justify-center font-semibold text-md sm:text-lg w-full xl:hover:bg-transparent xl:hover:text-main transition-all duration-300 text-white"
               >
-                Delete account
+                {content.delete_button}
               </button>
             </div>
           </div>

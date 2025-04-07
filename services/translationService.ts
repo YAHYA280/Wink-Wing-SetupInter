@@ -3,7 +3,51 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
-// Interface for Moving Guide Data
+export interface ChangePasswordData {
+  subtitle: string;
+  title: string;
+  text: string;
+  password_placeholder: string;
+  repeatpassword_placeholder: string;
+  button: string;
+}
+
+export interface ResetPasswordData {
+  Header: string;
+  title: string;
+  text: string;
+  PlaceHolder: string;
+  btn: string;
+}
+
+export interface OtpCodeData {
+  subtitle: string;
+  title: string;
+  text: string;
+  expireMessage: string;
+  button: string;
+}
+
+export interface LoginData {
+  subtitle: string;
+  title: string;
+  login_text: string;
+  login_email: string;
+  login_password: string;
+  login_forgotpassword: string;
+  button: string;
+}
+
+export interface DeleteAccountData {
+  title: string;
+  text: string;
+  cancel_button: string;
+  delete_button: string;
+  personal_info: string;
+  search_query: string;
+  saved_matches: string;
+  subscription_details: string;
+}
 
 export interface MovingGuideData {
   title: string;
@@ -688,4 +732,21 @@ export function useDashboardData() {
 }
 export function useMovingGuideData() {
   return useStrapiContent<MovingGuideData>("moving-guide");
+}
+
+export function useDeleteAccountData() {
+  return useStrapiContent<DeleteAccountData>("delete-account");
+}
+export function useChangePasswordData() {
+  return useStrapiContent<ChangePasswordData>("change-password");
+}
+export function useOtpCodeData() {
+  return useStrapiContent<OtpCodeData>("otp-code");
+}
+
+export function useLoginData() {
+  return useStrapiContent<LoginData>("login");
+}
+export function useResetPasswordData() {
+  return useStrapiContent<ResetPasswordData>("reset-password");
 }
