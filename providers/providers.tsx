@@ -24,6 +24,7 @@ import UserPreferencesProvider from "@/context/userPreferencesContext";
 import StoreProvider from "./StoreProvider";
 import RedirectAuthenticatedUser from "@/components/RedirectAuthenticatedUser";
 import TokenProvider from "@/components/TokenProvider";
+import TranslationLoader from "@/components/TranslationLoader";
 
 type ProvidersProps = {
   children: ReactNode;
@@ -53,6 +54,7 @@ export default function Providers({ children }: ProvidersProps) {
               <CheckboxProvider>
                 <RedirectAuthenticatedUser>
                   <StepFormProvider steps={steps}>
+                    <TranslationLoader />
                     {!shouldHideNavAndFooter && <Nav />}
                     {children}
                     <CitySearch />

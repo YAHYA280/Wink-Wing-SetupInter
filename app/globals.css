@@ -79,3 +79,36 @@
 .p-dropdown-items-wrapper {
   @apply bg-white mt-2 border rounded-lg p-4 w-[330px];
 }
+/* Add these to your globals.css file */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.2s ease-out forwards;
+}
+
+/* Optional loading state for the entire body */
+body[data-loading-translations="true"] .main-content {
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}

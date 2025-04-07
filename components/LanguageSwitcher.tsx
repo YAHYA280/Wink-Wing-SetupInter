@@ -1,91 +1,86 @@
+// components/LanguageSwitcherEnhanced.tsx
 "use client";
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
 
 // Define supported languages with their flags
 const languages = [
-  { code: "en", name: "En", flag: "/en-flag.png" },
-  { code: "nl", name: "Nl", flag: "/nl-flag.png" },
-  { code: "fr", name: "Français", flag: "/fr-flag.png" },
+  { code: "en", name: "English", flag: "/GB.svg" },
+  { code: "nl", name: "Nederlands", flag: "/NL.svg" },
+  { code: "fr", name: "Français", flag: "/FR.svg" },
 ];
 
 export default function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+  const [isChanging, setIsChanging] = useState(false);
   const router = useRouter();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [currentLanguage, setCurrentLanguage] = useState(languages[0]);
+  const pathname = usePathname();
+  const params = useParams();
 
-  // Extract the current locale from the pathname or default to "en"
-  useEffect(() => {
-    const currentLocale = pathname?.split("/")[1] || "en";
-
-    // Check if the current locale is a valid language code
-    const isValidLocale = languages.some((lang) => lang.code === currentLocale);
-
-    // Find the current language object or default to English
-    const langObj = isValidLocale
-      ? languages.find((lang) => lang.code === currentLocale) || languages[0]
-      : languages[0];
-
-    setCurrentLanguage(langObj);
-  }, [pathname]);
+  // Get current locale
+  const currentLocale = (params.locale as string) || "en";
+  const currentLanguage =
+    languages.find((lang) => lang.code === currentLocale) || languages[0];
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".language-switcher")) {
         setIsOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Create path for the target locale
-  const createPathForLocale = (locale: string) => {
-    if (!pathname) return `/${locale}`;
-
-    const segments = pathname.split("/");
-    const currentLocale = segments[1];
-    const isValidLocale = languages.some((lang) => lang.code === currentLocale);
-
-    if (isValidLocale) {
-      // Replace the locale part in the path
-      segments[1] = locale;
-    } else {
-      // Add the locale if it doesn't exist
-      segments.splice(1, 0, locale);
-    }
-
-    return segments.join("/") || `/${locale}`;
+  // Create localized path
+  const createLocalizedPath = (locale: string) => {
+    const segments = pathname?.split("/") || [];
+    segments[1] = locale;
+    return segments.join("/");
   };
 
+  // Handle language change
   const handleLanguageChange = (locale: string) => {
+    if (locale === currentLocale || isChanging) return;
+
+    setIsChanging(true);
     setIsOpen(false);
-    const newPath = createPathForLocale(locale);
-    router.push(newPath);
+
+    // Navigate to the new locale path
+    router.push(createLocalizedPath(locale));
+
+    // Reset changing state after a reasonable timeout
+    // (this is just a failsafe)
+    setTimeout(() => setIsChanging(false), 2000);
   };
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* Current Language Button */}
+    <div className="language-switcher relative z-30">
+      {/* Current language button */}
       <button
-        className="flex items-center justify-between gap-2 px-3 py-2 bg-white rounded-lg w-[190px]"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-haspopup="true"
+        onClick={() => !isChanging && setIsOpen(!isOpen)}
+        disabled={isChanging}
+        className={`
+          flex items-center justify-between gap-2 px-4 py-2 
+          bg-white rounded-lg w-44 transition-all duration-300
+          ${isChanging ? "opacity-70 cursor-wait" : "hover:bg-gray-50"}
+          ${isOpen ? "ring-2 ring-main/20" : ""}
+        `}
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">
-          {currentLanguage && (
+          {isChanging ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-t-main border-main/30 rounded-full animate-spin"></div>
+              <span className="text-sm font-medium text-gray-600">
+                {currentLocale === "nl" ? "Veranderen..." : "Changing..."}
+              </span>
+            </div>
+          ) : (
             <>
               <Image
                 src={currentLanguage.flag}
@@ -100,38 +95,41 @@ export default function LanguageSwitcher() {
             </>
           )}
         </div>
-        <svg
-          className={`w-5 h-5 ml-2 -mr-1 transition-transform duration-200 ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
+
+        {!isChanging && (
+          <svg
+            className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        )}
       </button>
 
-      {/* Dropdown */}
+      {/* Language dropdown */}
       {isOpen && (
-        <div className="absolute right-0 z-10 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <div className="py-1 max-h-60 overflow-auto">
+        <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 animate-fadeIn">
+          <div className="py-1">
             {languages.map((language) => (
               <button
                 key={language.code}
                 onClick={() => handleLanguageChange(language.code)}
                 className={`
-                  flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left
+                  w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-gray-50
                   ${
-                    language.code === currentLanguage.code
+                    language.code === currentLocale
                       ? "bg-gray-50 font-medium"
                       : ""
                   }
+                  transition-colors duration-200
                 `}
               >
                 <Image
@@ -141,7 +139,21 @@ export default function LanguageSwitcher() {
                   height={20}
                   className="rounded-sm"
                 />
-                <span>{language.name}</span>
+                <span className="text-gray-700">{language.name}</span>
+
+                {language.code === currentLocale && (
+                  <svg
+                    className="w-4 h-4 ml-auto text-main"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
               </button>
             ))}
           </div>

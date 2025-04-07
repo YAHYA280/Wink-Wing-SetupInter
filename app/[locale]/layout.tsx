@@ -57,16 +57,16 @@ export const metadata: Metadata = {
     images: ["https://i.imgur.com/EEFpzot.png"],
   },
 };
-export default async function RootLayout({
-  children,
-  params,
-}: Readonly<{
+export default async function RootLayout(props: {
   children: React.ReactNode;
-  params: { locale: string };
-}>) {
+  params: { locale: string } | Promise<{ locale: string }>;
+}) {
+  const { children, params } = props;
+  // Await the params in case it is a promise
+  const { locale } = await params;
   const messages = await getMessages();
   return (
-    <html lang={params.locale}>
+    <html lang={locale}>
       <head>
         {/* Google Tag Manager */}
         <script
@@ -85,7 +85,7 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={`${proximaNova.className} antialiased`}>
-        <NextIntlClientProvider locale={params.locale} messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
