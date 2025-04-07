@@ -5,7 +5,11 @@ import { useRouter, usePathname } from "next/navigation";
 // context
 import { useProgress } from "@/context/progressContext";
 
-export default function DashboardInfoViewingRes() {
+export default function DashboardInfoViewingRes({
+  translationData,
+}: {
+  translationData?: any;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { goTo } = useProgress();
@@ -25,13 +29,13 @@ export default function DashboardInfoViewingRes() {
   return (
     <div className="flex flex-col gap-4 w-full border-b pb-10 md:border-b-0 md:border-r md:pb-0 border-[#AEAEAE]">
       <h1 className="font-bold text-lg text-[#19191A]">
-        Standard viewing Response
+        {translationData?.title || "Standard viewing Response"}
       </h1>
       <button
         onClick={handleViewingRes}
         className="w-max text-lg text-[#1C46D9] xl:hover:underline"
       >
-        Edit
+        {translationData?.btn || "Edit"}
       </button>
     </div>
   );

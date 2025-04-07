@@ -8,7 +8,11 @@ import { useProgress } from "@/context/progressContext";
 // redux
 import { useAppSelector } from "@/store/hooks/hooks";
 
-export default function DashboardInfoNotifications() {
+export default function DashboardInfoNotifications({
+  translationData,
+}: {
+  translationData?: any;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { goTo } = useProgress();
@@ -29,7 +33,9 @@ export default function DashboardInfoNotifications() {
 
   return (
     <div className="flex flex-col gap-4 w-full border-b pb-10 md:border-b-0 md:border-r md:pb-0 border-[#AEAEAE]">
-      <h1 className="font-bold text-lg text-[#19191A]">Notifications</h1>
+      <h1 className="font-bold text-lg text-[#19191A]">
+        {translationData?.title || "Notifications"}
+      </h1>
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between pr-4 gap-2">
           <div className="flex items-center gap-2">
@@ -70,13 +76,17 @@ export default function DashboardInfoNotifications() {
                 </svg>
               </span>
             )}
-            <h1 className="text-lg text-black">Whatsapp</h1>
+            <h1 className="text-lg text-black">
+              {translationData?.whatsapp || "Whatsapp"}
+            </h1>
           </div>
           <button
             onClick={handleNotifications}
             className="text-lg text-[#FF4907] xl:hover:underline"
           >
-            {user?.whatsappNotifications ? "Disable" : "Enable"}
+            {user?.whatsappNotifications
+              ? translationData?.disable_btn || "Disable"
+              : translationData?.enable_btn || "Enable"}
           </button>
         </div>
         <div className="flex items-center justify-between pr-4 gap-2">
@@ -118,7 +128,9 @@ export default function DashboardInfoNotifications() {
                 </svg>
               </span>
             )}
-            <h1 className="text-lg text-black">Email</h1>
+            <h1 className="text-lg text-black">
+              {translationData?.email || "Email"}
+            </h1>
           </div>
           <button
             onClick={handleNotifications}
@@ -126,7 +138,9 @@ export default function DashboardInfoNotifications() {
               user?.emailNotifications ? "text-[#FF4907]" : "text-[#1C46D9]"
             } xl:hover:underline`}
           >
-            {user?.emailNotifications ? "Disable" : "Enable"}
+            {user?.emailNotifications
+              ? translationData?.disable_btn || "Disable"
+              : translationData?.enable_btn || "Enable"}
           </button>
         </div>
       </div>

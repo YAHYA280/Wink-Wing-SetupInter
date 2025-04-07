@@ -15,7 +15,11 @@ import {
   deleteSearchJob,
 } from "@/store/features/searchJobsSlice";
 
-export default function DashboardRightMenu() {
+export default function DashboardRightMenu({
+  translationData,
+}: {
+  translationData?: any;
+}) {
   const searchJobs = useAppSelector(selectSearchJobs);
   const dispatch = useAppDispatch();
   const { token, user } = useAppSelector((state) => state.auth);
@@ -48,6 +52,47 @@ export default function DashboardRightMenu() {
     }
   };
 
+  // Default translations for right menu if not provided
+  const rightMenuTranslations = {
+    searchjobs: {
+      title: "Searchjobs",
+      edit: "Edit",
+      no_active: "No active searchjobs.",
+      add_search: "Add a search",
+    },
+    help_friends: {
+      title: "Help your friends",
+      text: "Found a house? Give free months to your friends.",
+      copy: "Copy",
+      copied: "Copied!",
+    },
+    save_contracts: {
+      title: "Save on your contracts",
+      text: "Save €100's with Winkwing-exclusive discounts on all your monthly.",
+      button: "See all discounts",
+    },
+    subscription: {
+      title: "Subscription",
+      text: "You have no active subscription.",
+      button: "Start your subscription.",
+    },
+    recent_matches: {
+      title: "Recent matches",
+      text_part1:
+        "All matches will be sent to your phone, but an overview of your matches can be found",
+      text_part2: "here.",
+    },
+    danger_zone: {
+      title: "Danger zone",
+      text: "Delete your account and all your data permanently.",
+      button: "Delete account",
+    },
+  };
+
+  // Use translations from prop if available, otherwise use defaults
+  const translations =
+    translationData?.DashboardServices || rightMenuTranslations;
+
   return (
     <div className="grid gap-8">
       {/* first column */}
@@ -76,7 +121,7 @@ export default function DashboardRightMenu() {
               />
             </svg>
           </span>
-          Searchjobs
+          {translations.searchjobs?.title || "Searchjobs"}
         </h1>
         {searchJobs.length ? (
           <div>
@@ -88,7 +133,7 @@ export default function DashboardRightMenu() {
                     href={`/${locale}/search/edit-search`}
                     className="text-lg text-[#1C46D9] xl:hover:underline"
                   >
-                    Edit
+                    {translations.searchjobs?.edit || "Edit"}
                   </Link>
                   <button onClick={() => handleDeleteSearchJob(job.id)}>
                     <svg
@@ -112,13 +157,15 @@ export default function DashboardRightMenu() {
             ))}
           </div>
         ) : (
-          <span>No active searchjobs.</span>
+          <span>
+            {translations.searchjobs?.no_active || "No active searchjobs."}
+          </span>
         )}
         <Link
           href={`/${locale}/search`}
           className="font-bold text-lg text-main xl:hover:underline ml-auto"
         >
-          Add a search
+          {translations.searchjobs?.add_search || "Add a search"}
         </Link>
       </div>
       {/* second column */}
@@ -140,10 +187,11 @@ export default function DashboardRightMenu() {
               />
             </svg>
           </span>
-          Help your friends
+          {translations.help_friends?.title || "Help your friends"}
         </h1>
         <p className="text-[16px] leading-[27px]">
-          Found a house? Give free months to your friends.
+          {translations.help_friends?.text ||
+            "Found a house? Give free months to your friends."}
         </p>
         <div className="flex items-center gap-2">
           <span className="bg-gray-100 py-1 px-2 rounded">
@@ -153,10 +201,12 @@ export default function DashboardRightMenu() {
             onClick={handleCopyReferralCode}
             className="relative font-bold text-lg text-main xl:hover:underline"
           >
-            {copied ? "Copied!" : "Copy"}
+            {copied
+              ? translations.help_friends?.copied || "Copied!"
+              : translations.help_friends?.copy || "Copy"}
             {copied && (
               <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded">
-                Copied!
+                {translations.help_friends?.copied || "Copied!"}
               </span>
             )}
           </button>
@@ -187,13 +237,14 @@ export default function DashboardRightMenu() {
               />
             </svg>
           </span>
-          Save on your contracts
+          {translations.save_contracts?.title || "Save on your contracts"}
         </h1>
         <p className="text-[16px] leading-[27px]">
-          Save €100's with Winkwing-exclusive discounts on all your monthly.
+          {translations.save_contracts?.text ||
+            "Save €100's with Winkwing-exclusive discounts on all your monthly."}
         </p>
         <button className="font-bold text-lg text-main xl:hover:underline">
-          See all discounts
+          {translations.save_contracts?.button || "See all discounts"}
         </button>
       </div>
       {/* fourth column */}
@@ -225,16 +276,17 @@ export default function DashboardRightMenu() {
               </defs>
             </svg>
           </span>
-          Subscription
+          {translations.subscription?.title || "Subscription"}
         </h1>
         <p className="text-[16px] leading-[27px]">
-          You have no active subscription.
+          {translations.subscription?.text ||
+            "You have no active subscription."}
         </p>
         <Link
           href={`/${locale}/welcome`}
           className="font-bold text-lg text-main xl:hover:underline"
         >
-          Start your subscription.
+          {translations.subscription?.button || "Start your subscription."}
         </Link>
       </div>
       {/* fifth column */}
@@ -256,16 +308,16 @@ export default function DashboardRightMenu() {
               />
             </svg>
           </span>
-          Recent matches
+          {translations.recent_matches?.title || "Recent matches"}
         </h1>
         <p className="text-[16px] leading-[27px]">
-          All matches will be sent to your phone, but an overview of your
-          matches can be found{" "}
+          {translations.recent_matches?.text_part1 ||
+            "All matches will be sent to your phone, but an overview of your matches can be found"}{" "}
           <Link
             href={`/${locale}/matches`}
             className="font-bold text-[#1C46D9] xl:hover:underline"
           >
-            here.
+            {translations.recent_matches?.text_part2 || "here."}
           </Link>
         </p>
       </div>
@@ -288,16 +340,17 @@ export default function DashboardRightMenu() {
               />
             </svg>
           </span>
-          Danger zone
+          {translations.danger_zone?.title || "Danger zone"}
         </h1>
         <p className="text-[16px] leading-[27px]">
-          Delete your account and all your data permanently.
+          {translations.danger_zone?.text ||
+            "Delete your account and all your data permanently."}
         </p>
         <Link
           href={`/${locale}/delete-account`}
           className="font-bold text-lg text-main xl:hover:underline"
         >
-          Delete account
+          {translations.danger_zone?.button || "Delete account"}
         </Link>
       </div>
     </div>
