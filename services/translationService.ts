@@ -446,6 +446,26 @@ export interface HomePageData {
   }>;
 }
 
+export interface ReviewItemData {
+  id: number;
+  name: string;
+  text: string;
+  image: string | null;
+  review: number;
+}
+
+export interface ReviewsData {
+  subtitle_hero: string;
+  title_hero: string;
+  text_hero: string;
+  button_hero: string;
+  reviews: ReviewItemData[];
+  title_review: string;
+  subtitle_review: string;
+  all_button: string;
+  withPhotos_btn: string;
+}
+
 // Status type for the fetching process
 type FetchStatus = "idle" | "loading" | "success" | "error";
 
@@ -749,4 +769,7 @@ export function useLoginData() {
 }
 export function useResetPasswordData() {
   return useStrapiContent<ResetPasswordData>("reset-password");
+}
+export function useReviewsData() {
+  return useStrapiContent<ReviewsData>("review");
 }

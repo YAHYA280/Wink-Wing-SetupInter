@@ -1,53 +1,72 @@
 "use client";
 // next
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // components
 import ReviewCard from "./ReviewCard";
 
+// translation service
+import { useReviewsData } from "@/services/translationService";
+
 export default function ReviewsList() {
-  // an array of reviews
-  const reviews = [
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: reviewsData, status } = useReviewsData();
+
+  const defaultContent = {
+    title_review: "What Our Clients Say",
+    subtitle_review:
+      "Real experiences from people who found their perfect home with WinkWing",
+    all_button: "All Reviews",
+    withPhotos_btn: "With Photos",
+  };
+
+  // Default content for fallback
+  const defaultReviews = [
     {
       id: 1,
       name: "Sam",
       review: 5,
-      text: "“Was about to give up on my search, but I stumbled on this gem. The place is exactly what I wanted—spacious, modern, and within my budget. Highly recommend!”",
+      text: "Was about to give up on my search, but I stumbled on this gem. The place is exactly what I wanted—spacious, modern, and within my budget. Highly recommend!",
       image: null,
     },
     {
       id: 2,
       name: "Mark & Suzan",
       review: 5,
-      text: "“WinkWing made finding our apartment a breeze. We found our perfect place in just a week!”",
+      text: "WinkWing made finding our apartment a breeze. We found our perfect place in just a week!",
       image: "/review-image-1.jpg",
     },
     {
       id: 3,
       name: "Sam",
       review: 5,
-      text: "“I’ve been searching for months, and this place checked all my boxes. Affordable, pet-friendly, and walking distance to work. Couldn’t ask for more!”",
+      text: "I've been searching for months, and this place checked all my boxes. Affordable, pet-friendly, and walking distance to work. Couldn't ask for more!",
       image: null,
     },
     {
       id: 4,
       name: "Aditya & Ananda",
       review: 5,
-      text: "“Such a smooth experience! WinkWing helped us find a rental that checked all our boxes.”",
+      text: "Such a smooth experience! WinkWing helped us find a rental that checked all our boxes.",
       image: "/review-image-2.jpg",
     },
     {
       id: 5,
       name: "David",
       review: 5,
-      text: "“WinkWing did help me find my new spot, loving it! Thanks!”",
+      text: "WinkWing did help me find my new spot, loving it! Thanks!",
       image: null,
     },
     {
       id: 6,
       name: "David",
       review: 5,
-      text: "“WinkWing did help me find my new spot, loving it! Thanks!”",
+      text: "WinkWing did help me find my new spot, loving it! Thanks!",
       image: "/review-image-3.jpg",
     },
     {
@@ -61,38 +80,63 @@ export default function ReviewsList() {
       id: 8,
       name: "James",
       review: 5,
-      text: "“Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by”",
+      text: "Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by",
       image: "/review-image-4.jpg",
     },
     {
       id: 9,
       name: "Sam",
       review: 5,
-      text: "“Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by”",
+      text: "Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by",
       image: null,
     },
     {
       id: 10,
       name: "James",
       review: 5,
-      text: "“Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by”",
+      text: "Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by",
       image: "/review-image-5.jpg",
     },
     {
       id: 11,
       name: "Sam",
       review: 5,
-      text: "“Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by”",
+      text: "Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by",
       image: null,
     },
     {
       id: 12,
       name: "James",
       review: 5,
-      text: "“Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by”",
+      text: "Moving is stressful. WinkWing helps you by Moving is stressful. WinkWing helps you by",
       image: "/review-image-6.jpg",
     },
   ];
+  const content = useMemo(() => {
+    if (status === "success" && reviewsData) {
+      return {
+        ...defaultContent,
+        title_review: reviewsData.title_review || defaultContent.title_review,
+        subtitle_review:
+          reviewsData.subtitle_review || defaultContent.subtitle_review,
+        all_button: reviewsData.all_button || defaultContent.all_button,
+        withPhotos_btn:
+          reviewsData.withPhotos_btn || defaultContent.withPhotos_btn,
+      };
+    }
+    return defaultContent;
+  }, [reviewsData, status]);
+  // Get reviews from API or fallback to default
+  const reviews = useMemo(() => {
+    if (
+      status === "success" &&
+      reviewsData &&
+      reviewsData.reviews?.length > 0
+    ) {
+      return reviewsData.reviews;
+    }
+    return defaultReviews;
+  }, [reviewsData, status, defaultReviews]);
 
   const [showMore, setShowMore] = useState(6);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -112,11 +156,10 @@ export default function ReviewsList() {
       <div className="container mx-auto px-4 md:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            What Our Clients Say
+            {content.title_review}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Real experiences from people who found their perfect home with
-            WinkWing
+            {content.subtitle_review}
           </p>
 
           {/* Filter Tabs */}
@@ -129,7 +172,7 @@ export default function ReviewsList() {
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              All Reviews
+              {content.all_button}
             </button>
             <button
               onClick={() => setActiveFilter("with-images")}
@@ -139,7 +182,7 @@ export default function ReviewsList() {
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              With Photos
+              {content.withPhotos_btn}
             </button>
           </div>
         </div>

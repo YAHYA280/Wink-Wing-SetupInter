@@ -16,14 +16,15 @@ export type Services = {
 };
 
 // reviews card
-export type Reviews = {
+// Add or update in /types/types.ts
+
+export interface Reviews {
   id: number;
   name: string;
-  review: number;
   text: string;
-  image: null | string;
-};
-
+  image: string | null;
+  review: number;
+}
 // city from dropdown
 export type City = {
   id: number;

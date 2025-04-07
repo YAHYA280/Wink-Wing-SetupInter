@@ -1,10 +1,43 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { useAppSelector } from "@/store/hooks/hooks";
+
+// translation service
+import { useReviewsData } from "@/services/translationService";
 
 export default function ReviewsHero() {
   const { token } = useAppSelector((state) => state.auth);
+
+  // Get current locale from the pathname
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
+  // Fetch translations from the API
+  const { data: reviewsData, status } = useReviewsData();
+
+  // Default content for fallback
+  const defaultContent = {
+    subtitle_hero: "Reviews",
+    title_hero: "1543 happy renters",
+    text_hero:
+      "Winkwing works! Don't just take our word for it—1554 glowing Trustpilot reviews say it all. We're here to help you find your next rental home.",
+    button_hero: "Let's get started",
+    reviews: [],
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && reviewsData) {
+      return {
+        ...defaultContent,
+        ...reviewsData,
+      };
+    }
+    return defaultContent;
+  }, [reviewsData, status]);
 
   return (
     // Reduced top/bottom padding from 24 to 16 for a tighter layout
@@ -12,9 +45,11 @@ export default function ReviewsHero() {
     <div className="pt-16 pb-16 px-2 max-w-[1164px] mx-auto lg:px-12 mb-12">
       <div className="flex flex-col-reverse items-center gap-y-8 lg:flex-row lg:justify-between lg:py-16">
         <div className="flex flex-col gap-4 items-center text-center lg:items-start lg:text-left">
-          <h5 className="text-main text-[16px] leading-[24px]">Reviews</h5>
+          <h5 className="text-main text-[16px] leading-[24px]">
+            {content.subtitle_hero}
+          </h5>
           <h1 className="flex items-center gap-3 font-extrabold text-2xl xs:text-3xl sm:text-4xl text-[#003956]">
-            1543 happy renters
+            {content.title_hero}
             <span>
               <svg
                 width="31"
@@ -31,15 +66,13 @@ export default function ReviewsHero() {
             </span>
           </h1>
           <p className="text-[16px] leading-[24px] max-w-[600px]">
-            Winkwing works! Don’t just take our word for it—1554 glowing
-            Trustpilot reviews say it all. We're here to help you find your next
-            rental home.
+            {content.text_hero}
           </p>
           <Link
             href={token ? "/welcome" : "/signup"}
             className="bg-main rounded-lg py-3 px-20 text-white font-semibold xs:text-[20px] xs:px-24 xl:hover:bg-transparent border xl:hover:border-main xl:hover:text-main transition-all duration-300"
           >
-            Let’s get started
+            {content.button_hero}
           </Link>
         </div>
         <div className="mb-9 lg:mb-0">
