@@ -396,6 +396,7 @@ export function useStrapiContent<T>(contentType: string) {
 }
 
 // Helper function for fetching complex nested content that requires multiple requests
+// Helper function for fetching complex nested content that requires multiple requests
 export function useStrapiMultiPartContent<T>(
   contentType: string,
   parts: string[]
@@ -406,8 +407,12 @@ export function useStrapiMultiPartContent<T>(
   const [data, setData] = useState<T | null>(null);
   const [status, setStatus] = useState<FetchStatus>("idle");
   const [error, setError] = useState<Error | null>(null);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
   const fetchContent = useCallback(async () => {
+    // Only fetch if we haven't successfully fetched already
+    if (status === "success" || hasAttemptedFetch) return;
+
     try {
       setStatus("loading");
       const apiUrl =
@@ -440,15 +445,16 @@ export function useStrapiMultiPartContent<T>(
 
       setData(combinedData as T);
       setStatus("success");
-      console.log(`Successfully fetched ${contentType} data:`, combinedData);
+      setHasAttemptedFetch(true);
     } catch (err) {
       console.error(`Error fetching ${contentType}:`, err);
       setError(
         err instanceof Error ? err : new Error("An unknown error occurred")
       );
       setStatus("error");
+      setHasAttemptedFetch(true);
     }
-  }, [contentType, locale, parts]);
+  }, [contentType, locale, parts, status, hasAttemptedFetch]);
 
   useEffect(() => {
     fetchContent();

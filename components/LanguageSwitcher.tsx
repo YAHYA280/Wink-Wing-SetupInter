@@ -14,18 +14,24 @@ const languages = [
 export default function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [currentLanguage, setCurrentLanguage] = useState(languages[0]);
 
   // Extract the current locale from the pathname or default to "en"
-  const currentLocale = pathname.split("/")[1] || "en";
+  useEffect(() => {
+    const currentLocale = pathname?.split("/")[1] || "en";
 
-  // Check if the current locale is a valid language code
-  const isValidLocale = languages.some((lang) => lang.code === currentLocale);
+    // Check if the current locale is a valid language code
+    const isValidLocale = languages.some((lang) => lang.code === currentLocale);
 
-  // Find the current language object or default to English
-  const currentLanguage = isValidLocale
-    ? languages.find((lang) => lang.code === currentLocale)
-    : languages[0];
+    // Find the current language object or default to English
+    const langObj = isValidLocale
+      ? languages.find((lang) => lang.code === currentLocale) || languages[0]
+      : languages[0];
+
+    setCurrentLanguage(langObj);
+  }, [pathname]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -46,7 +52,11 @@ export default function LanguageSwitcher() {
 
   // Create path for the target locale
   const createPathForLocale = (locale: string) => {
+    if (!pathname) return `/${locale}`;
+
     const segments = pathname.split("/");
+    const currentLocale = segments[1];
+    const isValidLocale = languages.some((lang) => lang.code === currentLocale);
 
     if (isValidLocale) {
       // Replace the locale part in the path
@@ -56,7 +66,13 @@ export default function LanguageSwitcher() {
       segments.splice(1, 0, locale);
     }
 
-    return segments.join("/");
+    return segments.join("/") || `/${locale}`;
+  };
+
+  const handleLanguageChange = (locale: string) => {
+    setIsOpen(false);
+    const newPath = createPathForLocale(locale);
+    router.push(newPath);
   };
 
   return (
@@ -106,18 +122,17 @@ export default function LanguageSwitcher() {
         <div className="absolute right-0 z-10 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1 max-h-60 overflow-auto">
             {languages.map((language) => (
-              <Link
+              <button
                 key={language.code}
-                href={createPathForLocale(language.code)}
+                onClick={() => handleLanguageChange(language.code)}
                 className={`
                   flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left
                   ${
-                    language.code === currentLocale
+                    language.code === currentLanguage.code
                       ? "bg-gray-50 font-medium"
                       : ""
                   }
                 `}
-                onClick={() => setIsOpen(false)}
               >
                 <Image
                   src={language.flag}
@@ -127,7 +142,7 @@ export default function LanguageSwitcher() {
                   className="rounded-sm"
                 />
                 <span>{language.name}</span>
-              </Link>
+              </button>
             ))}
           </div>
         </div>
