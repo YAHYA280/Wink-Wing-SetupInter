@@ -1,16 +1,24 @@
 "use client";
 // next
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 // context
 import { useProgress } from "@/context/progressContext";
 
 export default function DashboardInfoSearch() {
   const router = useRouter();
+  const pathname = usePathname();
   const { goTo } = useProgress();
 
+  // Extract the current locale from the path
+  const getLocale = () => {
+    const pathParts = pathname.split("/");
+    return pathParts.length > 1 ? pathParts[1] : "en"; // Default to 'en' if no locale found
+  };
+
   function handleSearch() {
-    router.push("/moving-guide");
+    const locale = getLocale();
+    router.push(`/${locale}/moving-guide`);
     goTo(1);
   }
 

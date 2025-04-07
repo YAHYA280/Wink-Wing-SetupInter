@@ -2,6 +2,7 @@
 // next
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 // types
 import { SearchJob } from "@/types/types";
@@ -19,10 +20,21 @@ export default function DashboardRightMenu() {
   const dispatch = useAppDispatch();
   const { token, user } = useAppSelector((state) => state.auth);
   const [copied, setCopied] = useState(false);
+  const pathname = usePathname();
+
+  // Extract the current locale from the path
+  const getLocale = () => {
+    const pathParts = pathname.split("/");
+    return pathParts.length > 1 ? pathParts[1] : "en"; // Default to 'en' if no locale found
+  };
+
+  const locale = getLocale();
 
   useEffect(() => {
-    dispatch(getMe({ token } as { token: string }));
-  }, []);
+    if (token) {
+      dispatch(getMe({ token } as { token: string }));
+    }
+  }, [token, dispatch]);
 
   const handleDeleteSearchJob = (id: number) => {
     dispatch(deleteSearchJob(id));
@@ -73,7 +85,7 @@ export default function DashboardRightMenu() {
                 <span>{job.title}</span>
                 <div className="flex items-center gap-2">
                   <Link
-                    href={"/search/edit-search"}
+                    href={`/${locale}/search/edit-search`}
                     className="text-lg text-[#1C46D9] xl:hover:underline"
                   >
                     Edit
@@ -103,7 +115,7 @@ export default function DashboardRightMenu() {
           <span>No active searchjobs.</span>
         )}
         <Link
-          href="/search"
+          href={`/${locale}/search`}
           className="font-bold text-lg text-main xl:hover:underline ml-auto"
         >
           Add a search
@@ -219,7 +231,7 @@ export default function DashboardRightMenu() {
           You have no active subscription.
         </p>
         <Link
-          href="/welcome"
+          href={`/${locale}/welcome`}
           className="font-bold text-lg text-main xl:hover:underline"
         >
           Start your subscription.
@@ -250,7 +262,7 @@ export default function DashboardRightMenu() {
           All matches will be sent to your phone, but an overview of your
           matches can be found{" "}
           <Link
-            href="/matches"
+            href={`/${locale}/matches`}
             className="font-bold text-[#1C46D9] xl:hover:underline"
           >
             here.
@@ -282,7 +294,7 @@ export default function DashboardRightMenu() {
           Delete your account and all your data permanently.
         </p>
         <Link
-          href="/delete-account"
+          href={`/${locale}/delete-account`}
           className="font-bold text-lg text-main xl:hover:underline"
         >
           Delete account

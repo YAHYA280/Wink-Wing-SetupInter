@@ -12,14 +12,21 @@ export default function ProtectedRoutes({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!token) {
-      // Extract the locale from the path
-      const pathParts = pathname.split("/");
-      const locale = pathParts.length > 1 ? pathParts[1] : "en"; // Default to 'en' if no locale found
+    // Don't redirect on initial render if we're checking the token
+    // This prevents redirecting during locale changes
+    const handleAuth = async () => {
+      // Add a small delay to allow token refresh/validation
+      if (token === null || token === undefined) {
+        // Extract the locale from the path
+        const pathParts = pathname.split("/");
+        const locale = pathParts.length > 1 ? pathParts[1] : "en"; // Default to 'en' if no locale found
 
-      // Preserve the locale when redirecting to login
-      router.push(`/${locale}/login`);
-    }
+        // Preserve the locale when redirecting to login
+        router.push(`/${locale}/login`);
+      }
+    };
+
+    handleAuth();
   }, [token, router, pathname]);
 
   return <>{token ? children : null}</>;
