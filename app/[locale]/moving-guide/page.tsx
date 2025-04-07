@@ -1,6 +1,7 @@
 "use client";
 // next
 import Link from "next/link";
+import { useMovingGuideData } from "@/services/translationService";
 
 // components
 import ProgressBarComponent from "@/components/ProgressBarComponent";
@@ -22,18 +23,26 @@ import { useProgress } from "@/context/progressContext";
 
 export default function MovingGuidePage() {
   const { handleBack, handleNext, currentStep, totalSteps } = useProgress();
+  const { data: translations } = useMovingGuideData();
+
+  // Extract translations with fallbacks
+  const title = translations?.title || "Moving Guide";
+  const prevBtn = translations?.prev_btn || "Previous";
+  const nextBtn = translations?.next_btn || "Next";
+  const markAsCompleted =
+    translations?.mark_as_completed || "Mark as completed";
 
   const steps = [
-    <MovingGuideFirst />,
-    <MovingGuideSecond />,
-    <MovingGuideThird />,
-    <MovingGuideForth />,
-    <MovingGuideFifth />,
-    <MovingGuideSixth />,
-    <MovingGuideSeventh />,
-    <MovingGuideEighth />,
-    <MovingGuideNinth />,
-    <MovingGuideTenth />,
+    <MovingGuideFirst key="1" />,
+    <MovingGuideSecond key="2" />,
+    <MovingGuideThird key="3" />,
+    <MovingGuideForth key="4" />,
+    <MovingGuideFifth key="5" />,
+    <MovingGuideSixth key="6" />,
+    <MovingGuideSeventh key="7" />,
+    <MovingGuideEighth key="8" />,
+    <MovingGuideNinth key="9" />,
+    <MovingGuideTenth key="10" />,
   ];
 
   return (
@@ -42,7 +51,7 @@ export default function MovingGuidePage() {
         <div className="max-w-[1164px] mx-auto py-24 sm:py-32 px-2">
           <div className="flex flex-col sm:flex-row sm:justify-between item-center justify-center gap-4">
             <h1 className="font-extrabold text-3xl md:text-4xl text-[#003956]">
-              Moving Guide
+              {title}
             </h1>
             <ProgressBarComponent />
           </div>
@@ -56,14 +65,14 @@ export default function MovingGuidePage() {
                   : "opacity-0"
               }
             >
-              Previous
+              {prevBtn}
             </button>
             <Link
               href={currentStep == totalSteps ? "/dashboard" : "#!"}
               onClick={handleNext}
               className="bg-main border border-main py-2 px-10 font-semibold rounded-lg text-lg text-white xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
             >
-              Next
+              {nextBtn}
             </Link>
           </div>
 
@@ -72,7 +81,7 @@ export default function MovingGuidePage() {
               <label className="flex items-center gap-3 relative">
                 <Checkbox id={String(currentStep)} />
                 <span className="text-[16px] leading-[24px] text-black cursor-pointer">
-                  Mark as completed
+                  {markAsCompleted}
                 </span>
               </label>
             </div>

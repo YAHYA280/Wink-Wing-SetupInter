@@ -6,6 +6,10 @@ import { usePathname } from "next/navigation";
 // Interface for Moving Guide Data
 
 export interface MovingGuideData {
+  title: string;
+  prev_btn: string;
+  next_btn: string;
+  mark_as_completed: string;
   AddSearchBuddy: {
     id: number;
     title: string;

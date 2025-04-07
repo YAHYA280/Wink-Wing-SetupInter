@@ -1,7 +1,8 @@
 "use client";
-// next
+
 import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
+import { useMovingGuideData } from "@/services/translationService";
 
 // context
 import { usePopup } from "@/context/popupContext";
@@ -28,6 +29,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import { getMe } from "@/store/features/authSlice";
 
 export default function MovingGuideSecond() {
+  const { data: translations } = useMovingGuideData();
   const { showPopup, hidePopup } = usePopup();
 
   const { token, user } = useAppSelector((state) => state.auth);
@@ -77,16 +79,32 @@ export default function MovingGuideSecond() {
     }
   }, [user?.whatsappNumber]);
 
+  // Get translations with fallbacks
+  const title =
+    translations?.ActivateWhatsAppNotifications?.title ||
+    "2. Activate WhatsApp notifications";
+  const text =
+    translations?.ActivateWhatsAppNotifications?.text ||
+    "Speed is crucial in the housing market. Receive updates about new properties directly via WhatsApp, allowing you to respond quicker and easily forward listings.";
+  const waNotificationsTitle =
+    translations?.ActivateWhatsAppNotifications?.wa_notifications_title ||
+    "Whatsapp notifications";
+  const waNotificationsText =
+    translations?.ActivateWhatsAppNotifications?.wa_notifications_text ||
+    "Receive notifications on WhatsApp";
+  const waNotificationBtn =
+    translations?.ActivateWhatsAppNotifications?.wa_notification_btn || "Edit";
+  const emailNotificationsTitle =
+    translations?.ActivateWhatsAppNotifications?.email_notifications_title ||
+    "Email notifications";
+  const emailNotificationsText =
+    translations?.ActivateWhatsAppNotifications?.email_notifications_text ||
+    "Receive notifications in your mailbox.";
+
   return (
     <div className="flex flex-col gap-4 py-4">
-      <h1 className="font-bold text-[24px] leading-[24px]">
-        2. Activate WhatsApp notifications
-      </h1>
-      <p className="text-[16px] leading-[24px]">
-        Speed is crucial in the housing markecaive updates about new properties
-        directly via Whats allowing you to respond quicker aline easily forward
-        listings.
-      </p>
+      <h1 className="font-bold text-[24px] leading-[24px]">{title}</h1>
+      <p className="text-[16px] leading-[24px]">{text}</p>
       <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center lg:justify-between gap-16 mt-8">
         {/* whatsapp notifications */}
         <div className="flex items-center justify-between gap-8">
@@ -98,11 +116,9 @@ export default function MovingGuideSecond() {
           />
           <div>
             <h3 className="font-extrabold text-[16px] leading-[24px]">
-              Whatsapp notifications
+              {waNotificationsTitle}
             </h3>
-            <p className="text-[16px] leading-[24px]">
-              Receive notifications on WhatsApp
-            </p>
+            <p className="text-[16px] leading-[24px]">{waNotificationsText}</p>
             <div className="flex items-center gap-2 font-bold text-[16px] leading-[24px]">
               <span>
                 {user?.whatsappNumber
@@ -116,7 +132,7 @@ export default function MovingGuideSecond() {
                 }}
                 className="text-main xl:hover:underline"
               >
-                Edit
+                {waNotificationBtn}
               </button>
             </div>
           </div>
@@ -137,20 +153,20 @@ export default function MovingGuideSecond() {
           </div>
         </div>
 
-        {/*  gmail notifications */}
+        {/* gmail notifications */}
         <div className="flex items-center justify-between gap-8">
           <Image
             src="/dashboard-gmail-icon.svg"
-            alt="WhatsApp Icon"
+            alt="Email Icon"
             width={40}
             height={30}
           />
           <div>
             <h3 className="font-bold text-[16px] leading-[24px]">
-              Email notifications{" "}
+              {emailNotificationsTitle}
             </h3>
             <p className="text-[16px] leading-[24px]">
-              Receive notifications in your mailbox on:{" "}
+              {emailNotificationsText}
             </p>
             <span className="font-bold text-[16px] leading-[24px]">
               {user?.email}
@@ -184,7 +200,7 @@ export default function MovingGuideSecond() {
                 height={30}
               />
               <h1 className="font-bold text-[24px] leading-[24px]">
-                Whatsapp notifications
+                {waNotificationsTitle}
               </h1>
             </div>
             <p>Enter your number to activate WhatsApp notifications.</p>
