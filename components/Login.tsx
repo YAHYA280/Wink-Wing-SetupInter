@@ -2,7 +2,7 @@
 // next
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 // icons
@@ -17,9 +17,16 @@ export default function Login() {
   const [password, setPassword] = useState<string>("");
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const dispatch = useAppDispatch();
   const { error, loading } = useAppSelector((state) => state.auth);
+
+  // Extract the current locale from the path
+  const getLocale = () => {
+    const pathParts = pathname.split("/");
+    return pathParts.length > 1 ? pathParts[1] : "en"; // Default to 'en' if no locale found
+  };
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,13 +34,19 @@ export default function Login() {
       const result = await dispatch(login({ email, password }));
 
       if (login.fulfilled.match(result)) {
-        router.push("/moving-guide"); // Only redirect on successful login
-      } else if (login.rejected.match(result)) {
+        const locale = getLocale();
+        router.push(`/${locale}/moving-guide`); // Preserve locale on successful login
+      }
+      // Don't clear form on failed login so user can correct errors
+      if (!login.fulfilled.match(result)) {
+        return;
       }
     } catch (e: any) {
       console.error(e);
+      return; // Return early to prevent clearing form
     }
 
+    // Only clear form on success
     setEmail("");
     setPassword("");
   };
@@ -41,6 +54,8 @@ export default function Login() {
   function handleClearError() {
     dispatch(clearError());
   }
+
+  const locale = getLocale();
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 md:py-24">
@@ -83,7 +98,7 @@ export default function Login() {
               required
             />
             <Link
-              href="/login/reset-password"
+              href={`/${locale}/login/reset-password`}
               className="font-semibold text-[16px] leading-[48px] text-main ml-auto xl:hover:underline"
             >
               Forgot password?
@@ -98,7 +113,11 @@ export default function Login() {
                 </button>
               </div>
             )}
-            <button className="flex items-center justify-center w-full bg-main rounded-lg border border-main py-2 px-9 font-semibold text-[16px] leading-[24px] text-white xl:hover:bg-transparent xl:hover:text-main transition-all duration-300">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center w-full bg-main rounded-lg border border-main py-2 px-9 font-semibold text-[16px] leading-[24px] text-white xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+            >
               {loading ? "Loading..." : "Login"}
             </button>
           </form>

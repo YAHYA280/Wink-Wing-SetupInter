@@ -85,7 +85,7 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={`${proximaNova.className} antialiased`}>
-        <NextIntlClientProvider messages={{ messages }}>
+        <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
