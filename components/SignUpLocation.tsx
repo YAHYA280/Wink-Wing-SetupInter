@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "@/context/translationContext";
+import { SkeletonLocationTab } from "./SkeletonLoaders";
 
 // react-tabs
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
@@ -87,6 +89,8 @@ export default function SignUpLocation({
 
   // Track which tab is currently selected
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  const { isLoading } = useTranslation();
 
   // Get translations
   const pathname = usePathname();
@@ -276,6 +280,10 @@ export default function SignUpLocation({
     setSelectedIndex(index);
     onTabChange?.(index); // Let the parent know which tab is active
   };
+
+  if (isLoading) {
+    return <SkeletonLocationTab />;
+  }
 
   return (
     <div>

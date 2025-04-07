@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
 
+import { useTranslation } from "@/context/translationContext";
+import { SkeletonDropdown } from "./SkeletonLoaders";
+
 // translation service
 import { useSignUpData } from "@/services/translationService";
 
@@ -18,6 +21,7 @@ interface CityDropdownProps {
 
 export default function CityDropdown({ cityLabel }: CityDropdownProps) {
   const [isCityActive, setIsCityActive] = useState<boolean>(false);
+  const { isLoading, isReady } = useTranslation();
 
   const {
     selectedCity,
@@ -50,6 +54,9 @@ export default function CityDropdown({ cityLabel }: CityDropdownProps) {
   useEffect(() =>
     window.addEventListener("click", () => setIsCityActive(false))
   );
+  if (isLoading) {
+    return <SkeletonDropdown />;
+  }
 
   return (
     <div className="flex flex-col gap-1 items-start">

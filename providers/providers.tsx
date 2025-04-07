@@ -25,6 +25,7 @@ import StoreProvider from "./StoreProvider";
 import RedirectAuthenticatedUser from "@/components/RedirectAuthenticatedUser";
 import TokenProvider from "@/components/TokenProvider";
 import TranslationLoader from "@/components/TranslationLoader";
+import { TranslationProvider } from "@/context/translationContext";
 
 type ProvidersProps = {
   children: ReactNode;
@@ -48,24 +49,26 @@ export default function Providers({ children }: ProvidersProps) {
   return (
     <StoreProvider>
       <TokenProvider>
-        <UserPreferencesProvider>
-          <PopupProvider>
-            <ProgressProvider>
-              <CheckboxProvider>
-                <RedirectAuthenticatedUser>
-                  <StepFormProvider steps={steps}>
-                    <TranslationLoader />
-                    {!shouldHideNavAndFooter && <Nav />}
-                    {children}
-                    <CitySearch />
-                    {!shouldHideNavAndFooter && <Footer />}
-                    <Copyright />
-                  </StepFormProvider>
-                </RedirectAuthenticatedUser>
-              </CheckboxProvider>
-            </ProgressProvider>
-          </PopupProvider>
-        </UserPreferencesProvider>
+        <TranslationProvider>
+          <UserPreferencesProvider>
+            <PopupProvider>
+              <ProgressProvider>
+                <CheckboxProvider>
+                  <RedirectAuthenticatedUser>
+                    <StepFormProvider steps={steps}>
+                      <TranslationLoader />
+                      {!shouldHideNavAndFooter && <Nav />}
+                      {children}
+                      <CitySearch />
+                      {!shouldHideNavAndFooter && <Footer />}
+                      <Copyright />
+                    </StepFormProvider>
+                  </RedirectAuthenticatedUser>
+                </CheckboxProvider>
+              </ProgressProvider>
+            </PopupProvider>
+          </UserPreferencesProvider>
+        </TranslationProvider>
       </TokenProvider>
     </StoreProvider>
   );
