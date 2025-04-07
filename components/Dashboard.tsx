@@ -43,7 +43,7 @@ export default function Dashboard() {
     <div className="flex flex-col items-center justify-center gap-[60px] py-[150px] px-2 w-full md:px-20 xl:px-40 xxl:px-[300px]">
       <TrialMessage translationData={dashboardData?.TrialMessage} />
       <DashboardInfo translationData={dashboardData?.DashboardInfo} />
-      <DashboardMenu translationData={dashboardData?.DashboardMovingGuide} />
+      <DashboardMenu translationData={dashboardData} />
     </div>
   );
 }
