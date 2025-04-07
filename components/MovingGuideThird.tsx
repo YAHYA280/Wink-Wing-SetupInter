@@ -2,6 +2,7 @@
 
 import { useMovingGuideData } from "@/services/translationService";
 import React from "react";
+import Markdown from "markdown-to-jsx";
 
 export default function MovingGuideThird() {
   const { data: translations } = useMovingGuideData();
@@ -21,14 +22,16 @@ export default function MovingGuideThird() {
   return (
     <div className="flex flex-col gap-8 py-4">
       <h1 className="font-bold text-[24px] leading-[24px]">{title}</h1>
-      <p className="text-[16px] leading-[24px]">
-        {text.split("\n").map((line, index) => (
+      <div className="text-[16px] leading-[24px]">
+        {/* {text.split("\n").map((line, index) => (
           <React.Fragment key={index}>
             {line}
             <br />
           </React.Fragment>
-        ))}
-      </p>
+        ))} */}
+
+        <Markdown>{text}</Markdown>
+      </div>
 
       <textarea
         defaultValue={`Dear Landlord, 

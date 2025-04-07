@@ -1,6 +1,7 @@
 "use client";
 
 import { useMovingGuideData } from "@/services/translationService";
+import Markdown from "markdown-to-jsx";
 
 export default function MovingGuideTenth() {
   const { data: translations } = useMovingGuideData();
@@ -15,7 +16,9 @@ export default function MovingGuideTenth() {
   return (
     <div className="flex flex-col gap-8 py-4">
       <h1 className="font-bold text-[24px] leading-[24px]">{title}</h1>
-      <p className="text-[16px] leading-[24px]">{text}</p>
+      <div className="text-[16px] leading-[24px]">
+        <Markdown>{text}</Markdown>
+      </div>
     </div>
   );
 }
