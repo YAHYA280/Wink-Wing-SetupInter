@@ -7,8 +7,13 @@ import Image from "next/image";
 // Define supported languages with their flags
 const languages = [
   { code: "en", name: "English", flag: "/GB.svg" },
-  { code: "nl", name: "Nederlands", flag: "/NL.svg" },
+  { code: "nl", name: "Dutch", flag: "/NL.svg" },
   { code: "fr", name: "Français", flag: "/FR.svg" },
+  { code: "ar", name: "العربية", flag: "/AR.svg" },
+  { code: "es", name: "Español", flag: "/ES.svg" },
+  { code: "pt", name: "Portugués", flag: "/PT.svg" },
+  { code: "zh", name: "姓名", flag: "/CN.svg" },
+  { code: "hi", name: "हिन्दी", flag: "/HI.svg" },
 ];
 
 export default function LanguageSwitcher() {

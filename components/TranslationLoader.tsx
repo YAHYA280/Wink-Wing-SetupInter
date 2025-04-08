@@ -1,7 +1,18 @@
-// components/TranslationLoader.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { usePathname, useParams } from "next/navigation";
+
+// Define translations for different languages
+const translations: Record<string, { loading: string; translation: string }> = {
+  en: { loading: "Loading...", translation: "English translation" },
+  nl: { loading: "Laden...", translation: "Nederlandse vertaling" },
+  es: { loading: "Cargando...", translation: "Traducción española" },
+  fr: { loading: "Chargement...", translation: "Traduction française" },
+  ar: { loading: "جاري التحميل...", translation: "الترجمة العربية" },
+  zh: { loading: "加载中...", translation: "中文翻译" },
+  pt: { loading: "Carregando...", translation: "Tradução portuguesa" },
+  hi: { loading: "लोड हो रहा है...", translation: "हिंदी अनुवाद" }
+};
 
 export default function TranslationLoader() {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,9 +46,16 @@ export default function TranslationLoader() {
 
   if (!isLoading) return null;
 
+  // Get the translation for the current locale, fallback to English if not found
+  const locale = loadingLocale || "en";
+  const { loading, translation } = translations[locale] || translations.en;
+
+  // For RTL languages (like Arabic), we could add a special class
+  const isRTL = locale === "ar";
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/90 backdrop-blur-sm transition-opacity duration-300">
-      <div className="flex flex-col items-center">
+      <div className={`flex flex-col items-center ${isRTL ? "rtl" : "ltr"}`}>
         <div className="relative">
           {/* Main spinning logo */}
           <img
@@ -53,14 +71,12 @@ export default function TranslationLoader() {
         </div>
 
         <p className="mt-6 text-[#003956] font-semibold text-lg animate-pulse">
-          {loadingLocale === "nl" ? "Laden..." : "Loading..."}
+          {loading}
         </p>
 
-        {/* Optional: Show which locale is being loaded */}
+        {/* Show which locale is being loaded */}
         <p className="mt-2 text-[#003956]/60 text-sm">
-          {loadingLocale === "nl"
-            ? "Nederlandse vertaling"
-            : "English translation"}
+          {translation}
         </p>
       </div>
     </div>

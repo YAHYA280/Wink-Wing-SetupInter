@@ -19,11 +19,6 @@ export default function EditSearch() {
           features—to receive quality notifications based on your needs.
         </p>
       </div>
-
-      {/*   <div className="text-center bg-white p-5 text-[16px] w-full sm:w-[630px] md:w-[730px] rounded-lg shadow">
-        🏠 With this search you can expect {" "}
-        <span className="text-main">87 matches</span> per week.
-      </div> */}
       <div className="flex flex-col gap-4 bg-white p-6 rounded-lg w-full sm:w-[630px] md:w-[730px] shadow">
         <SignUpLocation />
         <SignUpRequirements />

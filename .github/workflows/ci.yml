@@ -1,6 +1,10 @@
 name: Check PR
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   run-ci:
@@ -29,4 +33,3 @@ jobs:
 
       - name: Check linting
         run: yarn lint # Ensure you have a lint script in your package.json
-

@@ -58,7 +58,7 @@ export default function DeleteAccount() {
 
         // router.push("/");
 
-        if (typeof window !== undefined) {
+        if (typeof window !== "undefined") {
           localStorage.removeItem("auth-token");
         }
       }

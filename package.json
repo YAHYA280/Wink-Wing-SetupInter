@@ -2,11 +2,20 @@
   "name": "winkwing",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "type-check": "tsc --noEmit",
+  "lint": "eslint --fix \"./**/*.{ts,js,tsx}\"",
+  "format": "prettier --ignore-path .gitignore \"./**/*.{ts,js,tsx}\" --write"
+},
+  "lint-staged": {
+    "./**/*.{ts,js,jsx,tsx}": [
+      "eslint --fix --ignore-path .gitignore",
+      "prettier --ignore-path .gitignore --write"
+    ]
   },
   "dependencies": {
     "@ramonak/react-progress-bar": "^5.3.0",
@@ -34,14 +43,22 @@
     "swiper": "^11.1.15"
   },
   "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@next/eslint-plugin-next": "^15.2.4",
     "@types/js-cookie": "^3",
     "@types/node": "^20",
     "@types/qs": "^6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "lint-staged": "^15.5.0",
     "postcss": "^8",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",
     "typescript": "5.7.3"
   }

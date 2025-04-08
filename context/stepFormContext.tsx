@@ -8,7 +8,8 @@ import React, {
   ReactNode,
 } from "react";
 
-type StepFormContext = {
+// Rename the type to StepFormContextType
+type StepFormContextType = {
   currentStepIndex: number;
   step: ReactElement;
   steps: ReactElement[];
@@ -17,7 +18,8 @@ type StepFormContext = {
   goTo: (index: number) => void;
 };
 
-const StepFormContext = createContext({} as StepFormContext);
+// Keep the variable name
+const StepFormContext = createContext({} as StepFormContextType);
 
 export const useStepForm = () => useContext(StepFormContext);
 
