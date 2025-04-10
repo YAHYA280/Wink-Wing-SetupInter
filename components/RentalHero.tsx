@@ -8,7 +8,8 @@ import { useHomePageData } from "@/services/translationService";
 
 const defaultRentalHeroContent = {
   title: "Find your next rental home.",
-  subtitle: "Let WinkWing Help",
+  subtitle_let: "Let",
+  subtitle_help:"Help",
   text: "Moving is stressful. WinkWing helps you by searching for apartments, scanning 750+ websites every minute. The only thing you still have to do is respond to all your matches.",
   button: "Discover all benefits",
 };
@@ -28,7 +29,8 @@ export default function RentalHero({ bg }: { bg: string }) {
       const rentalHero = homePageData.RentalHero[0];
       return {
         title: rentalHero.title || defaultRentalHeroContent.title,
-        subtitle: rentalHero.subtitle || defaultRentalHeroContent.subtitle,
+        subtitle_let: rentalHero.subtitle_let || defaultRentalHeroContent.subtitle_let,
+        subtitle_help: rentalHero.subtitle_help || defaultRentalHeroContent.subtitle_help,
         text: rentalHero.text || defaultRentalHeroContent.text,
         button: rentalHero.button || defaultRentalHeroContent.button,
       };
@@ -39,15 +41,7 @@ export default function RentalHero({ bg }: { bg: string }) {
   const localizedHref = (href: string) =>
     href.startsWith("/") ? `/${locale}${href}` : href;
 
-  // Parse subtitle to separate parts around the "WinkWing" string if present
-  const subtitleParts = useMemo(() => {
-    const parts = content.subtitle.split("WinkWing");
-    return {
-      before: parts[0] || "",
-      after: parts.length > 1 ? parts[1] : "",
-    };
-  }, [content.subtitle]);
-
+ 
   return (
     <div className={`bg-[${bg}] py-24 relative z-20`}>
       <div className="flex flex-col items-center justify-center gap-[60px] lg:flex-row lg:justify-between px-2 max-w-[1164px] mx-auto">
@@ -68,7 +62,7 @@ export default function RentalHero({ bg }: { bg: string }) {
             </h1>
 
             <h1 className="flex items-center justify-center font-extrabold  text-4xl md:text-[60px] md:leading-[70px] text-[#0485C6]">
-              Let
+              {content.subtitle_let}
               <Image
                 className="w-[200px] mx-3 mt-2"
                 src="/winkwing-logo.svg"
@@ -77,7 +71,7 @@ export default function RentalHero({ bg }: { bg: string }) {
                 height={41}
                 loading="lazy"
               />
-              help.
+              {content.subtitle_help}
             </h1>
           </div>
 

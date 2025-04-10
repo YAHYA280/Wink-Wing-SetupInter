@@ -53,7 +53,7 @@ export default function ResetPasswordCode() {
   const handleOtpCodeSubmit = async (e: FormEvent) => {
     e.preventDefault();
     dispatch(setOtp(otpCode));
-    router.push("/login/create-password");
+    router.push (`${locale}/login/create-password`);
   };
 
   return (

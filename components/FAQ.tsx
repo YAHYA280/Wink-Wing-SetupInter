@@ -8,6 +8,7 @@ import FaqCard from "./FaqCard";
 const defaultFaq = [
   {
     title: "Frequently Asked Questions",
+    Show_more: "Show more",
     faq: [
       {
         title: "How will WinkWing help me find a new rental flat?",
@@ -104,7 +105,7 @@ export default function FAQ() {
           onClick={handleShowMore}
           className="block mx-auto bg-main text-white border border-main text-xl py-3 px-24 mt-16 md:mt-10 font-semibold xl:hover:bg-transparent xl:hover:text-main rounded-lg transition-all duration-300 ease-in-out"
         >
-          Show more
+          {faqGroup.Show_more}
         </button>
       )}
     </div>

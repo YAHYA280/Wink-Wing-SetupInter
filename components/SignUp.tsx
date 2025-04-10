@@ -14,67 +14,66 @@ const defaultSignupContent = {
   subtitle: "Find your new home the easy way",
   title: "Sign up for WinkWing today.",
   text: "Try Winkwing 14 days risk free. If you're not satisfied you'll always get your money back. Just email us at info@winkwing.com",
+  steup_info: {
+    steps: {
+      steps: [
+        { id: 1, title: "Location" },
+        { id: 2, title: "Requirements" },
+        { id: 3, title: "Details" },
+        { id: 4, title: "Let's go!" },
+      ]
+    },
+    next: "Next",
+    prv: "Previous"
+  }
 };
 
 export default function SignUp({ bg }: { bg: string }) {
-  const stepsInfo = [
-    {
-      id: 1,
-      title: "Location",
-    },
-    {
-      id: 2,
-      title: "Requirements",
-    },
-    {
-      id: 3,
-      title: "Details",
-    },
-    {
-      id: 4,
-      title: "Let's go!",
-    },
-  ];
-
   const { currentStepIndex, step, goTo, next, back } = useStepForm();
 
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
   const { data: signupData, status } = useSignUpData();
 
-  // Merge API data with defaults using useMemo for just the main component data
-  const mainContent = useMemo(() => {
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
     if (status === "success" && signupData) {
       return {
         subtitle: signupData.subtitle || defaultSignupContent.subtitle,
         title: signupData.title || defaultSignupContent.title,
         text: signupData.text || defaultSignupContent.text,
+        steup_info: signupData.steup_info || defaultSignupContent.steup_info
       };
     }
     return defaultSignupContent;
   }, [signupData, status]);
+
+  // Extract the steps from the content
+  const stepsInfo = useMemo(() => {
+    return content.steup_info?.steps?.steps || defaultSignupContent.steup_info.steps.steps;
+  }, [content]);
 
   return (
     <div className={`py-24 min-h-screen px-2 bg-[${bg}]`}>
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="flex flex-col items-center justify-center gap-4 text-center lg:text-left lg:items-start relative to-zinc-100">
           <h5 className="text-[16px] leading-[24px] text-main">
-            {mainContent.subtitle}
+            {content.subtitle}
           </h5>
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-3xl xs:text-4xl md:text-5xl md:leading-[60px] text-[#003956]">
             {/* Handle WinkWing in the title by splitting and rendering with the logo */}
-            {mainContent.title.split("WinkWing")[0]}
+            {content.title.split("WinkWing")[0]}
             <img
               className="w-[250px] mt-[10px]"
               src="/winkwing-logo.svg"
               alt="Logo"
             />{" "}
-            {mainContent.title.includes("WinkWing")
-              ? mainContent.title.split("WinkWing")[1]
+            {content.title.includes("WinkWing")
+              ? content.title.split("WinkWing")[1]
               : ""}
           </h1>
           <p className="text-[16px] leading-[24px] max-w-[730px]">
-            {mainContent.text}
+            {content.text}
           </p>
         </div>
         {/* stepper */}
@@ -148,13 +147,13 @@ export default function SignUp({ bg }: { bg: string }) {
                 onClick={back}
                 className="border border-main text-main rounded-lg py-2 px-8 sm:px-28 font-semibold text-[16px] leading-[24px] xl:hover:bg-main xl:hover:border-none xl:hover:text-white transition-all duration-300"
               >
-                Previous
+                {content.steup_info?.prv || "Previous"}
               </button>
               <button
                 onClick={next}
                 className="bg-main text-white rounded-lg py-2 px-8 font-semibold sm:px-28 border border-main text-[16px] leading-[24px] xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
               >
-                Next
+                {content.steup_info?.next || "Next"}
               </button>
             </div>
           )}

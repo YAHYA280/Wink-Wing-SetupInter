@@ -129,7 +129,7 @@ export default function PricingBox() {
 
   const handleCheckout = async () => {
     if (!token) {
-      router.push("/signup");
+      router.push(`${locale}/signup`);
       return;
     }
     try {

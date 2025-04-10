@@ -12,6 +12,7 @@ import {
 
 // translation service
 import { useResetPasswordData } from "@/services/translationService";
+import local from "next/font/local";
 
 export default function ResetPassword() {
   const { loading } = useAppSelector((state) => state.auth);
@@ -56,7 +57,7 @@ export default function ResetPassword() {
 
       dispatch(setAuthEmail(email));
 
-      router.push("/login/reset-password/code");
+      router.push(`${locale}/login/reset-password/code`);
     } catch (e) {
       console.error(e);
     }

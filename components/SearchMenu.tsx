@@ -12,6 +12,7 @@ import { useUserPreferences } from "@/context/userPreferencesContext";
 
 // redux
 import { useAppSelector } from "@/store/hooks/hooks";
+import { useHomePageData } from "@/services/translationService";
 
 // types
 import { Radius } from "@/types/types";
@@ -53,6 +54,7 @@ export interface SearchMenuContent {
   max_travel_time: string;
   transport_type: string;
   button: string;
+  
 }
 
 // -----------------------------
@@ -102,6 +104,14 @@ export default function SearchMenu({
   // Tab index
   // -----------------------------
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  const { data: homePageData, status } = useHomePageData();
+
+  const HomeContent = useMemo(() => {
+    if (status === "success" && homePageData?.SearchMenu) {
+      return homePageData.SearchMenu;
+    }
+  }, [homePageData, status]);
 
   // -----------------------------
   // Error handling
@@ -691,15 +701,15 @@ export default function SearchMenu({
           {!token && (
             <div className="border border-[#0A806C] bg-[#0A806C1A] py-2 px-8 rounded-[5px] w-full">
               <span className="text-[#19191A] block text-center">
-                👉 Add up to 4 searches after signing up.
+                {HomeContent?.Add_up_search}
               </span>
             </div>
           )}
 
           <h3 className="font-semibold text-lg">
-            With this search you can expect{" "}
+           {HomeContent?.withThisSearch}{" "}
             <span className="text-main">{isLoading ? "..." : matches}</span>{" "}
-            matches per week.
+            {HomeContent?.matchesPerWeek}
           </h3>
 
           <Link

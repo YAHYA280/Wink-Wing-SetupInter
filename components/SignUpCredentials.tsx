@@ -54,6 +54,8 @@ export default function SignUpCredentials() {
     password_placeholder: "Password",
     checkbox_text: "I agree to the terms and conditions",
     btn: "Signup",
+    title:"Start your search by creating an account. You'll receive your first matches today.",
+    termsAndConditions:"terms and conditions",
   };
 
   // Merge API data with defaults using useMemo
@@ -92,12 +94,9 @@ export default function SignUpCredentials() {
   const { type, selectedCountryValue } = useUserPreferences();
 
   const [isUserTypeActive, setIsUserTypeActive] = useState<boolean>(false);
-  const [selectedUserType, setSelectedUserType] = useState<string>(
-    credentialsContent.type_of_user[0]?.label || "Select user type"
-  );
+  const [selectedUserType, setSelectedUserType] = useState<string>();
 
-  const [selectedUserTypeValue, setSelectedUserTypeValue] =
-    useState<string>("");
+  const [selectedUserTypeValue, setSelectedUserTypeValue] = useState<string>("");
 
   // Map over selectedNeighbourhoods and extract only the id
   const neighbourhoodsID = selectedNeighbourhood.map((neighborhood) => ({
@@ -234,7 +233,7 @@ export default function SignUpCredentials() {
       const result = await dispatch(register(registerBody));
 
       if (register.fulfilled.match(result)) {
-        router.push("/welcome");
+        router.push(`${locale}/welcome`);
       }
     } catch (e: any) {
       console.error("Registration failed:", e);
@@ -252,8 +251,7 @@ export default function SignUpCredentials() {
   return (
     <div>
       <h3 className="text-[14px] leading-[24px] mb-5">
-        Start your search by creating an account. You'll receive your first
-        matches today.
+        {credentialsContent.title}
       </h3>
 
       <div className="flex flex-col items-center justify-center gap-7">
@@ -265,7 +263,7 @@ export default function SignUpCredentials() {
             onClick={() => setIsUserTypeActive(!isUserTypeActive)}
             className="flex items-center justify-between border border-[#CED4D9] cursor-pointer rounded-lg py-2 px-3 w-full"
           >
-            {selectedUserType}
+            {selectedUserType || credentialsContent.type_of_user[0]?.label || "Select user type"}
             <span>
               <svg
                 width="14"
@@ -354,7 +352,7 @@ export default function SignUpCredentials() {
                   )[0]
                 }
                 <Link className="text-main xl:hover:underline" href="/">
-                  terms and conditions
+                  {credentialsContent.termsAndConditions}
                 </Link>
                 {credentialsContent.checkbox_text.split(
                   "terms and conditions"

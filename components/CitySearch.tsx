@@ -45,7 +45,7 @@ export default function CitySearch() {
     if (searchCityQuery) {
       e.preventDefault();
       setSelectedCity(searchCityQuery);
-      router.push("/signup");
+      router.push(`${locale}/signup`)
     }
   };
 

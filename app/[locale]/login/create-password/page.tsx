@@ -66,7 +66,7 @@ export default function CreateNewPassword() {
           })
         );
 
-        router.push("/login");
+        router.push(`${locale}/login`);
 
         setPassword("");
         setRepeatPassword("");

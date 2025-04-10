@@ -3,6 +3,51 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
+
+
+export interface SearchData {
+  hero: {
+    title: string;
+    subtitle: string;
+    text: string;
+    prv: string;
+    save: string;
+    saving: string;
+    edit_subtitle: string;
+    county_eror: string;
+    adress_eror: string;
+    adress_valid: string;
+    success_title: string ;
+    sucess_text:string;
+
+  };
+}
+
+export interface WelcomeData {
+  welcome_hero: {
+    hero_title: string;
+    without_title: string;
+    without_data: {
+      list: string[];
+    };
+    with_title: string;
+    with_data: {
+      list: string[];
+    };
+  };
+  retal_service: {
+    title: string;
+    services: {
+      features: Array<{
+        id: number;
+        icon: string;
+        text: string;
+        title: string;
+      }>;
+    };
+  };
+}
+
 export interface ChangePasswordData {
   subtitle: string;
   title: string;
@@ -179,6 +224,7 @@ export interface DashboardData {
       title: string;
       text: string;
       button: string;
+      edit_Button:string;
     };
     ServiceTwo: {
       id: number;
@@ -268,6 +314,7 @@ export interface NavbarData {
   links: Array<{ id: number; title: string; href: string }>;
   registerButton: string;
   loginButton: string;
+  logoutButton:string;
 }
 // Type for contact page data
 export interface ContactPageData {
@@ -323,6 +370,16 @@ export interface SignUpData {
   subtitle: string;
   title: string;
   text: string;
+  steup_info: {
+    steps: {
+      steps: Array<{
+        id: number;
+        title: string;
+      }>;
+    };
+    next: string;
+    prv: string;
+  };
   SignupLocation: {
     subtitle: string;
     tablist: Array<{
@@ -337,8 +394,10 @@ export interface SignUpData {
     radius: string;
     i_need_to_live_near: string;
     I_need_to_live_near_placeholder: string;
+    start_search:string;
     max_travel_time_label: string;
     transport_type_label: string;
+    select_location:string;
     transport_type: Array<{
       id: number;
       label: string;
@@ -359,11 +418,27 @@ export interface SignUpData {
       value: string | null;
     }>;
     additional_features_label: string;
-    additional_features: any;
+    additional_features: Array<{
+      id: number;
+      label: string;
+      value: string;
+    }> | null;
     also_search_for_label: string;
-    also_search_for: any;
+    also_search_for: Array<{
+      id: number;
+      label: string;
+      value: string;
+    }> | null;
     show_only_properties_for_label: string;
-    show_only_properties_for: any;
+    show_only_properties_for: Array<{
+      id: number;
+      label: string;
+      value: string;
+    }> | null;
+    placeHolder_Optional:string;
+    placeHolder_Nothing:string;
+    PlaceHolder_Dmatter:string;
+    requirement_text:string;
   };
   SignupCredentials: {
     type_of_user: Array<{
@@ -376,9 +451,11 @@ export interface SignUpData {
     password_placeholder: string;
     checkbox_text: string;
     btn: string;
+    title:string;
+    termsAndConditions:string;
+  
   };
 }
-
 //How it works page
 
 export interface HowItWorksData {
@@ -396,7 +473,8 @@ export interface HomePageData {
   RentalHero: Array<{
     id: number;
     title: string;
-    subtitle: string;
+    subtitle_let: string;
+    subtitle_help:string;
     text: string;
     button: string;
   }>;
@@ -429,10 +507,14 @@ export interface HomePageData {
     max_travel_time: string;
     transport_type: string;
     button: string;
+    matchesPerWeek: string;
+    withThisSearch: string;
+    Add_up_search:string;
   };
   FAQ: Array<{
     id: number;
     title: string;
+    Show_more:string;
     faq: Array<{
       title: string;
       content: string;
@@ -772,4 +854,10 @@ export function useResetPasswordData() {
 }
 export function useReviewsData() {
   return useStrapiContent<ReviewsData>("review");
+}
+export function useWelcomeData() {
+  return useStrapiContent<WelcomeData>("welcome");
+}
+export function useSearchData() {
+  return useStrapiContent<SearchData>("search");
 }

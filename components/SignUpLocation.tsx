@@ -75,6 +75,8 @@ export default function SignUpLocation({
 
   const { next } = useStepForm();
 
+ 
+
   // Use local state if props not provided
   const [internalIsAddressValidated, setInternalIsAddressValidated] =
     useState(false);
@@ -114,6 +116,8 @@ export default function SignUpLocation({
     I_need_to_live_near_placeholder: "Enter address",
     max_travel_time_label: "Max travel time",
     transport_type_label: "Transport type",
+    start_search:"Start you search",
+    select_location:"Select location based on",
     transport_type: [
       { id: 1, label: "walking", value: "WALKING" },
       { id: 2, label: "cycling", value: "CYCLING" },
@@ -145,7 +149,6 @@ export default function SignUpLocation({
   // We'll track if user has explicitly chosen from suggestions:
   const [hasUserChosenSuggestion, setHasUserChosenSuggestion] =
     useState<boolean>(false);
-
   const addressInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -287,7 +290,7 @@ export default function SignUpLocation({
 
   return (
     <div>
-      <h3 className="font-bold text-lg">Select location based on</h3>
+      <h3 className="font-bold text-lg">{locationContent.select_location}</h3>
       <Tabs
         // If the parent gave us a selectedTab, we prioritize that, else use local.
         selectedIndex={selectedTab ?? selectedIndex}
@@ -388,7 +391,7 @@ export default function SignUpLocation({
               onClick={next}
               className="block mx-auto bg-main rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
             >
-              Start your search
+              {locationContent.start_search}
             </button>
           )}
         </TabPanel>
@@ -501,13 +504,13 @@ export default function SignUpLocation({
             {/* map end */}
           </div>
           {pathname === `/${locale}/signup` && (
-            <button
-              onClick={next}
-              className="block mx-auto bg-main rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
-            >
-              Start your search
-            </button>
-          )}
+  <button
+    onClick={next}
+    className="block mx-auto bg-main rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+  >
+    {locationContent?.start_search || "Start your search"}
+  </button>
+)}
         </TabPanel>
 
         {/* =========================
@@ -629,7 +632,7 @@ export default function SignUpLocation({
               onClick={handleNext}
               className="block mx-auto rounded-lg py-3 w-full md:w-max md:px-32 md:mr-0 text-white font-bold text-[16px] border border-main leading-[24px] mt-4 bg-main xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
             >
-              Start your search
+              {locationContent.start_search}
             </button>
           )}
         </TabPanel>

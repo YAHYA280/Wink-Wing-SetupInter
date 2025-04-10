@@ -48,6 +48,10 @@ export default function SignUpDetails() {
     also_search_for: null,
     show_only_properties_for_label: "Show only properties for",
     show_only_properties_for: null,
+    placeHolder_Optional:"Optional",
+    placeHolder_Nothing:"Nothing selected",
+    PlaceHolder_Dmatter:"Doesn't matter",
+    requirement_text:"These are not hard requirements, but we give extra priority to homes with these requirements.",
   };
 
   // Merge API data with defaults using useMemo
@@ -62,8 +66,9 @@ export default function SignUpDetails() {
   }, [signupData, status]);
 
   const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
-  const [selectedFurnished, setSelectedFurnished] =
-    useState<string>("Doesn't matter");
+  const [selectedFurnished, setSelectedFurnished] = useState<string>("");
+
+    console.log('ok',detailsContent.PlaceHolder_Dmatter)
 
   const showOnlyPropertiesForSelectedItemsLabel =
     selectedShowOnlyPropertiesFor.length >= 2
@@ -122,7 +127,7 @@ export default function SignUpDetails() {
             onClick={() => setIsFurnishedActive(!isFurnishedActive)}
             className="flex items-center justify-between border border-[#CED4D9] rounded-lg py-[6px] px-3 w-full md:w-[270px] lg:w-[330px]"
           >
-            {selectedFurnished}
+           {selectedFurnished || detailsContent.PlaceHolder_Dmatter}
             <span>
               <svg
                 width="14"
@@ -213,8 +218,7 @@ export default function SignUpDetails() {
               </svg>
               <div className="absolute top-[-120px] right-[-95px] items-center justify-center w-[206px] h-[108px] py-2 px-6 bg-help bg-center bg-cover hidden group-hover:flex">
                 <h3 className="text-[13px] leading-[20px] text-white text-left">
-                  These are not hard requirements, but we give extra priority to
-                  homes with these requirements.
+                  {detailsContent.requirement_text}
                 </h3>
               </div>
             </button>
@@ -226,7 +230,7 @@ export default function SignUpDetails() {
             optionLabel="label"
             optionValue="value"
             display="chip"
-            placeholder="Optional"
+            placeholder={detailsContent.placeHolder_Optional}
             selectedItemTemplate={niceToHavesSelectedItemsLabel}
             maxSelectedLabels={1}
             className="border border-[#CED4D9] rounded-lg py-1 px-3 w-full md:w-[270px] lg:w-[330px]"
@@ -247,7 +251,7 @@ export default function SignUpDetails() {
             display="chip"
             selectedItemTemplate={alsoSearchForSelectedItemsLabel}
             maxSelectedLabels={1}
-            placeholder="Nothing selected"
+            placeholder={detailsContent.placeHolder_Nothing}
             className="border border-[#CED4D9] rounded-lg py-1 px-3 w-full md:w-[270px] lg:w-[330px]"
           />
         </div>
@@ -307,7 +311,7 @@ export default function SignUpDetails() {
             display="chip"
             selectedItemTemplate={showOnlyPropertiesForSelectedItemsLabel}
             maxSelectedLabels={1}
-            placeholder="Nothing selected"
+            placeholder={detailsContent.placeHolder_Nothing}
             className="border border-[#CED4D9] rounded-lg py-1 px-3 w-full md:w-[270px] lg:w-[330px]"
           />
         </div>

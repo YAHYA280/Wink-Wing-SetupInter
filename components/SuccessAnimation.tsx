@@ -1,7 +1,27 @@
 "use client";
 import React from "react";
+import { useMemo } from "react";
+
+// Translation service
+import { useSearchData } from "@/services/translationService";
 
 const SuccessAnimation = () => {
+
+  // Fetch translations
+  const { data: searchData, status } = useSearchData();
+
+  const defaultContent = {
+  
+    success_title:"Search Saved Successfully!",
+    sucess_text:" Your search has been saved. You will now receive notifications based on your preferences",
+  };
+
+  const content = useMemo(() => {
+    if (status === "success" && searchData?.hero) {
+      return searchData.hero;
+    }
+    return defaultContent;
+  }, [searchData, status]);
   return (
     <div className="flex flex-col items-center justify-center text-center gap-4">
       <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-2 success-icon-container">
@@ -22,11 +42,11 @@ const SuccessAnimation = () => {
         </svg>
       </div>
       <h3 className="text-xl font-bold text-[#003956] success-title">
-        Search Saved Successfully!
+        {content.success_title}
       </h3>
       <p className="text-gray-600 success-message">
-        Your search has been saved. You will now receive notifications based on
-        your preferences.
+        {content.sucess_text}
+       
       </p>
 
       <style jsx>{`

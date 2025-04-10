@@ -92,11 +92,13 @@ export default function DashboardRightMenu({
   // We expect translationData.DashboardServices to have keys like ServiceOne, ServiceTwo, etc.
   const services = translationData;
 
+  
+
   const translations = {
     searchjobs: {
       title:
         services?.ServiceOne?.title || defaultTranslations.searchjobs.title,
-      edit: defaultTranslations.searchjobs.edit, // using default as no custom edit provided
+      edit: services?.ServiceOne?.edit_Button  || defaultTranslations.searchjobs.edit, // using default as no custom edit provided
       no_active:
         services?.ServiceOne?.text || defaultTranslations.searchjobs.no_active,
       add_search:

@@ -7,13 +7,18 @@ import {
   createContext,
   useContext,
   useRef,
+  useMemo
 } from "react";
+import { usePathname } from "next/navigation";
 
 // types
 import { City, Neighbourhood, Radius } from "@/types/types";
 
 // utils
 import { getCities, getNeighborhoods } from "@/utils/cities";
+
+// translation service
+import { useSignUpData } from "@/services/translationService";
 
 // react-map-gl
 import { ViewState } from "react-map-gl";
@@ -103,8 +108,14 @@ export default function UserPreferencesProvider({
 }: {
   children: ReactNode;
 }) {
-  // User preferences
+  // Get current locale from URL
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  
+  // Fetch translations
+  const { data: signupData, status } = useSignUpData();
 
+  // User preferences
   const [type, setType] = useState<string>("NEIGHBOURHOODS");
 
   // the count of weekly matches
@@ -120,16 +131,15 @@ export default function UserPreferencesProvider({
   const [maxPrice, setMaxPrice] = useState<number>(2000);
   const [minFloorArea, setMinFloorArea] = useState<number>(0);
   const [furnished, setFurnished] = useState<boolean | null>(null);
-  const [nice_to_have, setNiceToHave] = useState<
-    { id: number; label: string; value: string }[]
-  >([
+  
+  // Default values for options that need translation
+  const defaultNiceToHave = [
     { id: 1, label: "Garden", value: "GARDEN" },
     { id: 2, label: "Balcony", value: "BALCONY" },
     { id: 3, label: "Bath", value: "BATH" },
-  ]);
-  const [also_search_for, setAlsoSearchFor] = useState<
-    { id: number; label: string; value: string }[]
-  >([
+  ];
+  
+  const defaultAlsoSearchFor = [
     {
       id: 1,
       label: "Properties from paid rental websites",
@@ -150,14 +160,66 @@ export default function UserPreferencesProvider({
       label: "Senior housing",
       value: "SENIOR_HOUSING",
     },
-  ]);
-  const [show_only_properties_for, setShowOnlyPropertiesFor] = useState<
-    { id: number; label: string; value: string }[]
-  >([
+  ];
+  
+  const defaultShowOnlyPropertiesFor = [
     { id: 1, label: "Students", value: "STUDENTS" },
     { id: 2, label: "Cohabitants", value: "COHABITANTS" },
     { id: 3, label: "Pet owners", value: "PET_OWNERS" },
-  ]);
+  ];
+  
+  // Use translations from API if available
+  const translatedNiceToHave = useMemo(() => {
+    if (status === "success" && signupData?.SignupDetails?.additional_features) {
+      return signupData.SignupDetails.additional_features;
+    }
+    return defaultNiceToHave;
+  }, [signupData, status]);
+  
+  const translatedAlsoSearchFor = useMemo(() => {
+    if (status === "success" && signupData?.SignupDetails?.also_search_for) {
+      return signupData.SignupDetails.also_search_for;
+    }
+    return defaultAlsoSearchFor;
+  }, [signupData, status]);
+  
+  const translatedShowOnlyPropertiesFor = useMemo(() => {
+    if (status === "success" && signupData?.SignupDetails?.show_only_properties_for) {
+      return signupData.SignupDetails.show_only_properties_for;
+    }
+    return defaultShowOnlyPropertiesFor;
+  }, [signupData, status]);
+  
+  // Set state with either translated or default values
+  const [nice_to_have, setNiceToHave] = useState<
+    { id: number; label: string; value: string }[]
+  >(translatedNiceToHave);
+  
+  const [also_search_for, setAlsoSearchFor] = useState<
+    { id: number; label: string; value: string }[]
+  >(translatedAlsoSearchFor);
+  
+  const [show_only_properties_for, setShowOnlyPropertiesFor] = useState<
+    { id: number; label: string; value: string }[]
+  >(translatedShowOnlyPropertiesFor);
+  
+  // Update state when translations become available
+  useEffect(() => {
+    if (status === "success") {
+      if (signupData?.SignupDetails?.additional_features) {
+        setNiceToHave(signupData.SignupDetails.additional_features);
+      }
+      
+      if (signupData?.SignupDetails?.also_search_for) {
+        setAlsoSearchFor(signupData.SignupDetails.also_search_for);
+      }
+      
+      if (signupData?.SignupDetails?.show_only_properties_for) {
+        setShowOnlyPropertiesFor(signupData.SignupDetails.show_only_properties_for);
+      }
+    }
+  }, [signupData, status]);
+  
   const [address, setAddress] = useState<string>("");
   const [point, setPoint] = useState<number[]>([]);
 
@@ -187,8 +249,6 @@ export default function UserPreferencesProvider({
     { id: 6, label: 15, value: 1500 },
     { id: 7, label: 20, value: 2000 },
   ]);
-
-  console.log(selectedCity);
 
   // fetching cities from api
   useEffect(() => {

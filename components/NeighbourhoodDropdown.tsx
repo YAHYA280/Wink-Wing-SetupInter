@@ -10,7 +10,7 @@ import { useUserPreferences } from "@/context/userPreferencesContext";
 import { useSignUpData } from "@/services/translationService";
 
 interface NeighbourhoodDropdownProps {
-  neighbourhoodLabel?: string; // Optional prop to receive translated label
+  neighbourhoodLabel?: string; 
 }
 
 export default function NeighbourhoodDropdown({
