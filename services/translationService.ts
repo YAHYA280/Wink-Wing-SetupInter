@@ -5,6 +5,31 @@ import { usePathname } from "next/navigation";
 
 
 
+// pages data type : 
+export interface MatchesPageData {
+  search_placeholder: string;
+  sort_options: {
+    most_recent: string;
+    price_low_high: string;
+    surface_high_low: string;
+  };
+  tab_labels: {
+    all: string;
+    new: string;
+    favorite: string;
+    registered: string;
+  };
+  no_matches_text: string;
+  details: {
+    month_label: string;
+    copy_inquiry_button: string;
+    modify_letter_button: string;
+    show_application_checkbox: string;
+    save_button: string;
+    default_letter: string;
+    no_image_text: string;
+  };
+}
 export interface SearchData {
   hero: {
     title: string;
@@ -22,7 +47,6 @@ export interface SearchData {
 
   };
 }
-
 export interface WelcomeData {
   welcome_hero: {
     hero_title: string;
@@ -47,7 +71,6 @@ export interface WelcomeData {
     };
   };
 }
-
 export interface ChangePasswordData {
   subtitle: string;
   title: string;
@@ -56,7 +79,6 @@ export interface ChangePasswordData {
   repeatpassword_placeholder: string;
   button: string;
 }
-
 export interface ResetPasswordData {
   Header: string;
   title: string;
@@ -64,7 +86,6 @@ export interface ResetPasswordData {
   PlaceHolder: string;
   btn: string;
 }
-
 export interface OtpCodeData {
   subtitle: string;
   title: string;
@@ -72,7 +93,6 @@ export interface OtpCodeData {
   expireMessage: string;
   button: string;
 }
-
 export interface LoginData {
   subtitle: string;
   title: string;
@@ -82,7 +102,6 @@ export interface LoginData {
   login_forgotpassword: string;
   button: string;
 }
-
 export interface DeleteAccountData {
   title: string;
   text: string;
@@ -93,7 +112,6 @@ export interface DeleteAccountData {
   saved_matches: string;
   subscription_details: string;
 }
-
 export interface MovingGuideData {
   title: string;
   prev_btn: string;
@@ -158,9 +176,6 @@ export interface MovingGuideData {
     text: string;
   };
 }
-
-//Dashboard Page
-
 export interface DashboardData {
   TrialMessage: {
     id: number;
@@ -262,44 +277,36 @@ export interface DashboardData {
     };
   };
 }
-
-/// FooterData interfaces
 export interface FooterLinkItem {
   id: number;
   href: string;
   title: string;
 }
-
 export interface LinksSection {
   id: number;
   title: string;
   links: FooterLinkItem[];
 }
-
 export interface CityItem {
   id: number;
   title: string;
 }
-
 export interface CitiesSection {
   id: number;
   title: string;
   cities: CityItem[];
 }
-
 export interface SocialItem {
   id: number;
   href: string;
   icon: string;
   title: string;
 }
-
 export interface SocialsSection {
   id: number;
   title: string;
   socials: SocialItem[];
 }
-
 export interface FooterData {
   language: string;
   country: string;
@@ -308,15 +315,12 @@ export interface FooterData {
   Socials: SocialsSection;
   locale?: string;
 }
-
-// Type definitions for various content types
 export interface NavbarData {
   links: Array<{ id: number; title: string; href: string }>;
   registerButton: string;
   loginButton: string;
   logoutButton:string;
 }
-// Type for contact page data
 export interface ContactPageData {
   info: Array<{
     id: number;
@@ -329,24 +333,17 @@ export interface ContactPageData {
   title: string;
   text: string;
 }
-
-// Type for service items that appear in multiple sections
 export interface ServiceItem {
   id: number;
   title: string;
   text: string;
   icon: string;
 }
-// Seach city above footer
 export interface SearchCity {
   title: string;
   placeholder: string;
   button: string;
 }
-
-// Pricing Pga hero section
-
-// PricingBox nested interface
 export interface PricingBoxData {
   title: string;
   one_month: string;
@@ -357,15 +354,11 @@ export interface PricingBoxData {
   text_two: string;
   referralCode: string;
 }
-
-// Main pricing data interface
 export interface PricingData {
   subtitle: string;
   title: string;
   PricingBox: PricingBoxData;
 }
-// sign up compoent
-
 export interface SignUpData {
   subtitle: string;
   title: string;
@@ -456,13 +449,10 @@ export interface SignUpData {
   
   };
 }
-//How it works page
-
 export interface HowItWorksData {
   subtitle: string;
   title: string;
 }
-// Home page data structure based on the actual API response
 export interface HomePageData {
   Hero: {
     id: number;
@@ -527,7 +517,6 @@ export interface HomePageData {
     text: string;
   }>;
 }
-
 export interface ReviewItemData {
   id: number;
   name: string;
@@ -535,7 +524,6 @@ export interface ReviewItemData {
   image: string | null;
   review: number;
 }
-
 export interface ReviewsData {
   subtitle_hero: string;
   title_hero: string;
@@ -547,14 +535,27 @@ export interface ReviewsData {
   all_button: string;
   withPhotos_btn: string;
 }
+export interface CopyrightData {
+  copyright_text: string;
+  coc_text: string;
+  email: string;
+  links: {
+    privacy: string;
+    terms: string;
+    cookies: string;
+    consent_preferences: string;
+  };
+}
 
 // Status type for the fetching process
 type FetchStatus = "idle" | "loading" | "success" | "error";
 
+// functions to fetch data from strapi api :
+
 // Base function to fetch content from Strapi
 export function useStrapiContent<T>(contentType: string) {
   const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "en"; // Extract locale from URL
+  const locale = pathname?.split("/")[1] || "en"; 
 
   const [data, setData] = useState<T | null>(null);
   const [status, setStatus] = useState<FetchStatus>("idle");
@@ -583,7 +584,6 @@ export function useStrapiContent<T>(contentType: string) {
         const formattedData = response.data.data;
         setData(formattedData as T);
         setStatus("success");
-        console.log(`Successfully fetched ${contentType} data:`, formattedData);
       } else {
         throw new Error("Invalid data format received from API");
       }
@@ -594,10 +594,7 @@ export function useStrapiContent<T>(contentType: string) {
       );
       setStatus("error");
 
-      // Set to default values in development for easier working
-      if (process.env.NODE_ENV === "development") {
-        setData(getDefaultData(contentType) as T);
-      }
+     
     }
   }, [contentType, locale]);
 
@@ -607,8 +604,6 @@ export function useStrapiContent<T>(contentType: string) {
 
   return { data, status, error, refetch: fetchContent };
 }
-
-// Helper function for fetching complex nested content that requires multiple requests
 // Helper function for fetching complex nested content that requires multiple requests
 export function useStrapiMultiPartContent<T>(
   contentType: string,
@@ -675,130 +670,10 @@ export function useStrapiMultiPartContent<T>(
 
   return { data, status, error, refetch: fetchContent };
 }
-
-// Default data for development fallbacks
-function getDefaultData(contentType: string): any {
-  switch (contentType) {
-    case "navbar":
-      return {
-        Navbar: [
-          {
-            links: [
-              { id: 1, title: "How it works", href: "/how-it-works" },
-              { id: 2, title: "Reviews", href: "/reviews" },
-              { id: 3, title: "Pricing", href: "/pricing" },
-              { id: 4, title: "Contact", href: "/contact" },
-            ],
-            registerButton: "Start my search",
-            loginButton: "Login",
-          },
-        ],
-      };
-    case "home-page":
-      return {
-        Hero: {
-          id: 1,
-          title: "Find your next home before the pizza",
-          button: "Discover all benefits",
-          services: [
-            {
-              id: 1,
-              title: "Receive real-time alerts",
-              text: "We send you a notification on WhatsApp or e-mail within 60 seconds.",
-              icon: "/hero-services-one.svg",
-            },
-            {
-              id: 2,
-              title: "Automate your search",
-              text: "We scan 750+ rental websites to find your ideal home.",
-              icon: "/hero-services-two.svg",
-            },
-            {
-              id: 3,
-              title: "Less stress, more viewings",
-              text: "Our tools help you find a home in weeks instead of months.",
-              icon: "/hero-services-three.svg",
-            },
-          ],
-        },
-        RentalHero: [
-          {
-            id: 1,
-            title: "Find your next rental home.",
-            subtitle: "Let WinkWing help.",
-            text: "Moving is stressful. WinkWing helps you by searching for apartments, scanning 750+ websites every minute.",
-            button: "Discover all benefits",
-          },
-        ],
-        Renters: {
-          id: 1,
-          title: "Renters ❤️ WinkWing",
-          text: "Thousands of people have found a home using WinkWing's smart tools.",
-          renters: [],
-        },
-        SearchMenu: {
-          id: 1,
-          title: "Stay one step ahead!",
-          services: [
-            {
-              id: 1,
-              title: "Automate your search",
-              text: "Tell us what type of house you are looking for and sit back while we scan more than 750+ rental websites to find your ideal home.",
-              icon: "/search-icon-1.svg",
-            },
-            {
-              id: 2,
-              title: "Receive real-time alerts",
-              text: "When we find a house that matches your preferences, you receive a notification on WhatsApp or e-mail within seconds.",
-              icon: "/search-icon-2.svg",
-            },
-            {
-              id: 3,
-              title: "Less stress, more viewings",
-              text: "Tell us what type of house you are looking for and sit back while we scan more than 750+ rental websites to find your ideal home.",
-              icon: "/search-icon-3.svg",
-            },
-          ],
-          boxSubtitle: "Select location based on",
-          tablist: [
-            { type: "NEIGHBOURHOODS", index: 0, title: "Neighbourhoods" },
-            { type: "RADIUS", index: 1, title: "Radius" },
-            { type: "TRAVEL_TIME", index: 2, title: "Travel Time" },
-          ],
-          city_dropdown_label: "City",
-          neighbourgoods_dropdown_label: "Neighbourhoods",
-          radius_dropdown_label: "Radius",
-          I_need_to_live_near: "I need to live near",
-          max_travel_time: "Max travel time",
-          transport_type: "Transport type",
-          button: "Start your search",
-        },
-        FAQ: [
-          {
-            id: 1,
-            title: "Frequently Asked Questions",
-            faq: [],
-          },
-        ],
-        About: [
-          {
-            id: 1,
-            subtitle: "Why we started Winkwing.",
-            title: "By 2 tenants, for tenants",
-            text: "As home seekers ourselves, we know how incredibly hard it was to find a place to live...",
-          },
-        ],
-      };
-    default:
-      return null;
-  }
-}
-
 // Custom hooks for specific content types
 export function useNavbarData() {
   return useStrapiContent<{ Navbar: NavbarData[] }>("navbar");
 }
-
 export function useHomePageData() {
   return useStrapiContent<HomePageData>("home-page");
 }
@@ -808,22 +683,18 @@ export function useContactData() {
 export function useHowItWorksData() {
   return useStrapiContent<HowItWorksData>("how-it-work");
 }
-
 export function useSignUpData() {
   return useStrapiContent<SignUpData>("signup");
 }
-
 export function useSearchCity() {
   return useStrapiContent<SearchCity>("search-city");
 }
-
 export function usePricingData() {
   return useStrapiContent<PricingData>("pricing");
 }
 export function useFooterData() {
   return useStrapiContent<FooterData>("footer");
 }
-
 export function useDashboardData() {
   return useStrapiMultiPartContent<DashboardData>("dashboard", [
     "TrialMessage",
@@ -835,7 +706,6 @@ export function useDashboardData() {
 export function useMovingGuideData() {
   return useStrapiContent<MovingGuideData>("moving-guide");
 }
-
 export function useDeleteAccountData() {
   return useStrapiContent<DeleteAccountData>("delete-account");
 }
@@ -845,7 +715,6 @@ export function useChangePasswordData() {
 export function useOtpCodeData() {
   return useStrapiContent<OtpCodeData>("otp-code");
 }
-
 export function useLoginData() {
   return useStrapiContent<LoginData>("login");
 }
@@ -860,4 +729,10 @@ export function useWelcomeData() {
 }
 export function useSearchData() {
   return useStrapiContent<SearchData>("search");
+}
+export function useMatchesData() {
+  return useStrapiContent<MatchesPageData>("matche");
+}
+export function useCopyrightData() {
+  return useStrapiContent<CopyrightData>("copyright");
 }

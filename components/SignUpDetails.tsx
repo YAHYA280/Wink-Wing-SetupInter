@@ -68,7 +68,6 @@ export default function SignUpDetails() {
   const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
   const [selectedFurnished, setSelectedFurnished] = useState<string>("");
 
-    console.log('ok',detailsContent.PlaceHolder_Dmatter)
 
   const showOnlyPropertiesForSelectedItemsLabel =
     selectedShowOnlyPropertiesFor.length >= 2

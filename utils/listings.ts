@@ -25,10 +25,7 @@ export const getListingsCount = async (body: {
       }
     );
 
-    const endTime = performance.now(); // End time measurement
-    const duration = endTime - startTime; // Calculate duration in milliseconds
 
-    console.log(`API call took ${duration}ms`);
 
     return res.data.count;
   } catch (e) {

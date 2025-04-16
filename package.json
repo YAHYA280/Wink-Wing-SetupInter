@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "type-check": "tsc --noEmit",
-  "lint": "eslint --fix \"./**/*.{ts,js,tsx}\"",
-  "format": "prettier --ignore-path .gitignore \"./**/*.{ts,js,tsx}\" --write"
-},
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint --fix \"./**/*.{ts,js,tsx}\"",
+    "format": "prettier --ignore-path .gitignore \"./**/*.{ts,js,tsx}\" --write"
+  },
   "lint-staged": {
     "./**/*.{ts,js,jsx,tsx}": [
       "eslint --fix --ignore-path .gitignore",
@@ -18,6 +18,8 @@
     ]
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
+    "@ckeditor/ckeditor5-react": "^9.5.0",
     "@ramonak/react-progress-bar": "^5.3.0",
     "@reduxjs/toolkit": "^2.6.0",
     "axios": "^1.7.9",
@@ -28,6 +30,7 @@
     "markdown-to-jsx": "^7.7.4",
     "next": "15.0.3",
     "next-intl": "^4.0.2",
+    "posthog-js": "^1.235.5",
     "primereact": "^10.9.1",
     "qs": "^6.14.0",
     "react": "19.0.0-rc-66855b96-20241106",

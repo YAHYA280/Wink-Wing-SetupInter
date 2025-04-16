@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 };
 export default async function RootLayout(props: {
   children: React.ReactNode;
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { children, params } = props;
   // Await the params in case it is a promise
@@ -83,6 +83,7 @@ export default async function RootLayout(props: {
             `,
           }}
         ></script>
+        <script src="https://cdn.ckbox.io/ckbox/2.6.1/ckbox.js" crossOrigin="anonymous"></script>
       </head>
       <body className={`${proximaNova.className} antialiased`}>
         <NextIntlClientProvider locale={locale} messages={messages}>

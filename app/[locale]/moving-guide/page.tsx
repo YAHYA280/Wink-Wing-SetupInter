@@ -17,6 +17,8 @@ import MovingGuideEighth from "@/components/MovingGuideEighth";
 import MovingGuideNinth from "@/components/MovingGuideNinth";
 import MovingGuideTenth from "@/components/MovingGuideTenth";
 import ProtectedRoutes from "@/components/ProtectedRoutes";
+import { usePathname } from "next/navigation";
+import {useMemo} from "react";
 
 // context
 import { useProgress } from "@/context/progressContext";
@@ -24,6 +26,8 @@ import { useProgress } from "@/context/progressContext";
 export default function MovingGuidePage() {
   const { handleBack, handleNext, currentStep, totalSteps } = useProgress();
   const { data: translations } = useMovingGuideData();
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
 
   // Extract translations with fallbacks
   const title = translations?.title || "Moving Guide";
@@ -68,7 +72,7 @@ export default function MovingGuidePage() {
               {prevBtn}
             </button>
             <Link
-              href={currentStep == totalSteps ? "/dashboard" : "#!"}
+              href={currentStep == totalSteps ? `/${locale}/dashboard` : "#!"}
               onClick={handleNext}
               className="bg-main border border-main py-2 px-10 font-semibold rounded-lg text-lg text-white xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
             >

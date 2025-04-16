@@ -184,7 +184,7 @@ export default function Search() {
 
         <div className="flex items-center justify-between gap-8">
           <Link
-            href="/dashboard"
+             href={`/${locale}/dashboard`}
             className="bg-transparent border border-main py-2 px-8 text-center rounded-lg text-main font-semibold text-[16px] w-full xl:hover:bg-main xl:hover:text-white transition-all duration-300"
           >
             {content.prv}

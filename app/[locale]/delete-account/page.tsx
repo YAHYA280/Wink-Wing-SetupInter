@@ -103,7 +103,7 @@ export default function DeleteAccount() {
             <div className="flex items-center justify-between gap-2 sm:gap-8">
               <Link
                 className="border border-main text-main py-2 px-4 rounded-lg flex items-center justify-center font-semibold text-md sm:text-lg w-full xl:hover:bg-main xl:hover:text-white transition-all duration-300"
-                href="/dashboard"
+                href={`/${locale}/dashboard`}
               >
                 {content.cancel_button}
               </Link>

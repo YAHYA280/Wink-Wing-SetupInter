@@ -14,7 +14,6 @@ export const toggleEmailNotifications = async (token: string) => {
       }
     );
 
-    console.log(res.data);
     return res.data;
   } catch (e) {
     console.error(e);
@@ -34,7 +33,6 @@ export const toggleWhatsAppNotifications = async (token: string) => {
       }
     );
 
-    console.log(res.data);
     return res.data;
   } catch (e) {
     console.error(e);
@@ -59,7 +57,6 @@ export const changeWhatsAppNumber = async (
       }
     );
 
-    console.log(res.data);
     return res.data;
   } catch (e) {
     console.error(e);

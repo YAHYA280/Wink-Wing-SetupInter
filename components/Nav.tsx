@@ -72,7 +72,7 @@ export default function Nav() {
     // If the user is not logged in, exclude the Dashboard item.
     if (!token) {
       return navContent.links.filter(
-        (link) => link.title.toLowerCase() !== "dashboard"
+        (link) => link.href.toLowerCase() !== "/dashboard"
       );
     }
     return navContent.links;

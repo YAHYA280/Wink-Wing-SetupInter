@@ -2,7 +2,7 @@
 // next
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 // types
 import { RecentMatches } from "@/types/types";
@@ -13,6 +13,10 @@ import { formatDate } from "@/utils/formatDate";
 
 // context
 import { useAppSelector } from "@/store/hooks/hooks";
+
+// translations
+import { useMatchesData } from "@/services/translationService";
+import { usePathname } from "next/navigation";
 
 export default function RecentMatchCardDetails() {
   // all match?es
@@ -26,6 +30,45 @@ export default function RecentMatchCardDetails() {
 
   // Token from authSlice
   const { token } = useAppSelector((state) => state.auth);
+
+  // Get the current locale and fetch translations
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: matchesData, status } = useMatchesData();
+
+  // Default content for fallback
+  const defaultDetailsContent = {
+    details: {
+      month_label: "month",
+      copy_inquiry_button: "Copy inquiry letter",
+      modify_letter_button: "Modify application letter",
+      show_application_checkbox: "Show application letter for each property",
+      save_button: "Save",
+      default_letter: `Dear Landlord,
+            
+I recently came across your property on [[ADDRESS]] and I'm very interested. I would love to apply for the viewing of the apartment.
+            
+I work as a [OCCUPATION] and my monthly income is €[INCOME]. I have all the required documents available.
+            
+I would appreciate it if you could let me know the viewing schedule and if I may attend.
+            
+Best regards, [NAME]`,
+      no_image_text: "no image"
+    }
+  };
+
+  // Merge API data with defaults using useMemo
+  const content = useMemo(() => {
+    if (status === "success" && matchesData?.details) {
+      return {
+        details: {
+          ...defaultDetailsContent.details,
+          ...matchesData.details
+        }
+      };
+    }
+    return defaultDetailsContent;
+  }, [matchesData, status]);
 
   // format date of publishing
   const formattedDate = formatDate(match?.found!);
@@ -65,7 +108,7 @@ export default function RecentMatchCardDetails() {
           />
         ) : (
           <div className="w-[381px] h-[230px] bg-[#e5e5e5] font-medium flex items-center justify-center text-lg uppercase rounded-l-lg">
-            no image
+            {content.details.no_image_text}
           </div>
         )}
         <div className="flex flex-col gap-2 bg-[#F8F8F8] p-6 rounded-r-lg max-w-[381px] h-[230px]">
@@ -97,7 +140,7 @@ export default function RecentMatchCardDetails() {
           </div>
           <div>
             <span className="font-bold text-lg">€{match?.price}</span> /{" "}
-            <span className="font-bold text-lg text-[#707070]">month</span>
+            <span className="font-bold text-lg text-[#707070]">{content.details.month_label}</span>
           </div>
           <div className="flex items-center gap-2">
             <h3 className="flex items-center gap-1 font-semibold">
@@ -117,25 +160,17 @@ export default function RecentMatchCardDetails() {
 
       <div className="flex flex-col gap-2">
         <button className="bg-main border border-main text-white font-semibold rounded-lg py-3 px-8 xl:hover:bg-transparent xl:hover:text-main transition-all duration-300">
-          Copy inquiry letter
+          {content.details.copy_inquiry_button}
         </button>
         <button className="text-main text-lg xl:hover:underline">
-          Modify application letter
+          {content.details.modify_letter_button}
         </button>
       </div>
 
       <div className="flex items-center justify-center w-full">
         <textarea
           className="border border-gray-400 w-[600px] h-[350px] rounded-lg px-8 py-4 text-left resize-none"
-          defaultValue={`Dear Landlord,
-            
-I recently came across your property on [[ADDRESS]] and I'm very interested. I would love to apply for the viewing of the apartment.
-            
-I work as a [OCCUPATION] and my monthly income is €[INCOME]. I have all the required documents available.
-            
-I would appreciate it if you could let me know the viewing schedule and if I may attend.
-            
-Best regards, [NAME]`}
+          defaultValue={content.details.default_letter}
         />
       </div>
 
@@ -143,12 +178,12 @@ Best regards, [NAME]`}
         <div className="flex items-center gap-2">
           <input type="checkbox" id="showAppLetter" />
           <label htmlFor="showAppLetter">
-            Show application letter for each property
+            {content.details.show_application_checkbox}
           </label>
         </div>
 
         <button className="bg-main border border-main py-2 px-8 font-semibold text-lg leading-[20px] text-white rounded-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300">
-          Save
+          {content.details.save_button}
         </button>
       </div>
     </div>

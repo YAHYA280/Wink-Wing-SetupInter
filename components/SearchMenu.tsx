@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 // react-tabs
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
@@ -28,6 +28,9 @@ import { getListingsCount } from "@/utils/listings";
 import CountryDropdown from "./CountryDropdown";
 import CityDropdown from "./CityDropdown";
 import NeighbourhoodDropdown from "./NeighbourhoodDropdown";
+
+// analytics
+import { usePostHogTracking } from "@/components/PosthogTracker";
 
 // -----------------------------
 // Define a type for the SearchMenu content
@@ -73,6 +76,13 @@ export default function SearchMenu({
 }) {
   const router = useRouter();
   const { token } = useAppSelector((state) => state.auth);
+
+  
+  // PostHog tracking
+  const { trackFeatureUsage,  } = usePostHogTracking();
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+
 
   const {
     selectedLat,
@@ -211,6 +221,12 @@ export default function SearchMenu({
   };
 
   const handleAddressSelect = (suggestion: GeocodingFeature) => {
+    // Track address selection
+    trackFeatureUsage("address_selected", {
+      search_type: type,
+      place_name: suggestion.place_name
+    });
+    
     setAddress(suggestion.place_name);
     setIsAddressValidated(true);
     setHasUserChosenSuggestion(true);
@@ -321,7 +337,8 @@ export default function SearchMenu({
           },
         };
 
-        const count = await getListingsCount(body);
+        // const count = await getListingsCount(body);
+        const count = 10;
         setMatches(count);
       } catch (err) {
         console.error("Error fetching listings count:", err);
@@ -366,6 +383,7 @@ export default function SearchMenu({
 
     if (type === "TRAVEL_TIME") {
       if (!address.trim()) {
+        
         setAddressError("Please enter an address");
         addressInputRef.current?.focus();
         e.preventDefault();
@@ -378,6 +396,23 @@ export default function SearchMenu({
         return;
       }
     }
+    trackFeatureUsage("search_button_clicked", {
+      search_type: type,
+      has_city: !!selectedCity && selectedCity !== "Select a city",
+      has_neighborhoods: selectedNeighbourhood.length > 0,
+      city: selectedCity,
+      matches_count: matches,
+      has_address: !!address.trim(),
+      has_address_suggestion: !!addressSuggestions.length,
+      has_radius: radiusValue.length > 0,
+      has_travel_time: type === "TRAVEL_TIME",
+      radius: radiusValue.length > 0 ? radiusValue[0] : 0,
+      neighbourhoods: neighbourhoodsID,
+      point: [selectedLng, selectedLat] as [number, number],
+      address: address,
+      address_suggestion: addressSuggestions.length > 0 ? addressSuggestions[0].place_name : "",  
+    });
+
   };
 
   return (
@@ -713,7 +748,7 @@ export default function SearchMenu({
           </h3>
 
           <Link
-            href={token ? "/search" : "/signup"}
+            href={token ? `/${locale}/search` :`/${locale}/signup` }
             onClick={(e) => handleStartSearch(e)}
             className={`bg-main text-white border border-main text-[15px] md:text-[20px] py-3 px-24 font-semibold rounded-lg transition-all duration-300 ease-in-out w-max ${
               isLoading

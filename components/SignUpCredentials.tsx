@@ -11,26 +11,42 @@ import { useUserPreferences } from "@/context/userPreferencesContext";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
-import { clearError, register } from "@/store/features/authSlice";
+import { clearError, register, setError } from "@/store/features/authSlice";
 
 // translation service
 import { useSignUpData } from "@/services/translationService";
 
 // icons
 import { GrClose } from "react-icons/gr";
+import { FcGoogle } from "react-icons/fc";
 
 // data
 import { userTypeOptions } from "@/data/signupOptions";
+
+// authentication service
+import { googleAuth, initGoogleAuth } from "@/services/authService";
+
+// analytics
+import { usePostHogTracking } from "@/components/PosthogTracker";
 
 export default function SignUpCredentials() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [googleLoading, setGoogleLoading] = useState<boolean>(false);
 
   const { loading, error } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  // PostHog tracking
+  const { trackSignUp, trackFormSubmission, trackButtonClick } = usePostHogTracking();
+
+  // Initialize Google Auth
+  useEffect(() => {
+    initGoogleAuth();
+  }, []);
 
   // Get the current locale
   const pathname = usePathname();
@@ -56,12 +72,14 @@ export default function SignUpCredentials() {
     btn: "Signup",
     title:"Start your search by creating an account. You'll receive your first matches today.",
     termsAndConditions:"terms and conditions",
+    google_btn: "Sign up with Google",
   };
 
   // Merge API data with defaults using useMemo
   const credentialsContent = useMemo(() => {
     if (status === "success" && signupData?.SignupCredentials) {
       return {
+        ...defaultCredentialsContent,
         ...signupData.SignupCredentials,
       };
     }
@@ -112,6 +130,15 @@ export default function SignUpCredentials() {
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Track form submission
+    trackFormSubmission("signup_form", {
+      user_type: selectedUserTypeValue,
+      has_location: !!address,
+      country: selectedCountryValue,
+      locale: locale,
+      signup_method: "email"
+    });
 
     const registerBody = {
       email,
@@ -233,6 +260,15 @@ export default function SignUpCredentials() {
       const result = await dispatch(register(registerBody));
 
       if (register.fulfilled.match(result)) {
+        // Track successful signup 
+        trackSignUp(result?.payload?.user.id.toString(), {
+          user_type: selectedUserTypeValue,
+          signup_method: "email",
+          country: selectedCountryValue,
+          city: selectedCity,
+          language: locale,
+          has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
+        });
         router.push(`${locale}/welcome`);
       }
     } catch (e: any) {
@@ -242,6 +278,64 @@ export default function SignUpCredentials() {
     setName("");
     setEmail("");
     setPassword("");
+  };
+
+  // Handle Google signup
+  const handleGoogleSignup = async () => {
+    // Track button click
+    trackButtonClick("google_signup", {
+      locale: locale,
+      country: selectedCountryValue,
+      user_type: selectedUserTypeValue
+    });
+    
+    setGoogleLoading(true);
+    try {
+      // @ts-ignore 
+      if (window.google && window.google.accounts) {
+        // @ts-ignore
+        window.google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+          callback: async (response: any) => {
+            try {
+              const result = await googleAuth({ token: response.credential });
+              if (result.token) {
+                // Track successful Google signup
+                if (result.user?.id) {
+                  trackSignUp(result.user.id.toString(), {
+                    signup_method: "google",
+                    country: selectedCountryValue,
+                    city: selectedCity,
+                    language: locale,
+                    user_type: selectedUserTypeValue,
+                    has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
+                  });
+                }
+                
+                // Store token in localStorage
+                localStorage.setItem("auth-token", result.token);
+                router.push(`/${locale}/welcome`);
+              }
+            } catch (error: any) {
+              console.error("Google auth error:", error);
+              dispatch(setError(error.message || "Google authentication failed"));
+            } finally {
+              setGoogleLoading(false);
+            }
+          },
+          auto_select: false
+        });
+        
+        // @ts-ignore
+        window.google.accounts.id.prompt();
+      } else {
+        throw new Error("Google authentication not available");
+      }
+    } catch (error: any) {
+      console.error("Google signup error:", error);
+      dispatch(setError(error.message || "Google authentication failed"));
+      setGoogleLoading(false);
+    }
   };
 
   function handleClearError() {
@@ -367,6 +461,22 @@ export default function SignUpCredentials() {
               {loading ? "Loading..." : credentialsContent.btn}
             </button>
           </div>
+          
+          <div className="flex items-center w-full my-2">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="mx-4 text-gray-500">or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          
+          <button
+            type="button"
+            onClick={handleGoogleSignup}
+            disabled={googleLoading}
+            className="flex items-center justify-center gap-2 w-full bg-white rounded-lg border border-gray-300 py-2 px-9 font-semibold text-[16px] leading-[24px] text-[#003956] hover:bg-gray-50 transition-all duration-300"
+          >
+            <FcGoogle size={20} />
+            {googleLoading ? "Loading..." : credentialsContent.google_btn || "Sign up with Google"}
+          </button>
         </form>
       </div>
       {error && (

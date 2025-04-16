@@ -69,7 +69,7 @@ export default function ReviewsHero() {
             {content.text_hero}
           </p>
           <Link
-            href={token ? "/welcome" : "/signup"}
+            href={token ? `/${locale}/welcome` :`/${locale}/signup` }
             className="bg-main rounded-lg py-3 px-20 text-white font-semibold xs:text-[20px] xs:px-24 xl:hover:bg-transparent border xl:hover:border-main xl:hover:text-main transition-all duration-300"
           >
             {content.button_hero}
