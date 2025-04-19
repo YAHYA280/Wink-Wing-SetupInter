@@ -12,7 +12,7 @@ export default function Copyright() {
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
   const { data: copyrightData, status } = useCopyrightData();
-
+// ok
   // Default content for fallback
   const defaultCopyrightContent = {
     copyright_text: "© 2024 - Winkwing B.V.",
