@@ -2,7 +2,7 @@
 // next
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState, useMemo } from "react";
+import { FormEvent, useEffect, useState, useMemo, use } from "react";
 
 import { usePathname } from "next/navigation";
 
@@ -24,7 +24,7 @@ import { FcGoogle } from "react-icons/fc";
 import { userTypeOptions } from "@/data/signupOptions";
 
 // authentication service
-import { googleAuth, initGoogleAuth } from "@/services/authService";
+import { googleAuth, handleGoogleAuthRedirect, initGoogleAuth } from "@/services/authService";
 
 // analytics
 import { usePostHogTracking } from "@/components/PosthogTracker";
@@ -43,7 +43,6 @@ export default function SignUpCredentials() {
   // PostHog tracking
   const { trackSignUp, trackFormSubmission, trackButtonClick } = usePostHogTracking();
 
-  // Initialize Google Auth
   useEffect(() => {
     initGoogleAuth();
   }, []);
@@ -261,14 +260,16 @@ export default function SignUpCredentials() {
 
       if (register.fulfilled.match(result)) {
         // Track successful signup 
-        trackSignUp(result?.payload?.user.id.toString(), {
-          user_type: selectedUserTypeValue,
-          signup_method: "email",
-          country: selectedCountryValue,
-          city: selectedCity,
-          language: locale,
-          has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
-        });
+        if (result?.payload?.user?.id) {
+          trackSignUp(result?.payload?.user.id.toString(), {
+            user_type: selectedUserTypeValue,
+            signup_method: "email",
+            country: selectedCountryValue,
+            city: selectedCity,
+            language: locale,
+            has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
+          });
+        }
         router.push(`${locale}/welcome`);
       }
     } catch (e: any) {
@@ -291,46 +292,120 @@ export default function SignUpCredentials() {
     
     setGoogleLoading(true);
     try {
-      // @ts-ignore 
-      if (window.google && window.google.accounts) {
-        // @ts-ignore
-        window.google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: async (response: any) => {
-            try {
-              const result = await googleAuth({ token: response.credential });
-              if (result.token) {
-                // Track successful Google signup
-                if (result.user?.id) {
-                  trackSignUp(result.user.id.toString(), {
-                    signup_method: "google",
-                    country: selectedCountryValue,
-                    city: selectedCity,
-                    language: locale,
-                    user_type: selectedUserTypeValue,
-                    has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
-                  });
-                }
-                
-                // Store token in localStorage
-                localStorage.setItem("auth-token", result.token);
-                router.push(`/${locale}/welcome`);
-              }
-            } catch (error: any) {
-              console.error("Google auth error:", error);
-              dispatch(setError(error.message || "Google authentication failed"));
-            } finally {
-              setGoogleLoading(false);
-            }
-          },
-          auto_select: false
-        });
-        
-        // @ts-ignore
-        window.google.accounts.id.prompt();
-      } else {
-        throw new Error("Google authentication not available");
-      }
+      const userData = {
+        country: selectedCountryValue,
+        name,
+        type,
+        cityId: Number(city?.id),
+        maxTravelTime,
+        transportType,
+        minPrice,
+        maxPrice,
+        minBeds,
+        minFloorArea,
+        furnished,
+        neighbourhoods: neighbourhoodsID,
+        nice_to_have: selectedNiceToHave,
+        also_search_for: selectedAlsoSearchFor,
+        show_only_properties_for: selectedShowOnlyPropertiesFor,
+        userType: selectedUserTypeValue,
+        address,
+        point,
+        radius: selectedRadiusValue,
+        geometry: {
+          type: "MultiPolygon",
+          coordinates: [
+            [
+              [
+                [4.98051, 52.33078],
+                [4.99786, 52.31398],
+                [5.01613, 52.32451],
+                [5.02154, 52.30246],
+                [5.00789, 52.30152],
+                [4.99748, 52.28912],
+                [4.98351, 52.29037],
+                [4.95524, 52.27831],
+                [4.92933, 52.30853],
+                [4.94049, 52.32568],
+                [4.94766, 52.32814],
+                [4.95268, 52.32264],
+                [4.98051, 52.33078],
+              ],
+            ],
+            [
+              [
+                [4.98675, 52.36511],
+                [4.99078, 52.36377],
+                [4.98044, 52.35856],
+                [4.97451, 52.36158],
+                [4.98675, 52.36511],
+              ],
+            ],
+            [
+              [
+                [5.01415, 52.37169],
+                [5.01251, 52.37244],
+                [5.01314, 52.37307],
+                [5.01456, 52.37296],
+                [5.01415, 52.37169],
+              ],
+            ],
+            [
+              [
+                [5.02152, 52.38412],
+                [5.01838, 52.38039],
+                [5.0143, 52.37417],
+                [5.01834, 52.38345],
+                [5.0237, 52.38685],
+                [5.02152, 52.38412],
+              ],
+            ],
+            [
+              [
+                [4.76656, 52.42755],
+                [4.85608, 52.41666],
+                [4.86268, 52.42994],
+                [4.87074, 52.43039],
+                [4.93072, 52.41161],
+                [4.95277, 52.42368],
+                [4.98264, 52.42676],
+                [5.03004, 52.41564],
+                [5.06841, 52.41545],
+                [5.03153, 52.40092],
+                [5.02524, 52.38818],
+                [5.00846, 52.38273],
+                [5.01281, 52.37319],
+                [4.99853, 52.37878],
+                [4.98026, 52.37367],
+                [4.95956, 52.38198],
+                [4.98349, 52.36795],
+                [5.01451, 52.36802],
+                [4.95778, 52.36766],
+                [4.97527, 52.35715],
+                [4.99001, 52.35707],
+                [4.99208, 52.36166],
+                [5.00901, 52.35328],
+                [5.01652, 52.35535],
+                [5.01129, 52.34283],
+                [4.99932, 52.34154],
+                [4.96959, 52.3561],
+                [4.94955, 52.33838],
+                [4.91293, 52.33051],
+                [4.90913, 52.31825],
+                [4.85676, 52.32141],
+                [4.85592, 52.33032],
+                [4.81875, 52.32556],
+                [4.75612, 52.35611],
+                [4.75782, 52.39666],
+                [4.72876, 52.40071],
+                [4.73921, 52.43106],
+                [4.76656, 52.42755],
+              ],
+            ],
+          ],
+        },
+      };
+      await googleAuth(userData, "signup");
     } catch (error: any) {
       console.error("Google signup error:", error);
       dispatch(setError(error.message || "Google authentication failed"));

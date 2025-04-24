@@ -15,7 +15,7 @@ import { clearError, login, setError } from "@/store/features/authSlice";
 
 // translation service
 import { useLoginData } from "@/services/translationService";
-import { googleAuth, initGoogleAuth } from "@/services/authService";
+import { googleAuth, handleGoogleAuthRedirect, initGoogleAuth } from "@/services/authService";
 
 // analytics
 import { usePostHogTracking } from "@/components/PosthogTracker";
@@ -86,11 +86,14 @@ export default function Login() {
 
       if (login.fulfilled.match(result)) {
         // Track successful login
-        trackLogin(result.payload.user.id.toString(), {
-          login_method: "email",
-          locale: locale,
-          user_email_domain: email.split("@")[1]
-        });
+        console.log("result", result);
+        if (result.payload?.user?.id) {
+          trackLogin(result.payload.user.id.toString(), {
+            login_method: "email",
+            locale: locale,
+            user_email_domain: email.split("@")[1]
+          });
+        }
         
         router.push(`/${locale}/moving-guide`); // Preserve locale on successful login
       }
@@ -120,41 +123,7 @@ export default function Login() {
     
     setGoogleLoading(true);
     try {
-      // @ts-ignore
-      if (window.google && window.google.accounts) {
-        // @ts-ignore
-        window.google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: async (response: any) => {
-            try {
-              const result = await googleAuth({ token: response.credential });
-              if (result.token) {
-                // Track successful Google login
-                if (result.user?.id) {
-                  trackLogin(result.user.id.toString(), {
-                    login_method: "google",
-                    locale: locale
-                  });
-                }
-                
-                // Store token in localStorage
-                localStorage.setItem("auth-token", result.token);
-                router.push(`/${locale}/moving-guide`);
-              }
-            } catch (error: any) {
-              console.error("Google auth error:", error);
-              dispatch(setError(error.message || "Google authentication failed"));
-              setGoogleLoading(false);
-            }
-          },
-          auto_select: false
-        });
-        
-        // @ts-ignore
-        window.google.accounts.id.prompt();
-      } else {
-        throw new Error("Google authentication not available");
-      }
+      await googleAuth(undefined, "login"); 
     } catch (error: any) {
       console.error("Google login error:", error);
       dispatch(setError(error.message || "Google authentication failed"));
