@@ -11,7 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
-import { clearError, login, setError } from "@/store/features/authSlice";
+import { clearError, login, setError, setToken, getMe } from "@/store/features/authSlice";
 
 // translation service
 import { useLoginData } from "@/services/translationService";
@@ -34,11 +34,6 @@ export default function Login() {
   // PostHog tracking
   const { trackLogin, trackFormSubmission, trackButtonClick } = usePostHogTracking();
 
-  // Initialize Google Auth
-  useEffect(() => {
-    initGoogleAuth();
-  }, []);
-
   // Extract the current locale from the path
   const getLocale = () => {
     const pathParts = pathname.split("/");
@@ -46,6 +41,30 @@ export default function Login() {
   };
 
   const locale = getLocale();
+
+  // Initialize Google Auth
+  useEffect(() => {
+    initGoogleAuth();
+  }, []);
+  
+  // Handle Google auth redirect
+  useEffect(() => {
+    const { token, source } = handleGoogleAuthRedirect();
+    
+    if (token) {
+      dispatch(setToken(token));
+      dispatch(getMe({ token }));
+      
+      if (source === "login") {
+        trackLogin("google_user", { 
+          login_method: "google",
+          locale: locale
+        });
+        
+        router.push(`/${locale}/moving-guide`);
+      }
+    }
+  }, [dispatch, locale, router, trackLogin]);
 
   // Fetch translations from the API
   const { data: loginData, status } = useLoginData();

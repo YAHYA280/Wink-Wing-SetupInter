@@ -21,6 +21,7 @@ export default function ResetPassword() {
   const router = useRouter();
 
   const [email, setEmail] = useState<string>("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Get current locale from the pathname
   const pathname = usePathname();
@@ -36,6 +37,10 @@ export default function ResetPassword() {
     text: "Forgotten your password? Enter your email address below, and we'll email instructions",
     PlaceHolder: "Email",
     btn: "Reset",
+    succesEmail:"Email Sent Successfully!",
+    sentEmail : "We've sent an email to",
+    confirmationText: "We've sent an email to reset your password. Please check your inbox.",
+    backToLogin: "Back to Login"
   };
 
   // Merge API data with defaults using useMemo
@@ -54,13 +59,18 @@ export default function ResetPassword() {
 
     try {
       await dispatch(forgotPassword({ email }));
-
       dispatch(setAuthEmail(email));
-
-      router.push(`${locale}/login/reset-password/code`);
+      
+      setShowConfirmation(true);
+      
+   
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleBackToLogin = () => {
+    router.push(`/${locale}/login`);
   };
 
   return (
@@ -74,32 +84,55 @@ export default function ResetPassword() {
             {content.title}
           </h1>
         </div>
-        <div className="w-full md:w-[730px] bg-white  md:h-max rounded-lg p-6 relative z-10">
-          <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
-            <h4 className="text-[16px] leading-[24px] md:text-left">
-              {content.text}
-            </h4>
-            <form
-              onSubmit={handleResetPassword}
-              className="flex flex-col gap-8 w-full"
-            >
-              <input
-                className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
-                type="email"
-                placeholder={content.PlaceHolder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-
-              <button
-                disabled={loading}
-                className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+        <div className="w-full md:w-[730px] bg-white md:h-max rounded-lg p-6 relative z-10">
+          {!showConfirmation ? (
+            <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
+              <h4 className="text-[16px] leading-[24px] md:text-left">
+                {content.text}
+              </h4>
+              <form
+                onSubmit={handleResetPassword}
+                className="flex flex-col gap-8 w-full"
               >
-                {loading ? "Loading..." : content.btn}
+                <input
+                  className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
+                  type="email"
+                  placeholder={content.PlaceHolder}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+
+                <button
+                  disabled={loading}
+                  className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+                >
+                  {loading ? "Loading..." : content.btn}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-8 p-4">
+              <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-[#003956]"> {content.succesEmail}</h2>
+              <p className="text-center text-gray-600">
+                {content.confirmationText}
+              </p>
+              <p className="text-center text-gray-600">
+              {content.sentEmail} <span className="font-semibold">{email}</span>
+              </p>
+              <button 
+                onClick={handleBackToLogin}
+                className="mt-4 bg-main border border-main rounded-lg py-2 px-6 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+              >
+                {content.backToLogin}
               </button>
-            </form>
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

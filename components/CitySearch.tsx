@@ -1,7 +1,7 @@
 "use client";
+
 // icons
 import { IoSearch } from "react-icons/io5";
-
 //next
 import Link from "next/link";
 import { FormEvent, useMemo } from "react";
@@ -21,11 +21,9 @@ const defaultCitySearchContent = {
 };
 
 export default function CitySearch() {
-  const { searchCityQuery, setSearchCityQuery, setSelectedCity } =
-    useUserPreferences();
-
+  const { searchCityQuery, setSearchCityQuery, setSelectedCity } = useUserPreferences();
   const router = useRouter();
-
+  
   // Get translations
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
@@ -45,7 +43,9 @@ export default function CitySearch() {
     if (searchCityQuery) {
       e.preventDefault();
       setSelectedCity(searchCityQuery);
-      router.push(`${locale}/signup`)
+      
+      // Always include the locale to maintain consistency
+      router.push(`/${locale}/signup`);
     }
   };
 
@@ -67,7 +67,6 @@ export default function CitySearch() {
             <span className="absolute left-3">
               <IoSearch fill="#fff" size={20} />
             </span>
-
             {/* Input Field */}
             <input
               className="bg-transparent border-[3px] outline-none text-[16px] border-white rounded-l-[38px] text-white placeholder:text-white pl-[40px] py-2 w-[200px] xs:w-[270px] h-[46px]"
@@ -78,7 +77,6 @@ export default function CitySearch() {
               required
             />
           </div>
-
           {/* Search Button */}
           <button
             className="flex items-center justify-center bg-white font-bold text-[16px] text-[#0485C6] h-[46px] outline-none px-4 ml-[-10px] rounded-r-[38px]"

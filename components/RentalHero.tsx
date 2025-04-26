@@ -81,7 +81,7 @@ export default function RentalHero({ bg }: { bg: string }) {
           </p>
           {/* button */}
           <Link
-            href="/how-it-works"
+            href={`/${locale}/how-it-works`}
             className="bg-main text-white border border-main text-[20px] py-2 px-[50px] font-semibold  xl:hover:bg-transparent xl:hover:text-main rounded-lg transition-all duration-300 ease-in-out"
           >
             {content.button}

@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { handleGoogleAuthRedirect } from "@/services/authService";
 import { usePostHogTracking } from "@/components/PosthogTracker";
+import { useAppDispatch } from "@/store/hooks/hooks";
+import { setToken, getMe } from "@/store/features/authSlice";
 
 // components
 import Hero from "@/components/Hero";
@@ -18,14 +20,16 @@ export default function Home() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
   const { trackLogin, trackSignUp } = usePostHogTracking();
+  const dispatch = useAppDispatch();
 
   // Check for token on component mount
   useEffect(() => {
     const { token, source } = handleGoogleAuthRedirect();
-    console.log("token", token);
-    console.log("source", source);
-    if (token) {
     
+    if (token) {
+      dispatch(setToken(token));
+      dispatch(getMe({ token }));
+      
       if (source === "signup") {
         trackSignUp("google_user", { 
           signup_method: "google",
@@ -42,7 +46,7 @@ export default function Home() {
         router.push(`/${locale}/moving-guide`);
       }
     }
-  }, []);
+  }, [dispatch, locale, router, trackLogin, trackSignUp]);
 
   return (
     <>

@@ -43,7 +43,6 @@ export default function SignUpCredentials() {
   // PostHog tracking
   const { trackSignUp, trackFormSubmission, trackButtonClick } = usePostHogTracking();
 
- 
   // Get the current locale
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
@@ -124,29 +123,29 @@ export default function SignUpCredentials() {
     setPoint([selectedLng, selectedLat]);
   }, [selectedCity, selectedLat, selectedLng]);
 
-    // Initialize Google Auth
-    useEffect(() => {
-      initGoogleAuth();
-    }, []);
+  // Initialize Google Auth
+  useEffect(() => {
+    initGoogleAuth();
+  }, []);
+  
+  // Handle Google auth redirect
+  useEffect(() => {
+    const { token, source } = handleGoogleAuthRedirect();
     
-    // Handle Google auth redirect
-    useEffect(() => {
-      const { token, source } = handleGoogleAuthRedirect();
+    if (token) {
+      dispatch(setToken(token));
+      dispatch(getMe({ token }));
       
-      if (token) {
-        dispatch(setToken(token));
-        dispatch(getMe({ token }));
+      if (source === "signup") {
+        trackSignUp("google_user", { 
+          signup_method: "google",
+          language: locale
+        });
         
-        if (source === "signup") {
-          trackSignUp("google_user", { 
-            signup_method: "google",
-            language: locale
-          });
-          
-          router.push(`/${locale}/welcome`);
-        }
+        router.push(`/${locale}/welcome`);
       }
-    }, [dispatch, locale, router, trackSignUp]);
+    }
+  }, [dispatch, locale, router, trackSignUp]);
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();

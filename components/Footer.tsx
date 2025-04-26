@@ -39,13 +39,13 @@ const defaultFooterContent = {
         title: "Pricing",
         href: "/pricing",
       },
+      // {
+      //   id: 4,
+      //   title: "Guides",
+      //   href: "/guides",
+      // },
       {
         id: 4,
-        title: "Guides",
-        href: "/guides",
-      },
-      {
-        id: 5,
         title: "Contact",
         href: "/contact",
       },
@@ -150,12 +150,12 @@ export default function Footer() {
   return (
     <footer className="py-24 bg-[#1E1E1E] px-2 md:px-20">
       <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
-        {/* Footer links section */}
-        <div className="flex flex-col items-center justify-center md:items-start md:justify-start gap-8">
-          <h1 className="font-bold text-[20px] text-white">
+        {/* Footer links section - Fixed alignment */}
+        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
+          <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
             {footerContent.Links.title}
           </h1>
-          <div className="flex flex-col justify-center items-start md:items-start md:justify-start">
+          <div className="flex flex-col items-center md:items-start w-full">
             {footerContent.Links.links.map((link) => (
               <Link
                 className="text-lg text-white xl:hover:underline"
@@ -167,17 +167,17 @@ export default function Footer() {
             ))}
           </div>
         </div>
-
+  
         {/* Cities section */}
         {footerContent.Cities.map((citySection) => (
           <div
             key={citySection.id}
-            className="flex flex-col items-center justify-center md:items-start md:justify-start gap-8"
+            className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto"
           >
-            <h1 className="font-bold text-[20px] text-white">
+            <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
               {citySection.title}
             </h1>
-            <div className="flex flex-col justify-center items-start md:justify-start">
+            <div className="flex flex-col items-center md:items-start w-full">
               {citySection.cities.map((city) => (
                 <span className="text-lg text-white" key={city.id}>
                   {city.title}
@@ -186,13 +186,13 @@ export default function Footer() {
             </div>
           </div>
         ))}
-
+  
         {/* Socials section */}
-        <div className="flex flex-col items-center justify-center md:items-start md:justify-start gap-8">
-          <h1 className="font-bold text-[20px] text-white">
+        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
+          <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
             {footerContent.Socials.title}
           </h1>
-          <div className="flex flex-col justify-center items-start md:justify-start">
+          <div className="flex flex-col items-center md:items-start w-full">
             {footerContent.Socials.socials.map((social) => (
               <a
                 className="flex items-center gap-5 text-lg text-white xl:hover:underline"
@@ -206,23 +206,16 @@ export default function Footer() {
             ))}
           </div>
         </div>
-
+  
         {/* Language and Country section */}
-        <div className="flex flex-col items-center justify-center md:items-start md:justify-start gap-8 ml-8">
-          <div className="flex flex-col items-center justify-center md:items-start gap-7">
-            <h1 className="font-bold text-[20px] text-white">
+        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto md:ml-8">
+          <div className="flex flex-col items-center md:items-start gap-7 w-full">
+            <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
               {footerContent.language}
             </h1>
             <LanguageSwitcher />
           </div>
-          <div className="flex flex-col items-center justify-center md:items-start md:justify-start gap-7 text-white">
-            <h1 className="font-bold text-[20px] text-white">
-              {footerContent.country}
-            </h1>
-            <FooterDropDown />
-          </div>
         </div>
       </div>
     </footer>
-  );
-}
+  );}
