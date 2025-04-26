@@ -22,7 +22,6 @@ export default function Copyright() {
       privacy: "Privacy",
       terms: "Terms",
       cookies: "Cookies",
-      consent_preferences: "Consent Preferences"
     }
   };
 
@@ -53,9 +52,6 @@ export default function Copyright() {
         </Link>
         <Link className="text-white text-[20px]" href="/">
           {content.links.cookies}
-        </Link>
-        <Link className="text-white text-[20px]" href="/">
-          {content.links.consent_preferences}
         </Link>
       </div>
     </div>

@@ -76,12 +76,93 @@ export default function SignUp({ bg }: { bg: string }) {
             {content.text}
           </p>
         </div>
-        {/* stepper */}
-        <div className="flex flex-col sm:flex-row items-center justify-between pt-12">
+        
+        {/* Mobile stepper (hidden on sm and above) */}
+        <div className="w-full overflow-x-auto sm:hidden">
+          <div className="flex flex-row items-center justify-between pt-12 min-w-[320px]">
+            {stepsInfo.map((currentStep, idx) => (
+              <div
+                className={`
+                  relative 
+                  flex flex-col justify-center items-center 
+                  w-full
+                  ${idx !== 0 ? "before:content-['']" : ""}
+                  before:bg-[#6C757DB2] 
+                  before:absolute 
+                  before:h-[1px]
+                  before:w-full 
+                  before:top-[7px]
+                  before:right-2/4
+                  first:before:content-none
+                  z-0
+                `}
+                key={`mobile-${currentStep.id}`}
+              >
+                <button
+                  onClick={() => goTo(currentStep.id - 1)}
+                  className={`flex items-center justify-center z-10 cursor-pointer`}
+                >
+                  {currentStepIndex >= currentStep.id - 1 ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 17 17"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <mask id={`path-mobile-${currentStep.id}`} fill="white">
+                        <path d="M0.700195 8.3C0.700195 3.99218 4.19237 0.5 8.5002 0.5C12.808 0.5 16.3002 3.99218 16.3002 8.3C16.3002 12.6078 12.808 16.1 8.5002 16.1C4.19237 16.1 0.700195 12.6078 0.700195 8.3Z" />
+                      </mask>
+                      <path
+                        d="M0.700195 8.3C0.700195 3.99218 4.19237 0.5 8.5002 0.5C12.808 0.5 16.3002 3.99218 16.3002 8.3C16.3002 12.6078 12.808 16.1 8.5002 16.1C4.19237 16.1 0.700195 12.6078 0.700195 8.3Z"
+                        fill="#0485C6"
+                      />
+                      <path
+                        d="M8.5002 14.1C5.29694 14.1 2.7002 11.5033 2.7002 8.3H-1.2998C-1.2998 13.7124 3.08781 18.1 8.5002 18.1V14.1ZM14.3002 8.3C14.3002 11.5033 11.7034 14.1 8.5002 14.1V18.1C13.9126 18.1 18.3002 13.7124 18.3002 8.3H14.3002ZM8.5002 2.5C11.7034 2.5 14.3002 5.09675 14.3002 8.3H18.3002C18.3002 2.88761 13.9126 -1.5 8.5002 -1.5V2.5ZM8.5002 -1.5C3.08781 -1.5 -1.2998 2.88761 -1.2998 8.3H2.7002C2.7002 5.09675 5.29694 2.5 8.5002 2.5V-1.5Z"
+                        fill="#0485C6"
+                        mask={`url(#path-mobile-${currentStep.id})`}
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 13"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M11 6.19995C11 8.96138 8.76142 11.2 6 11.2C3.23858 11.2 1 8.96138 1 6.19995C1 3.43853 3.23858 1.19995 6 1.19995C8.76142 1.19995 11 3.43853 11 6.19995Z"
+                        fill="#FFFBF6"
+                        stroke="#989DA1"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  )}
+                </button>
+
+                <h3
+                  className={`
+                    ${currentStepIndex >= currentStep.id - 1 ? "text-[#0485C6]" : "text-[#6C757DB2]"}
+                    text-[14px] leading-[24px] 
+                    mt-3
+                    text-center
+                    whitespace-nowrap
+                  `}
+                >
+                  {currentStep.title}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Desktop stepper (hidden on mobile) */}
+        <div className="hidden sm:flex flex-row items-center justify-between pt-12">
           {stepsInfo.map((currentStep) => (
             <div
-              className={` relative flex flex-col justify-center items-center w-1 sm:w-36 before:content-[''] before:bg-[#6C757DB2] before:absolute before:w-full before:h-[80px] sm:before:h-[3px] before:right-2/4 first:before:content-none top-1/3 -translate-y-2/4`}
-              key={currentStep.id}
+              className={`relative flex flex-col justify-center items-center w-36 before:content-[''] before:bg-[#6C757DB2] before:absolute before:w-full before:h-[3px] before:right-2/4 first:before:content-none top-1/3 -translate-y-2/4`}
+              key={`desktop-${currentStep.id}`}
             >
               <button
                 onClick={() => goTo(currentStep.id - 1)}
@@ -95,7 +176,7 @@ export default function SignUp({ bg }: { bg: string }) {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <mask id="path-1-inside-1_4_410" fill="white">
+                    <mask id={`path-desktop-${currentStep.id}`} fill="white">
                       <path d="M0.700195 8.3C0.700195 3.99218 4.19237 0.5 8.5002 0.5C12.808 0.5 16.3002 3.99218 16.3002 8.3C16.3002 12.6078 12.808 16.1 8.5002 16.1C4.19237 16.1 0.700195 12.6078 0.700195 8.3Z" />
                     </mask>
                     <path
@@ -105,7 +186,7 @@ export default function SignUp({ bg }: { bg: string }) {
                     <path
                       d="M8.5002 14.1C5.29694 14.1 2.7002 11.5033 2.7002 8.3H-1.2998C-1.2998 13.7124 3.08781 18.1 8.5002 18.1V14.1ZM14.3002 8.3C14.3002 11.5033 11.7034 14.1 8.5002 14.1V18.1C13.9126 18.1 18.3002 13.7124 18.3002 8.3H14.3002ZM8.5002 2.5C11.7034 2.5 14.3002 5.09675 14.3002 8.3H18.3002C18.3002 2.88761 13.9126 -1.5 8.5002 -1.5V2.5ZM8.5002 -1.5C3.08781 -1.5 -1.2998 2.88761 -1.2998 8.3H2.7002C2.7002 5.09675 5.29694 2.5 8.5002 2.5V-1.5Z"
                       fill="#0485C6"
-                      mask="url(#path-1-inside-1_4_410)"
+                      mask={`url(#path-desktop-${currentStep.id})`}
                     />
                   </svg>
                 ) : (
@@ -138,7 +219,7 @@ export default function SignUp({ bg }: { bg: string }) {
             </div>
           ))}
         </div>
-        {/* stepper end */}
+        
         <div className="w-full md:w-max bg-white shadow-sm rounded-lg p-6 relative z-10">
           {step}
           {currentStepIndex != 0 && currentStepIndex != 3 && (

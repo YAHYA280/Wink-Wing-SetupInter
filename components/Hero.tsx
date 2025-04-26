@@ -1,4 +1,3 @@
-// components/Hero.tsx
 "use client";
 import Link from "next/link";
 import Image from "next/image";
@@ -56,39 +55,82 @@ export default function Hero() {
     href.startsWith("/") ? `/${locale}${href}` : href;
 
   return (
-    <div className="bg-hero bg-center bg-cover mb-8 mx-2 md:mx-[30px] rounded-2xl pt-12">
-      <div className="max-w-[1164px] min-h-screen mx-auto px-2 py-32">
+    <div className="bg-hero bg-center bg-cover mb-4 md:mb-8 mx-2 md:mx-[30px] rounded-2xl">
+      <div className="max-w-[1164px] mx-auto px-3 md:px-6 py-8 md:py-32 max-h-[90vh] md:max-h-none overflow-y-auto md:overflow-visible">
         {/* hero content */}
-        <div className="flex flex-col gap-[55px] max-w-[600px]">
-          <h1 className="font-extrabold text-4xl sm:text-5xl md:text-6xl text-[#fff]">
+        <div className="flex flex-col gap-3 md:gap-[55px] max-w-[600px]">
+          <h1 className="font-extrabold text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-[#fff] leading-tight">
             {heroContent.title}
           </h1>
-          <div className="flex flex-col gap-5">
-            {heroContent.services.map((service) => (
-              <div
-                className="flex flex-col items-start gap-4 sm:flex-row"
-                key={service.id}
-              >
+          
+          {/* Services section */}
+          <div className="flex flex-col gap-2 md:gap-5">
+            {/* Mobile: Condensed services */}
+            <div className="md:hidden">
+              <div className="flex items-center gap-2 mb-2">
                 <Image
-                  className="text-white"
-                  src={service.icon}
-                  alt="Service Image"
-                  width={30}
-                  height={30}
+                  src={heroContent.services[0].icon}
+                  alt="Service Icon"
+                  width={20}
+                  height={20}
                 />
-                <div>
-                  <h1 className="font-bold text-lg text-white">
-                    {service.title}
-                  </h1>
-                  <p className="text-lg max-w-[480px] text-white">
-                    {service.text}
-                  </p>
-                </div>
+                <h2 className="font-bold text-sm text-white">
+                  {heroContent.services[0].title}
+                </h2>
               </div>
-            ))}
+              <div className="flex items-center gap-2 mb-2">
+                <Image
+                  src={heroContent.services[1].icon}
+                  alt="Service Icon"
+                  width={20}
+                  height={20}
+                />
+                <h2 className="font-bold text-sm text-white">
+                  {heroContent.services[1].title}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <Image
+                  src={heroContent.services[2].icon}
+                  alt="Service Icon"
+                  width={20}
+                  height={20}
+                />
+                <h2 className="font-bold text-sm text-white">
+                  {heroContent.services[2].title}
+                </h2>
+              </div>
+            </div>
+            
+            {/* Desktop: Full services with descriptions */}
+            <div className="hidden md:flex md:flex-col md:gap-5">
+              {heroContent.services.map((service) => (
+                <div
+                  className="flex flex-col items-start gap-4 sm:flex-row"
+                  key={service.id}
+                >
+                  <Image
+                    className="text-white"
+                    src={service.icon}
+                    alt="Service Image"
+                    width={30}
+                    height={30}
+                  />
+                  <div>
+                    <h1 className="font-bold text-lg text-white">
+                      {service.title}
+                    </h1>
+                    <p className="text-lg max-w-[480px] text-white">
+                      {service.text}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+          
           <Link
-            className="bg-main border border-main rounded-lg py-5 font-semibold text-lg sm:text-xl text-white text-center xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+            className="bg-main border border-main rounded-lg py-2 md:py-5 font-semibold text-sm sm:text-base md:text-xl text-white text-center xl:hover:bg-transparent xl:hover:text-main transition-all duration-300 mt-2 md:mt-0"
             href={localizedHref("/how-it-works")}
           >
             {heroContent.button}

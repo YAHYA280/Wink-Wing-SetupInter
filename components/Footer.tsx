@@ -2,6 +2,7 @@
 
 // next
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 
@@ -148,13 +149,26 @@ export default function Footer() {
   }, [footerData, status]);
 
   return (
-    <footer className="py-24 bg-[#1E1E1E] px-2 md:px-20">
+    <footer className="pt-24 pb-8 bg-[#1E1E1E] px-2 md:px-20">
+      <div className="flex flex-col items-center w-full mb-5">
+        <Link className="cursor-pointer" href={`/${locale}`}>
+          <Image
+            src="/winkwing-logo.svg"
+            alt="Logo"
+            width={150}
+            height={40}
+            className="w-[140px] h-auto"
+            priority
+          />
+        </Link>
+      </div>
       <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
-        {/* Footer links section - Fixed alignment */}
+        
         <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
           <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
             {footerContent.Links.title}
           </h1>
+          
           <div className="flex flex-col items-center md:items-start w-full">
             {footerContent.Links.links.map((link) => (
               <Link
@@ -217,5 +231,15 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Suggestion banner */}
+      <div className="w-full mt-20 pt-6 border-t border-gray-700">
+        <div className="flex justify-center">
+          <div className="text-white text-center">
+            Let's make WinkWing better together! <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">Suggest your ideas.</a>
+          </div>
+        </div>
+      </div>
     </footer>
-  );}
+  );
+}
