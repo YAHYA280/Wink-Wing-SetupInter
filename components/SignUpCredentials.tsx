@@ -11,7 +11,7 @@ import { useUserPreferences } from "@/context/userPreferencesContext";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
-import { clearError, register, setError } from "@/store/features/authSlice";
+import { clearError, register, setError, setToken, getMe } from "@/store/features/authSlice";
 
 // translation service
 import { useSignUpData } from "@/services/translationService";
@@ -43,10 +43,7 @@ export default function SignUpCredentials() {
   // PostHog tracking
   const { trackSignUp, trackFormSubmission, trackButtonClick } = usePostHogTracking();
 
-  useEffect(() => {
-    initGoogleAuth();
-  }, []);
-
+ 
   // Get the current locale
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
@@ -126,6 +123,30 @@ export default function SignUpCredentials() {
   useEffect(() => {
     setPoint([selectedLng, selectedLat]);
   }, [selectedCity, selectedLat, selectedLng]);
+
+    // Initialize Google Auth
+    useEffect(() => {
+      initGoogleAuth();
+    }, []);
+    
+    // Handle Google auth redirect
+    useEffect(() => {
+      const { token, source } = handleGoogleAuthRedirect();
+      
+      if (token) {
+        dispatch(setToken(token));
+        dispatch(getMe({ token }));
+        
+        if (source === "signup") {
+          trackSignUp("google_user", { 
+            signup_method: "google",
+            language: locale
+          });
+          
+          router.push(`/${locale}/welcome`);
+        }
+      }
+    }, [dispatch, locale, router, trackSignUp]);
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
