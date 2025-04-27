@@ -1,4 +1,4 @@
-// Reduxx
+// Redux
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 // types
@@ -10,9 +10,14 @@ import axios from "axios";
 interface AuthResponse {
   message: string;
   token: string;
+  user?: UserInfo;
 }
 
 interface ForgotPasswordResponse {
+  message: string;
+}
+
+interface ResetPasswordResponse {
   message: string;
 }
 
@@ -24,6 +29,7 @@ interface AuthState {
   msg: string | null;
   error: string | null;
   otp: string | null;
+  resetPasswordSuccess: boolean;
 }
 
 const initialState: AuthState = {
@@ -34,6 +40,7 @@ const initialState: AuthState = {
   msg: null,
   error: null,
   otp: null,
+  resetPasswordSuccess: false,
 };
 
 interface RegisterBody {
@@ -63,6 +70,16 @@ interface RegisterBody {
 
 interface LoginBody {
   email: string;
+  password: string;
+}
+
+interface ForgotPasswordBody {
+  email: string;
+}
+
+interface ResetPasswordBody {
+  email: string;
+  otpCode: string;
   password: string;
 }
 
@@ -158,17 +175,17 @@ export const login = createAsyncThunk(
 
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
-  async ({ email }: { email: string }, { rejectWithValue }) => {
+  async ({ email }: ForgotPasswordBody, { rejectWithValue }) => {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/forget-password`,
         { email }
       );
 
-      return res.data;
+      return { ...res.data, email }; // Return email along with the response
     } catch (e: any) {
       const errorMessage =
-        e.response?.data?.error || "An unexpected error occurred.";
+        e.response?.data?.error || e.message || "An unexpected error occurred.";
       console.error("ForgotPassword error:", errorMessage, e);
       return rejectWithValue(errorMessage); // Pass the error message to rejectWithValue
     }
@@ -176,17 +193,9 @@ export const forgotPassword = createAsyncThunk(
 );
 
 export const resetPassword = createAsyncThunk(
-  "auth/reset",
+  "auth/resetPassword",
   async (
-    {
-      email,
-      otpCode,
-      password,
-    }: {
-      email: string;
-      otpCode: string;
-      password: string;
-    },
+    { email, otpCode, password }: ResetPasswordBody,
     { rejectWithValue }
   ) => {
     try {
@@ -249,8 +258,8 @@ export const getMe = createAsyncThunk(
     } catch (e: any) {
       const errorMessage =
         e.response?.data?.error || e.message || "An unexpected error occurred.";
-      console.error("Deleting account error:", errorMessage, e);
-      return rejectWithValue(errorMessage); // Pass the error message to rejectWithValue
+      console.error("Getting user info error:", errorMessage, e);
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -261,6 +270,7 @@ export const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.token = null;
+      state.user = null;
       if (typeof window !== "undefined") {
         localStorage.removeItem("auth-token");
       }
@@ -280,9 +290,17 @@ export const authSlice = createSlice({
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload;
     },
+    resetPasswordState: (state) => {
+      state.resetPasswordSuccess = false;
+      state.otp = null;
+      state.email = null;
+      state.error = null;
+      state.msg = null;
+    },
   },
   extraReducers: (builder) =>
     builder
+      // Register cases
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -294,6 +312,7 @@ export const authSlice = createSlice({
           state.error = null;
           state.msg = action.payload.message;
           state.token = action.payload.token;
+          state.user = action.payload.user || null;
 
           if (typeof window !== "undefined") {
             localStorage.setItem("auth-token", action.payload.token);
@@ -304,6 +323,8 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      
+      // Login cases
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -315,6 +336,7 @@ export const authSlice = createSlice({
           state.error = null;
           state.msg = action.payload.message;
           state.token = action.payload.token;
+          state.user = action.payload.user || null;
 
           if (typeof window !== "undefined") {
             localStorage.setItem("auth-token", action.payload.token);
@@ -325,35 +347,44 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      
+      // Forgot password cases
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
         forgotPassword.fulfilled,
-        (state, action: PayloadAction<ForgotPasswordResponse>) => {
-          state.msg = action.payload.message;
+        (state, action) => {
           state.loading = false;
           state.error = null;
+          state.msg = action.payload.message;
+          state.email = action.payload.email; // Store email for the next steps
         }
       )
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      
+      // Reset password cases
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(resetPassword.fulfilled, (state, action) => {
+      .addCase(resetPassword.fulfilled, (state, action: PayloadAction<ResetPasswordResponse>) => {
         state.loading = false;
         state.error = null;
         state.msg = action.payload.message;
+        state.resetPasswordSuccess = true;
+        state.otp = null; // Clear OTP after successful reset
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      
+      // Delete account cases
       .addCase(deleteAccount.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -362,11 +393,19 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.msg = action.payload.message;
+        state.token = null;
+        state.user = null;
+        
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth-token");
+        }
       })
       .addCase(deleteAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      
+      // Get user info cases
       .addCase(getMe.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -382,7 +421,14 @@ export const authSlice = createSlice({
       }),
 });
 
-export const { logout, setToken, setOtp, setError, clearError, setEmail } =
-  authSlice.actions;
+export const { 
+  logout, 
+  setToken, 
+  setOtp, 
+  setError, 
+  clearError, 
+  setEmail,
+  resetPasswordState
+} = authSlice.actions;
 
 export default authSlice.reducer;

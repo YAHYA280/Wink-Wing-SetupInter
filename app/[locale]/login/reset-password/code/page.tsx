@@ -53,7 +53,11 @@ export default function ResetPasswordCode() {
   const handleOtpCodeSubmit = async (e: FormEvent) => {
     e.preventDefault();
     dispatch(setOtp(otpCode));
-    router.push (`${locale}/login/create-password`);
+    
+    // Alternative approach using absolute path
+    const absolutePath = "/" + locale + "/login/create-password";
+    console.log("Navigating to:", absolutePath); // Log for debugging
+    router.push(absolutePath);
   };
 
   return (

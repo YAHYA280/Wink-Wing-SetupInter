@@ -1,10 +1,11 @@
 "use client";
 // next
-import { FormEvent, useState, useMemo } from "react";
+import { FormEvent, useState, useMemo, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 // react-icons
 import { GrClose } from "react-icons/gr";
+import { FiCheckCircle } from "react-icons/fi";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
@@ -12,6 +13,7 @@ import {
   clearError,
   resetPassword,
   setError,
+  resetPasswordState
 } from "@/store/features/authSlice";
 
 // translation service
@@ -20,9 +22,10 @@ import { useChangePasswordData } from "@/services/translationService";
 export default function CreateNewPassword() {
   const [password, setPassword] = useState<string>("");
   const [repeatPassword, setRepeatPassword] = useState<string>("");
+  const [passwordStrength, setPasswordStrength] = useState<string>("weak");
 
   const dispatch = useAppDispatch();
-  const { loading, error, otp, email } = useAppSelector((state) => state.auth);
+  const { loading, error, otp, email, resetPasswordSuccess } = useAppSelector((state) => state.auth);
 
   const router = useRouter();
 
@@ -37,10 +40,16 @@ export default function CreateNewPassword() {
   const defaultContent = {
     subtitle: "Find your new home the easy way",
     title: "Change password",
-    text: "Forgotten your password? Enter your email address below, and we'll email instructions for setting a new one.",
+    text: "Enter your new password below to reset your account password.",
     password_placeholder: "New password",
     repeatpassword_placeholder: "Repeat password",
     button: "Submit",
+    password_requirements: "Password must be at least 8 characters with a combination of letters, numbers, and special characters.",
+    passwords_not_match: "Passwords do not match",
+    password_too_weak: "Password is too weak",
+    reset_success: "Password reset successfully!",
+    back_to_login: "Back to Login",
+    success_details: "Your password has been changed successfully. You can now login with your new password."
   };
 
   // Merge API data with defaults using useMemo
@@ -54,28 +63,61 @@ export default function CreateNewPassword() {
     return defaultContent;
   }, [changePasswordData, status]);
 
+  // Redirect to login if required information is missing
+  useEffect(() => {
+    if (!email || !otp) {
+      router.push(`/${locale}/login/reset-password`);
+    }
+  }, [email, otp, router, locale]);
+
+  // Check password strength
+  const checkPasswordStrength = (password: string) => {
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isLongEnough = password.length >= 8;
+
+    if (isLongEnough && hasLetter && hasNumber && hasSpecialChar) {
+      return "strong";
+    } else if (isLongEnough && ((hasLetter && hasNumber) || (hasLetter && hasSpecialChar) || (hasNumber && hasSpecialChar))) {
+      return "medium";
+    } else {
+      return "weak";
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordStrength(checkPasswordStrength(newPassword));
+  };
+
   const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Clear any previous errors
+    dispatch(clearError());
+
+    // Check if passwords match
+    if (password !== repeatPassword) {
+      dispatch(setError(content.passwords_not_match || "Passwords do not match"));
+      return;
+    }
+
+    // Check password strength
+    if (passwordStrength === "weak") {
+      dispatch(setError(content.password_too_weak || "Password is too weak"));
+      return;
+    }
+
     try {
-      if (password === repeatPassword) {
-        await dispatch(
-          resetPassword({
-            email: email as string,
-            otpCode: otp as string,
-            password,
-          })
-        );
-
-        router.push(`${locale}/login`);
-
-        setPassword("");
-        setRepeatPassword("");
-      } else {
-        dispatch(setError("Passwords do not match"));
-
-        setPassword("");
-        setRepeatPassword("");
-      }
+      await dispatch(
+        resetPassword({
+          email: email as string,
+          otpCode: otp as string,
+          password,
+        })
+      );
     } catch (e) {
       console.error(e);
     }
@@ -83,6 +125,14 @@ export default function CreateNewPassword() {
 
   function handleClearError() {
     dispatch(clearError());
+  }
+
+  function handleBackToLogin() {
+    dispatch(resetPasswordState());
+    
+    setTimeout(() => {
+      router.push(`/${locale}/login`);
+    }, 100);
   }
 
   return (
@@ -96,51 +146,89 @@ export default function CreateNewPassword() {
             {content.title}
           </h1>
         </div>
-        <div className="w-full md:w-[730px] bg-white  md:h-max rounded-lg p-6 relative z-10">
-          <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
-            <h4 className="text-[16px] leading-[24px] md:text-left">
-              {content.text}
-            </h4>
-            <form
-              onSubmit={handleResetPassword}
-              className="flex flex-col gap-4 w-full"
-            >
-              <div className="flex flex-col gap-8">
-                <input
-                  className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
-                  type="password"
-                  placeholder={content.password_placeholder}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <input
-                  className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
-                  type="password"
-                  placeholder={content.repeatpassword_placeholder}
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                  required
-                />
-              </div>
-              {error && (
-                <div className="flex items-center justify-center w-full bg-[#FAD1D5] relative border border-[#F45D48] py-3 px-8 rounded-lg">
-                  <span className="flex items-center justify-center text-center">
-                    {error}
-                  </span>
-                  <button
-                    onClick={handleClearError}
-                    className="absolute right-4"
-                  >
-                    <GrClose size={20} />
-                  </button>
+        <div className="w-full md:w-[730px] bg-white md:h-max rounded-lg p-6 relative z-10">
+          {!resetPasswordSuccess ? (
+            <div className="flex flex-col items-center justify-center md:items-start text-center gap-5">
+              <h4 className="text-[16px] leading-[24px] md:text-left">
+                {content.text}
+              </h4>
+              <form
+                onSubmit={handleResetPassword}
+                className="flex flex-col gap-4 w-full"
+              >
+                <div className="flex flex-col gap-8">
+                  <div>
+                    <input
+                      className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
+                      type="password"
+                      placeholder={content.password_placeholder}
+                      value={password}
+                      onChange={handlePasswordChange}
+                      required
+                      minLength={8}
+                    />
+                    {password && (
+                      <div className="mt-2">
+                        <div className="flex gap-1 mb-1">
+                          <div className={`h-1 flex-1 rounded ${passwordStrength === 'weak' ? 'bg-red-500' : passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                          <div className={`h-1 flex-1 rounded ${passwordStrength === 'weak' ? 'bg-gray-200' : passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                          <div className={`h-1 flex-1 rounded ${passwordStrength === 'strong' ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                        </div>
+                        <p className="text-xs text-gray-500">{content.password_requirements}</p>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
+                    type="password"
+                    placeholder={content.repeatpassword_placeholder}
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                    required
+                  />
                 </div>
-              )}
-              <button className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300">
-                {loading ? "Loading..." : content.button}
+                {error && (
+                  <div className="flex items-center justify-center w-full bg-[#FAD1D5] relative border border-[#F45D48] py-3 px-8 rounded-lg">
+                    <span className="flex items-center justify-center text-center">
+                      {error}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleClearError}
+                      className="absolute right-4"
+                    >
+                      <GrClose size={20} />
+                    </button>
+                  </div>
+                )}
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+                >
+                  {loading ? "Loading..." : content.button}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-6 p-6">
+              <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-full">
+                <FiCheckCircle className="w-10 h-10 text-green-500" />
+              </div>
+              <h2 className="text-2xl font-semibold text-[#003956] text-center">
+                {content.reset_success}
+              </h2>
+              <p className="text-center text-gray-600 max-w-md">
+                {content.success_details}
+              </p>
+              <button 
+                onClick={handleBackToLogin}
+                className="mt-4 bg-main border border-main rounded-lg py-3 px-8 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+              >
+                {content.back_to_login}
               </button>
-            </form>
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

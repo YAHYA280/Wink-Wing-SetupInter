@@ -3,25 +3,29 @@
 import { FormEvent, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+// react-icons
+import { GrClose } from "react-icons/gr";
+
 // redux
 import { useAppDispatch, useAppSelector } from "@/store/hooks/hooks";
 import {
   forgotPassword,
+  clearError,
   setEmail as setAuthEmail,
 } from "@/store/features/authSlice";
 
 // translation service
 import { useResetPasswordData } from "@/services/translationService";
-import local from "next/font/local";
 
 export default function ResetPassword() {
-  const { loading } = useAppSelector((state) => state.auth);
+  const { loading, error } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const router = useRouter();
 
   const [email, setEmail] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [emailValidationError, setEmailValidationError] = useState<string>("");
 
   // Get current locale from the pathname
   const pathname = usePathname();
@@ -34,13 +38,15 @@ export default function ResetPassword() {
   const defaultContent = {
     Header: "Find your new home the easy way",
     title: "Password Reset",
-    text: "Forgotten your password? Enter your email address below, and we'll email instructions",
+    text: "Forgotten your password? Enter your email address below, and we'll email instructions.",
     PlaceHolder: "Email",
     btn: "Reset",
-    succesEmail:"Email Sent Successfully!",
-    sentEmail : "We've sent an email to",
-    confirmationText: "We've sent an email to reset your password. Please check your inbox.",
-    backToLogin: "Back to Login"
+    successEmail: "Email Sent Successfully!",
+    sentEmail: "We've sent an email to",
+    confirmationText: "We've sent an email with a verification code. Please check your inbox and spam folder.",
+    backToLogin: "Back to Login",
+    continueToCode: "Continue",
+    invalidEmail: "Please enter a valid email address"
   };
 
   // Merge API data with defaults using useMemo
@@ -54,16 +60,28 @@ export default function ResetPassword() {
     return defaultContent;
   }, [resetPasswordData, status]);
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Clear any existing errors
+    dispatch(clearError());
+    setEmailValidationError("");
+    
+    // Validate email
+    if (!validateEmail(email)) {
+      setEmailValidationError(content.invalidEmail);
+      return;
+    }
 
     try {
       await dispatch(forgotPassword({ email }));
       dispatch(setAuthEmail(email));
-      
       setShowConfirmation(true);
-      
-   
     } catch (e) {
       console.error(e);
     }
@@ -71,6 +89,14 @@ export default function ResetPassword() {
 
   const handleBackToLogin = () => {
     router.push(`/${locale}/login`);
+  };
+  
+  const handleContinueToCode = () => {
+    router.push(`/${locale}/login/reset-password/code`);
+  };
+  
+  const handleClearError = () => {
+    dispatch(clearError());
   };
 
   return (
@@ -92,23 +118,58 @@ export default function ResetPassword() {
               </h4>
               <form
                 onSubmit={handleResetPassword}
-                className="flex flex-col gap-8 w-full"
+                className="flex flex-col gap-4 w-full"
               >
-                <input
-                  className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full"
-                  type="email"
-                  placeholder={content.PlaceHolder}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <div className="relative w-full">
+                  <input
+                    className={`border ${
+                      emailValidationError ? "border-red-500" : "border-[#CED4D9]"
+                    } rounded-lg py-2 px-3 w-full`}
+                    type="email"
+                    placeholder={content.PlaceHolder}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (emailValidationError) setEmailValidationError("");
+                    }}
+                    required
+                  />
+                  {emailValidationError && (
+                    <p className="text-red-500 text-sm mt-1">{emailValidationError}</p>
+                  )}
+                </div>
 
-                <button
-                  disabled={loading}
-                  className="bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
-                >
-                  {loading ? "Loading..." : content.btn}
-                </button>
+                {error && (
+                  <div className="flex items-center justify-center w-full bg-[#FAD1D5] relative border border-[#F45D48] py-3 px-8 rounded-lg">
+                    <span className="flex items-center justify-center text-center">
+                      {error}
+                    </span>
+                    <button 
+                      type="button"
+                      onClick={handleClearError} 
+                      className="absolute right-4"
+                    >
+                      <GrClose size={20} />
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex gap-4 mt-2">
+                  <button
+                    type="button"
+                    onClick={handleBackToLogin}
+                    className="border border-main text-main rounded-lg py-2 px-6 font-semibold text-lg hover:bg-gray-50 transition-all duration-300"
+                  >
+                    {content.backToLogin}
+                  </button>
+                  <button
+                    disabled={loading}
+                    type="submit"
+                    className="flex-1 bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+                  >
+                    {loading ? "Loading..." : content.btn}
+                  </button>
+                </div>
               </form>
             </div>
           ) : (
@@ -118,19 +179,27 @@ export default function ResetPassword() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-[#003956]"> {content.succesEmail}</h2>
+              <h2 className="text-xl font-semibold text-[#003956]">{content.successEmail}</h2>
               <p className="text-center text-gray-600">
                 {content.confirmationText}
               </p>
               <p className="text-center text-gray-600">
-              {content.sentEmail} <span className="font-semibold">{email}</span>
+                {content.sentEmail} <span className="font-semibold">{email}</span>
               </p>
-              <button 
-                onClick={handleBackToLogin}
-                className="mt-4 bg-main border border-main rounded-lg py-2 px-6 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
-              >
-                {content.backToLogin}
-              </button>
+              <div className="flex gap-4 w-full mt-4">
+                <button 
+                  onClick={handleBackToLogin}
+                  className="border border-main text-main rounded-lg py-2 px-6 font-semibold text-lg hover:bg-gray-50 transition-all duration-300"
+                >
+                  {content.backToLogin}
+                </button>
+                <button 
+                  onClick={handleContinueToCode}
+                  className="flex-1 bg-main border border-main rounded-lg py-2 text-white font-semibold text-lg xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
+                >
+                  {content.continueToCode}
+                </button>
+              </div>
             </div>
           )}
         </div>
