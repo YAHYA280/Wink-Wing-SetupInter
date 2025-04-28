@@ -1,9 +1,12 @@
+// components/SignUpRequirements.tsx
 "use client";
 // context
 import { useUserPreferences } from "@/context/userPreferencesContext";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSignUpData } from "@/services/translationService";
+
+
 
 // data
 import {
@@ -21,8 +24,22 @@ const defaultRequirementsContent = {
 };
 
 export default function SignUpRequirements() {
-  const { setMinPrice, setMaxPrice, setMinBeds, setMinFloorArea } =
-    useUserPreferences();
+  const { 
+    minPrice, 
+    maxPrice, 
+    minBeds, 
+    minFloorArea,
+    setMinPrice, 
+    setMaxPrice, 
+    setMinBeds, 
+    setMinFloorArea 
+  } = useUserPreferences();
+
+  // Local state to track select values
+  const [localMinPrice, setLocalMinPrice] = useState<string>("");
+  const [localMaxPrice, setLocalMaxPrice] = useState<string>("");
+  const [localMinBeds, setLocalMinBeds] = useState<string>("");
+  const [localMinFloorArea, setLocalMinFloorArea] = useState<string>("");
 
   // Get translations
   const pathname = usePathname();
@@ -40,6 +57,51 @@ export default function SignUpRequirements() {
     return defaultRequirementsContent;
   }, [signupData, status]);
 
+  // Sync local state with context values from parent
+  useEffect(() => {
+    // Only update when values are available and different from current local state
+    if (minPrice !== undefined && minPrice.toString() !== localMinPrice) {
+      setLocalMinPrice(minPrice.toString());
+    }
+    if (maxPrice !== undefined && maxPrice.toString() !== localMaxPrice) {
+      setLocalMaxPrice(maxPrice.toString());
+    }
+    if (minBeds !== undefined && minBeds.toString() !== localMinBeds) {
+      setLocalMinBeds(minBeds.toString());
+    }
+    if (minFloorArea !== undefined && minFloorArea.toString() !== localMinFloorArea) {
+      setLocalMinFloorArea(minFloorArea.toString());
+    }
+  }, [minPrice, maxPrice, minBeds, minFloorArea]);
+
+  // Handle changes to min price
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setLocalMinPrice(value);
+    setMinPrice(Number(value));
+  };
+
+  // Handle changes to max price
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setLocalMaxPrice(value);
+    setMaxPrice(Number(value));
+  };
+
+  // Handle changes to min beds
+  const handleMinBedsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setLocalMinBeds(value);
+    setMinBeds(Number(value));
+  };
+
+  // Handle changes to min floor area
+  const handleMinFloorAreaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setLocalMinFloorArea(value);
+    setMinFloorArea(Number(value));
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-4 w-full">
@@ -49,7 +111,8 @@ export default function SignUpRequirements() {
               {requirementsContent.min_rental_price}
             </label>
             <select
-              onChange={(e) => setMinPrice(Number(e.target.value))}
+              value={localMinPrice}
+              onChange={handleMinPriceChange}
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full md:w-[270px] lg:w-[330px]"
             >
               {minPriceOptions.map((option) => (
@@ -64,7 +127,8 @@ export default function SignUpRequirements() {
               {requirementsContent.max_rental_price}
             </label>
             <select
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              value={localMaxPrice}
+              onChange={handleMaxPriceChange}
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full md:w-[270px] lg:w-[330px]"
             >
               {maxPriceOptions.map((option) => (
@@ -81,7 +145,8 @@ export default function SignUpRequirements() {
               {requirementsContent.bedrooms}
             </label>
             <select
-              onChange={(e) => setMinBeds(Number(e.target.value))}
+              value={localMinBeds}
+              onChange={handleMinBedsChange}
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full md:w-[270px] lg:w-[330px]"
             >
               {minBedsOptions.map((option) => (
@@ -96,7 +161,8 @@ export default function SignUpRequirements() {
               {requirementsContent.surface}
             </label>
             <select
-              onChange={(e) => setMinFloorArea(Number(e.target.value))}
+              value={localMinFloorArea}
+              onChange={handleMinFloorAreaChange}
               className="border border-[#CED4D9] rounded-lg py-2 px-3 w-full md:w-[270px] lg:w-[330px]"
             >
               <option value="0">0+ m&sup2;</option>

@@ -17,6 +17,7 @@ import { useSignUpData } from "@/services/translationService";
 
 export default function SignUpDetails() {
   const {
+    furnished,
     setFurnished,
     nice_to_have,
     selectedNiceToHave,
@@ -29,6 +30,9 @@ export default function SignUpDetails() {
     setSelectedShowOnlyPropertiesFor,
   } = useUserPreferences();
 
+  // Local state for furnished dropdown
+  const [localSelectedFurnished, setLocalSelectedFurnished] = useState<string>("");
+  
   // Get the current locale and fetch translations
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
@@ -65,9 +69,19 @@ export default function SignUpDetails() {
     return defaultDetailsContent;
   }, [signupData, status]);
 
-  const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
-  const [selectedFurnished, setSelectedFurnished] = useState<string>("");
+  // Synchronize furnished selection from context
+  useEffect(() => {
+    // Set the label based on the furnished value
+    if (furnished === true) {
+      setLocalSelectedFurnished("Furnished");
+    } else if (furnished === false) {
+      setLocalSelectedFurnished("Unfurnished");
+    } else {
+      setLocalSelectedFurnished("Doesn't matter");
+    }
+  }, [furnished]);
 
+  const [isFurnishedActive, setIsFurnishedActive] = useState<boolean>(false);
 
   const showOnlyPropertiesForSelectedItemsLabel =
     selectedShowOnlyPropertiesFor.length >= 2
@@ -83,8 +97,8 @@ export default function SignUpDetails() {
   };
 
   const niceToHavesSelectedItemsLabel =
-    selectedAlsoSearchFor.length >= 2
-      ? `${selectedAlsoSearchFor.length} options selected`
+    selectedNiceToHave.length >= 2
+      ? `${selectedNiceToHave.length} options selected`
       : undefined;
 
   const niceToHaveChange = (e: MultiSelectChangeEvent) => {
@@ -126,7 +140,7 @@ export default function SignUpDetails() {
             onClick={() => setIsFurnishedActive(!isFurnishedActive)}
             className="flex items-center justify-between border border-[#CED4D9] rounded-lg py-[6px] px-3 w-full md:w-[270px] lg:w-[330px]"
           >
-           {selectedFurnished || detailsContent.PlaceHolder_Dmatter}
+           {localSelectedFurnished || detailsContent.PlaceHolder_Dmatter}
             <span>
               <svg
                 width="14"
@@ -159,7 +173,7 @@ export default function SignUpDetails() {
                   key={option.id}
                   value={option.value!}
                   onClick={() => {
-                    setSelectedFurnished(option.label);
+                    setLocalSelectedFurnished(option.label);
                     setFurnished(
                       option.value === "Furnished"
                         ? true
@@ -207,12 +221,6 @@ export default function SignUpDetails() {
                       transform="matrix(0.0131579 0 0 0.0111842 0 -0.00328947)"
                     />
                   </pattern>
-                  <image
-                    id="image0_4_446"
-                    width="76"
-                    height="90"
-                    xlinkHref="data:image/png;base64,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"
-                  />
                 </defs>
               </svg>
               <div className="absolute top-[-120px] right-[-95px] items-center justify-center w-[206px] h-[108px] py-2 px-6 bg-help bg-center bg-cover hidden group-hover:flex">
@@ -285,12 +293,6 @@ export default function SignUpDetails() {
                       transform="matrix(0.0131579 0 0 0.0111842 0 -0.00328947)"
                     />
                   </pattern>
-                  <image
-                    id="image0_4_446"
-                    width="76"
-                    height="90"
-                    xlinkHref="data:image/png;base64,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"
-                  />
                 </defs>
               </svg>
               <div className="absolute top-[-120px] right-[-95px] items-center justify-center w-[206px] h-[108px] py-2 px-6 bg-help bg-center bg-cover hidden group-hover:flex">

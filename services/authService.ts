@@ -25,13 +25,13 @@ interface GoogleAuthOptions {
 }
 
 export const googleAuth = async (options?: GoogleAuthOptions,source: string = "login"): Promise<void> => {
-  console.log("options", {source, ...options});
+  // console.log("options", {source, ...options});
   try {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/google/redirect`,
       source === "login" ? {source: "login"} : {source: "signup", ...options}
     );
-    console.log("response", response);
+    // console.log("response", response);
     window.location.href = response.data.url;
   } catch (error: any) {
     const errorMessage = 
@@ -53,7 +53,7 @@ export const handleGoogleAuthRedirect = (): { token: string | null, source: stri
   
   if (token) {
     localStorage.setItem("auth-token", token);
-    console.log("token", token);
+    // console.log("token", token);
     
     let cleanUrl = window.location.href;
     cleanUrl = cleanUrl.replace(/([?&])token=[^&]*(&|$)/, (_, p1, p2) => {
