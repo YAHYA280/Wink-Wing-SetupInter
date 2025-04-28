@@ -63,8 +63,8 @@ export const searchJobsSlice = createSlice({
         radius: payload.radius,
         address: payload.address,
         maxTravelTime: payload.maxTravelTime,
-        minPrice: payload.minPrice,
         transportType: payload.transportType,
+        minPrice: payload.minPrice,
         maxPrice: payload.maxPrice,
         bedrooms: payload.bedrooms,
         surface: payload.surface,
@@ -93,9 +93,25 @@ export const searchJobsSlice = createSlice({
       action: PayloadAction<{ id: number; data: Partial<SearchJob> }>
     ) => {
       const { id, data } = action.payload;
-      const job = state.jobs.find((job) => job.id === id);
-      if (job) {
-        Object.assign(job, data);
+      const jobIndex = state.jobs.findIndex((job) => job.id === id);
+      
+      if (jobIndex !== -1) {
+        // Create updated job with new title
+        const updatedJob = {
+          ...state.jobs[jobIndex],
+          ...data,
+          // Update title to reflect new price and city if those values changed
+          title: data.minPrice !== undefined && data.maxPrice !== undefined && data.city !== undefined 
+            ? `$${data.minPrice}-$${data.maxPrice} in ${data.city}`
+            : data.minPrice !== undefined && data.maxPrice !== undefined
+            ? `$${data.minPrice}-$${data.maxPrice} in ${state.jobs[jobIndex].city}`
+            : data.city !== undefined
+            ? `$${state.jobs[jobIndex].minPrice}-$${state.jobs[jobIndex].maxPrice} in ${data.city}`
+            : state.jobs[jobIndex].title
+        };
+        
+        // Replace the job in the array
+        state.jobs[jobIndex] = updatedJob;
 
         // Save to localStorage
         if (typeof window !== "undefined") {
@@ -108,6 +124,59 @@ export const searchJobsSlice = createSlice({
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+    },
+    updateSearchJob: (
+      state,
+      action: PayloadAction<{
+        id: number;
+        minPrice: number;
+        maxPrice: number;
+        selectedCity: string;
+        selectedNeighbourhood: Neighbourhood[];
+        selectedRadiusValue: number;
+        address: string;
+        maxTravelTime: number;
+        transportType: string;
+        minBeds: number;
+        minFloorArea: number;
+        furnished: boolean | null;
+        selectedNiceToHave: string[];
+        selectedAlsoSearchFor: string[];
+        selectedShowOnlyPropertiesFor: string[];
+      }>
+    ) => {
+      const { payload } = action;
+      const jobIndex = state.jobs.findIndex((job) => job.id === payload.id);
+      
+      if (jobIndex !== -1) {
+        // Create updated job object
+        const updatedJob = {
+          ...state.jobs[jobIndex],
+          title: `$${payload.minPrice}-$${payload.maxPrice} in ${payload.selectedCity}`,
+          city: payload.selectedCity,
+          neighbourhoods: payload.selectedNeighbourhood,
+          radius: payload.selectedRadiusValue,
+          address: payload.address,
+          maxTravelTime: payload.maxTravelTime,
+          transportType: payload.transportType,
+          minPrice: payload.minPrice,
+          maxPrice: payload.maxPrice,
+          bedrooms: payload.minBeds,
+          surface: payload.minFloorArea,
+          furnished: payload.furnished,
+          niceToHave: payload.selectedNiceToHave,
+          alsoSearchFor: payload.selectedAlsoSearchFor,
+          showOnlyPropertiesFor: payload.selectedShowOnlyPropertiesFor,
+        };
+        
+        // Replace the job in the array
+        state.jobs[jobIndex] = updatedJob;
+
+        // Save to localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("searchJobs", JSON.stringify(state.jobs));
+        }
+      }
     },
   },
 });
@@ -127,6 +196,7 @@ export const {
   editSearchJob,
   setLoading,
   setError,
+  updateSearchJob,
 } = searchJobsSlice.actions;
 
 export default searchJobsSlice.reducer;

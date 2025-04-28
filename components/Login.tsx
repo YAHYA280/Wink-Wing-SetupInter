@@ -105,7 +105,6 @@ export default function Login() {
 
       if (login.fulfilled.match(result)) {
         // Track successful login
-        console.log("result", result);
         if (result.payload?.user?.id) {
           trackLogin(result.payload.user.id.toString(), {
             login_method: "email",
@@ -121,7 +120,7 @@ export default function Login() {
         return;
       }
     } catch (e: any) {
-      console.error(e);
+      // console.error(e);
       return; // Return early to prevent clearing form
     }
 
@@ -144,7 +143,7 @@ export default function Login() {
     try {
       await googleAuth(undefined, "login"); 
     } catch (error: any) {
-      console.error("Google login error:", error);
+      // console.error("Google login error:", error);
       dispatch(setError(error.message || "Google authentication failed"));
       setGoogleLoading(false);
     }

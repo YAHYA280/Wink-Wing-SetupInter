@@ -92,8 +92,6 @@ export default function DashboardRightMenu({
   // We expect translationData.DashboardServices to have keys like ServiceOne, ServiceTwo, etc.
   const services = translationData;
 
-  
-
   const translations = {
     searchjobs: {
       title:
@@ -187,7 +185,7 @@ export default function DashboardRightMenu({
                 <span>{job.title}</span>
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/${locale}/search/edit-search`}
+                    href={`/${locale}/search/edit-search?id=${job.id}`}
                     className="text-lg text-[#1C46D9] xl:hover:underline"
                   >
                     {translations.searchjobs.edit}
