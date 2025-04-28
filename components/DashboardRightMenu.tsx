@@ -185,7 +185,7 @@ export default function DashboardRightMenu({
                 <span>{job.title}</span>
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/${locale}/search/edit-search?id=${job.id}`}
+                    href={`/${locale}/search/edit-search/${job.id}`}
                     className="text-lg text-[#1C46D9] xl:hover:underline"
                   >
                     {translations.searchjobs.edit}

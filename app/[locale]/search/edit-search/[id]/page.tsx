@@ -1,7 +1,8 @@
 "use client";
 // next
 import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 // components
 import SignUpLocation from "@/components/SignUpLocation";
@@ -29,9 +30,11 @@ export default function EditSearch() {
   // Log important debugging information
   console.log("EditSearch component initializing");
   
-  const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const params = useParams();
+  const searchJobId = params.id as string;
+  
   const [useFallbackMode, setUseFallbackMode] = useState<boolean>(false);
   const [isAddressValidated, setIsAddressValidated] = useState<boolean>(false);
   const [selectedLocationTab, setSelectedLocationTab] = useState<number>(0);
@@ -42,9 +45,6 @@ export default function EditSearch() {
   // Get the current locale from the URL
   const pathname = usePathname();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
-  
-  // Get the search job ID from query params
-  const searchJobId = searchParams.get("id");
   
   // Get all search jobs from Redux
   const searchJobs = useAppSelector(selectSearchJobs);
