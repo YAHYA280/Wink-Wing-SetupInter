@@ -28,7 +28,7 @@ import { updateSearchPreferences, getSearchJobById } from "@/utils/searchPrefere
 
 export default function EditSearch() {
   // Log important debugging information
-  console.log("EditSearch component initializing");
+  // console.log("EditSearch component initializing");
   
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -137,223 +137,104 @@ export default function EditSearch() {
     setSelectedLng,
   } = useUserPreferences();
 
-  // Function to fetch search job data from API - now enhanced with debug information
-  const fetchSearchJobData = async () => {
-    if (!searchJobId || !token) {
-      console.log("Missing required data:", { searchJobId, hasToken: !!token });
+ 
+
+  useEffect(() => {
+    if (!searchJobId) {
+      // console.log("No search job ID provided");
       return;
     }
-    
-    console.log(`Fetching search job data for ID: ${searchJobId}`);
+  
+    // Set loading immediately
     setIsLoading(true);
+    // console.log(`Loading data for search job ID: ${searchJobId} from Redux`);
     
-    try {
-      console.time("API fetch time");
-      const jobData = await getSearchJobById(parseInt(searchJobId), token);
-      console.timeEnd("API fetch time");
+    // Get data from Redux store
+    if (currentSearchJob) {
+      // console.log("Using data from Redux store:", currentSearchJob);
       
-      console.log("API response:", JSON.stringify(jobData, null, 2));
+      // Set all the form values from Redux data
+      setMinPrice(currentSearchJob.minPrice || 0);
+      setMaxPrice(currentSearchJob.maxPrice || 3000);
+      setSelectedCity(currentSearchJob.city || "");
+      setSelectedNeighbourhood(currentSearchJob.neighbourhoods || []);
+      setSelectedRadiusValue(currentSearchJob.radius || 8);
+      setAddress(currentSearchJob.address || "");
+      setMaxTravelTime(currentSearchJob.maxTravelTime || 15);
+      setTransportType(currentSearchJob.transportType || "DRIVING");
+      setMinBeds(currentSearchJob.bedrooms || 0);
+      setMinFloorArea(currentSearchJob.surface || 0);
+      setFurnished(currentSearchJob.furnished);
+      setSelectedNiceToHave(currentSearchJob.niceToHave || []);
+      setSelectedAlsoSearchFor(currentSearchJob.alsoSearchFor || []);
+      setSelectedShowOnlyPropertiesFor(currentSearchJob.showOnlyPropertiesFor || []);
       
-      // Debug which fields are present
-      const fields = {
-        minPrice: !!jobData.minPrice,
-        maxPrice: !!jobData.maxPrice,
-        city: !!jobData.city,
-        neighbourhoods: Array.isArray(jobData.neighbourhoods) && jobData.neighbourhoods.length > 0,
-        radius: !!jobData.radius,
-        address: !!jobData.address,
-        maxTravelTime: !!jobData.maxTravelTime,
-        transportType: !!jobData.transportType,
-        minBeds: !!(jobData.minBeds || jobData.bedrooms),
-        minFloorArea: !!(jobData.minFloorArea || jobData.surface),
-        furnished: jobData.furnished !== undefined,
-        niceToHave: Array.isArray(jobData.niceToHave) && jobData.niceToHave.length > 0,
-        alsoSearchFor: Array.isArray(jobData.alsoSearchFor) && jobData.alsoSearchFor.length > 0,
-        showOnlyPropertiesFor: Array.isArray(jobData.showOnlyPropertiesFor) && jobData.showOnlyPropertiesFor.length > 0,
-        point: Array.isArray(jobData.point) && jobData.point.length === 2,
-        type: !!jobData.type
-      };
-      
-      console.log("Available fields:", fields);
-      
-      // Set data to the context with appropriate defaults
-      setMinPrice(jobData.minPrice || 0);
-      setMaxPrice(jobData.maxPrice || 3000);
-      setSelectedCity(jobData.city || "");
-      setSelectedNeighbourhood(jobData.neighbourhoods || []);
-      setSelectedRadiusValue(jobData.radius || 8);
-      setAddress(jobData.address || "");
-      setMaxTravelTime(jobData.maxTravelTime || 15);
-      setTransportType(jobData.transportType || "DRIVING");
-      setMinBeds(jobData.minBeds || jobData.bedrooms || 0);
-      setMinFloorArea(jobData.minFloorArea || jobData.surface || 0);
-      setFurnished(jobData.furnished);
-      setSelectedNiceToHave(jobData.niceToHave || []);
-      setSelectedAlsoSearchFor(jobData.alsoSearchFor || []);
-      setSelectedShowOnlyPropertiesFor(jobData.showOnlyPropertiesFor || []);
-      
-      // Set location coordinates if available
-      if (jobData.point && jobData.point.length === 2) {
-        console.log(`Setting coordinates: [${jobData.point[0]}, ${jobData.point[1]}]`);
-        setSelectedLng(jobData.point[0]);
-        setSelectedLat(jobData.point[1]);
+      // Set coordinates if available
+      if (currentSearchJob.point && currentSearchJob.point.length === 2) {
+        // console.log("Setting coordinates:", currentSearchJob.point);
+        setSelectedLng(currentSearchJob.point[0]);
+        setSelectedLat(currentSearchJob.point[1]);
       }
       
       // If address is present, mark it as validated
-      if (jobData.address) {
-        console.log(`Address found: "${jobData.address}", marking as validated`);
+      if (currentSearchJob.address) {
         setIsAddressValidated(true);
       }
       
-      // Set the correct tab based on search type
-      if (jobData.type) {
-        let tabIndex = 0;
-        if (jobData.type === "RADIUS") {
-          tabIndex = 1;
-        } else if (jobData.type === "TRAVEL_TIME") {
-          tabIndex = 2;
-        }
-        console.log(`Setting tab index to ${tabIndex} based on type: ${jobData.type}`);
-        setSelectedLocationTab(tabIndex);
-      }
-      
-      console.log("API data successfully loaded and applied");
-      setUseFallbackMode(false);
-      
-    } catch (err: any) {
-      console.error("Error fetching search job data:", err);
-      
-      // More detailed error logging
-      if (err.response) {
-        console.error("Error response:", {
-          status: err.response.status,
-          data: err.response.data
-        });
-      }
-      
-      setError("Failed to load search job data from server. Using locally saved data instead.");
-      setUseFallbackMode(true);
-      throw err; // Re-throw to allow fallback in useEffect
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Initialize form with the search job data (first try API, then fallback to Redux)
-  useEffect(() => {
-    if (!searchJobId) {
-      console.log("No search job ID provided");
-      return;
-    }
-
-    // Set loading immediately as we begin fetch attempts
-    setIsLoading(true);
-    console.log(`Attempting to load data for search job ID: ${searchJobId}`);
-    
-    const loadPreferencesData = async () => {
-      try {
-        // First attempt: Try getting data from API if we have a token
-        if (token) {
-          console.log("Token available, trying to fetch from API...");
-          const jobData = await getSearchJobById(parseInt(searchJobId), token);
-          console.log("Successfully fetched data from API:", jobData);
-          
-          // Set data to the context
-          setMinPrice(jobData.minPrice || 0);
-          setMaxPrice(jobData.maxPrice || 3000);
-          setSelectedCity(jobData.city || "");
-          setSelectedNeighbourhood(jobData.neighbourhoods || []);
-          setSelectedRadiusValue(jobData.radius || 8);
-          setAddress(jobData.address || "");
-          setMaxTravelTime(jobData.maxTravelTime || 15);
-          setTransportType(jobData.transportType || "DRIVING");
-          setMinBeds(jobData.minBeds || jobData.bedrooms || 0);
-          setMinFloorArea(jobData.minFloorArea || jobData.surface || 0);
-          setFurnished(jobData.furnished);
-          setSelectedNiceToHave(jobData.niceToHave || []);
-          setSelectedAlsoSearchFor(jobData.alsoSearchFor || []);
-          setSelectedShowOnlyPropertiesFor(jobData.showOnlyPropertiesFor || []);
-          
-          // Set location coordinates if available
-          if (jobData.point && jobData.point.length === 2) {
-            console.log("Setting coordinates:", jobData.point);
-            setSelectedLng(jobData.point[0]);
-            setSelectedLat(jobData.point[1]);
-          }
-          
-          // If address is present, mark it as validated
-          if (jobData.address) {
-            setIsAddressValidated(true);
-          }
-          
-          // Set the correct tab based on search type
-          if (jobData.type) {
-            if (jobData.type === "RADIUS") {
-              setSelectedLocationTab(1);
-            } else if (jobData.type === "TRAVEL_TIME") {
-              setSelectedLocationTab(2);
-            } else {
-              setSelectedLocationTab(0); // NEIGHBOURHOODS
-            }
-          }
-          
-          // We successfully loaded from API
-          setUseFallbackMode(false);
-          return; // Exit the function since we loaded successfully
-        }
-      } catch (err) {
-        console.error("Error fetching search job data from API:", err);
-        // Continue to fallback - don't return here
-      }
-      
-      // Second attempt: Fallback to Redux data if API failed or no token
-      if (currentSearchJob) {
-        console.log("Using data from Redux store:", currentSearchJob);
-        
-        setMinPrice(currentSearchJob.minPrice || 0);
-        setMaxPrice(currentSearchJob.maxPrice || 3000);
-        setSelectedCity(currentSearchJob.city || "");
-        setSelectedNeighbourhood(currentSearchJob.neighbourhoods || []);
-        setSelectedRadiusValue(currentSearchJob.radius || 8);
-        setAddress(currentSearchJob.address || "");
-        setMaxTravelTime(currentSearchJob.maxTravelTime || 15);
-        setTransportType(currentSearchJob.transportType || "DRIVING");
-        setMinBeds(currentSearchJob.bedrooms || 0);
-        setMinFloorArea(currentSearchJob.surface || 0);
-        setFurnished(currentSearchJob.furnished);
-        setSelectedNiceToHave(currentSearchJob.niceToHave || []);
-        setSelectedAlsoSearchFor(currentSearchJob.alsoSearchFor || []);
-        setSelectedShowOnlyPropertiesFor(currentSearchJob.showOnlyPropertiesFor || []);
-        
-        // If address is present, mark it as validated
-        if (currentSearchJob.address) {
-          setIsAddressValidated(true);
-        }
-        
-        // Determine tab selection from properties if possible
-        if (currentSearchJob.address && currentSearchJob.maxTravelTime) {
-          setSelectedLocationTab(2); // Travel time
-        } else if (currentSearchJob.radius > 0) {
-          setSelectedLocationTab(1); // Radius
+      // Determine the selected tab
+      if (currentSearchJob.type) {
+        if (currentSearchJob.type === "RADIUS") {
+          // console.log("Setting tab to 1 (RADIUS) based on type");
+          setSelectedLocationTab(1);
+        } else if (currentSearchJob.type === "TRAVEL_TIME") {
+          // console.log("Setting tab to 2 (TRAVEL_TIME) based on type");
+          setSelectedLocationTab(2);
         } else {
-          setSelectedLocationTab(0); // Neighborhoods
+          // console.log("Setting tab to 0 (NEIGHBOURHOODS) based on type");
+          setSelectedLocationTab(0);
         }
-        
-        setUseFallbackMode(true);
-        setError("Using locally saved data. Some recent changes may not be reflected.");
+      } 
+      // If no explicit type, infer from the data
+      else if (currentSearchJob.radius > 0 && (!currentSearchJob.neighbourhoods || currentSearchJob.neighbourhoods.length === 0)) {
+        // console.log("Setting tab to 1 (RADIUS) based on data");
+        setSelectedLocationTab(1);
+      } else if (currentSearchJob.address && currentSearchJob.maxTravelTime && (!currentSearchJob.neighbourhoods || currentSearchJob.neighbourhoods.length === 0)) {
+        // console.log("Setting tab to 2 (TRAVEL_TIME) based on data"); 
+        setSelectedLocationTab(2);
       } else {
-        console.error("Failed to load data: No data available in Redux or API");
-        setError("Failed to load your search preferences. Please try again later.");
+        // console.log("Setting tab to 0 (NEIGHBOURHOODS) as default");
+        setSelectedLocationTab(0);
       }
-    };
-
-    loadPreferencesData()
-      .finally(() => {
-        // Always turn off loading when done
-        setIsLoading(false);
-        console.log("Data loading complete");
+      
+      // Store original values for change detection
+      setOriginalValues({
+        minPrice: currentSearchJob.minPrice || 0,
+        maxPrice: currentSearchJob.maxPrice || 3000,
+        selectedCity: currentSearchJob.city || "",
+        neighborhoodCount: (currentSearchJob.neighbourhoods || []).length,
+        radius: currentSearchJob.radius || 8,
+        address: currentSearchJob.address || "",
+        maxTravelTime: currentSearchJob.maxTravelTime || 15,
+        transportType: currentSearchJob.transportType || "DRIVING",
+        minBeds: currentSearchJob.bedrooms || 0,
+        minFloorArea: currentSearchJob.surface || 0,
+        furnished: currentSearchJob.furnished,
+        niceToHaveCount: (currentSearchJob.niceToHave || []).length,
+        alsoSearchForCount: (currentSearchJob.alsoSearchFor || []).length,
+        showOnlyPropertiesForCount: (currentSearchJob.showOnlyPropertiesFor || []).length
       });
-  }, [searchJobId, token, currentSearchJob]);
+      
+      // Since we're only using Redux, set this to true
+      setUseFallbackMode(true);
+    } else {
+      console.error("Failed to load data: No data available in Redux");
+      setError("Failed to load your search preferences. Please try again later.");
+    }
+    
+    // Always turn off loading when done
+    setIsLoading(false);
+    // console.log("Data loading complete");
+  }, [searchJobId, currentSearchJob]);
 
   // Log important parameters for debugging
   useEffect(() => {
@@ -421,7 +302,6 @@ export default function EditSearch() {
   ]);
 
   useEffect(() => {
-    // Check the city selection on the client side only
     if (!selectedCity || selectedCity === "Select a city") {
       setError(content.county_eror);
     } else {
@@ -437,13 +317,11 @@ export default function EditSearch() {
       return;
     }
 
-    // First check for city
     if (!selectedCity || selectedCity === "Select a city") {
       setError(content.county_eror);
       return;
     }
 
-    // Only if we are on the Travel Time tab (index = 2), force user to have a valid address
     if (selectedLocationTab === 2) {
       if (!address.trim()) {
         setError(content.adress_eror);
@@ -455,39 +333,40 @@ export default function EditSearch() {
       }
     }
 
-    // All validations passed, proceed with saving
     setIsLoading(true);
     setError(null);
 
     try {
       // Determine the search type based on selected tab
       const searchType = 
-        selectedLocationTab === 0 ? "NEIGHBOURHOODS" : 
-        selectedLocationTab === 1 ? "RADIUS" : "TRAVEL_TIME";
+        selectedLocationTab === 0 ? "NEIGHBOURHOODS" as const : 
+        selectedLocationTab === 1 ? "RADIUS" as const : "TRAVEL_TIME" as const;
       
-      console.log("Updating search with type:", searchType);
-      console.log("Current form state:", {
-        id: parseInt(searchJobId),
-        minPrice,
-        maxPrice,
-        selectedCity,
-        neighbourhoodCount: selectedNeighbourhood?.length,
-        selectedRadiusValue,
-        address,
-        maxTravelTime,
-        transportType,
-        minBeds,
-        minFloorArea,
-        furnished,
-        niceToHaveCount: selectedNiceToHave?.length,
-        alsoSearchForCount: selectedAlsoSearchFor?.length,
-        showOnlyPropertiesForCount: selectedShowOnlyPropertiesFor?.length
-      });
+      // console.log("Updating search with type:", searchType);
+      // console.log("Current form state:", {
+      //   id: parseInt(searchJobId),
+      //   type: searchType,
+      //   minPrice,
+      //   maxPrice,
+      //   selectedCity,
+      //   neighbourhoodCount: selectedNeighbourhood?.length,
+      //   selectedRadiusValue,
+      //   address,
+      //   maxTravelTime,
+      //   transportType,
+      //   minBeds,
+      //   minFloorArea,
+      //   furnished,
+      //   niceToHaveCount: selectedNiceToHave?.length,
+      //   alsoSearchForCount: selectedAlsoSearchFor?.length,
+      //   showOnlyPropertiesForCount: selectedShowOnlyPropertiesFor?.length
+      // });
         
       // First update in Redux/localStorage
-      console.log("Updating in Redux store");
+      // console.log("Updating in Redux store");
       dispatch(updateSearchJob({
         id: parseInt(searchJobId),
+        type: searchType, 
         minPrice,
         maxPrice,
         selectedCity,
@@ -506,8 +385,9 @@ export default function EditSearch() {
 
       // Then update on the server if we're not in fallback mode
       if (!useFallbackMode && token) {
-        console.log("Attempting to update on server...");
+        // console.log("Attempting to update on server...");
         const updateData = {
+          type: searchType, 
           minPrice,
           maxPrice,
           selectedCity,
@@ -545,27 +425,25 @@ export default function EditSearch() {
         }
       } else {
         // Show message that we're only saving locally
-        console.log("Saving in fallback mode (local only)");
+        // console.log("Saving in fallback mode (local only)");
         setError("Changes saved locally, but not synchronized with server. Changes may not persist across devices.");
       }
       
       // Show success popup and redirect
-      console.log("Update complete, showing success popup");
+      // console.log("Update complete, showing success popup");
       showPopup();
       
       // Set a timer for redirect - give user time to see success message
       const redirectTimer = setTimeout(() => {
-        console.log("Redirecting to dashboard");
+        // console.log("Redirecting to dashboard");
         setIsLoading(false);
         router.push(`/${locale}/dashboard`);
       }, 2000);
       
-      // Cleanup timer if component unmounts
       return () => clearTimeout(redirectTimer);
     } catch (err: any) {
       setIsLoading(false);
       
-      // Extract the most useful error message
       let errorMessage = "Failed to update search preferences";
       
       if (err.response?.data?.error) {
@@ -587,7 +465,7 @@ export default function EditSearch() {
     }
   }, [searchJobId, router, locale]);
 
-  // Enhanced loading state with better feedback
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-[#FFF7F5]">
@@ -604,111 +482,109 @@ export default function EditSearch() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-[120px] px-2 bg-[#FFF7F5]">
-  {isLoading && <LoadingAnimation />}
-
-  {/* ── Title / subtitle / intro ──────────────────────────── */}
-  <div className="flex flex-col items-center justify-center gap-4 text-center lg:text-left lg:items-start relative text-zinc-100">
-    <h5 className="text-[16px] leading-[24px] text-main">{content.title}</h5>
-
-    <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-3xl xs:text-4xl md:text-5xl md:leading-[60px] text-[#003956]">
-      {content.edit_subtitle}
-    </h1>
-
-    <p className="text-[16px] leading-[24px] max-w-[730px]">{content.text}</p>
-  </div>
-
-  {/* ── Card ─────────────────────────────────────────────── */}
-  <div className="flex flex-col gap-4 bg-white p-6 rounded-lg w-full sm:w-[630px] md:w-[730px] shadow relative">
-    {hasChanges && (
-      <div className="absolute top-0 left-0 right-0 bg-blue-50 text-blue-700 py-2 px-4 text-center text-sm font-medium rounded-t-lg">
-        You have unsaved changes. Don&apos;t forget to save before leaving.
+      {isLoading && <LoadingAnimation />}
+  
+      {/* ─────────── Header copy ─────────── */}
+      <div className="flex flex-col items-center justify-center gap-4 text-center lg:text-left lg:items-start relative to-zinc-100">
+        <h5 className="text-[16px] leading-[24px] text-main">{content.title}</h5>
+        <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-3xl xs:text-4xl md:text-5xl md:leading-[60px] text-[#003956]">
+          {content.edit_subtitle}
+        </h1>
+        <p className="text-[16px] leading-[24px] max-w-[730px]">{content.text}</p>
       </div>
-    )}
-
-    <SignUpLocation
-      isAddressValidated={isAddressValidated}
-      setIsAddressValidated={setIsAddressValidated}
-      onTabChange={(i) => setSelectedLocationTab(i)}
-      selectedTab={selectedLocationTab}
-    />
-
-    <SignUpRequirements />
-    <SignUpDetails />
-
-    {/* ── Error banner ──────────────────────────────────── */}
-    {error && (
-      <div
-        className={`${
-          error.includes('locally')
-            ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-            : 'bg-red-50 border-red-200 text-red-600'
-        } text-center px-4 py-3 rounded-lg border mb-2`}
-      >
-        <div className="flex items-center justify-center">
-          {error.includes('locally') ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          )}
-          <span>{error}</span>
-        </div>
-
-        {error.includes('Failed to load') && (
-          <div className="mt-2">
-            <button
-              onClick={() => router.refresh()}
-              className="underline text-blue-600 hover:text-blue-800"
-            >
-              Try again
-            </button>
+  
+      {/* ─────────── White card ─────────── */}
+      <div className="flex flex-col gap-4 bg-white p-6 rounded-lg w-full sm:w-[630px] md:w-[730px] shadow relative">
+        {hasChanges && (
+          <div className="absolute top-0 left-0 right-0 bg-blue-50 text-blue-700 py-2 px-4 text-center text-sm font-medium rounded-t-lg">
+            You have unsaved changes. Don’t forget to save before leaving.
           </div>
         )}
+  
+        <SignUpLocation
+          isAddressValidated={isAddressValidated}
+          setIsAddressValidated={setIsAddressValidated}
+          onTabChange={(i) => setSelectedLocationTab(i)}
+          selectedTab={selectedLocationTab}
+        />
+  
+        <SignUpRequirements />
+        <SignUpDetails />
+  
+        {/* ─────────── Error box ─────────── */}
+        {error && (
+          <div
+            className={`${
+              error.includes("locally")
+                ? "bg-yellow-50 border-yellow-200 text-yellow-700"
+                : "bg-red-50 border-red-200 text-red-600"
+            } text-center px-4 py-3 rounded-lg border mb-2`}
+          >
+            <div className="flex items-center justify-center">
+              {error.includes("locally") ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              )}
+              <span>{error}</span>
+            </div>
+  
+            {error.includes("Failed to load") && (
+              <div className="mt-2">
+                <button
+                  onClick={() => router.refresh()}
+                  className="underline text-blue-600 hover:text-blue-800"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+  
+        {/* ─────────── Save button ─────────── */}
+        <div className="flex flex-col w-full gap-2">
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="bg-main border border-main py-2 px-8 rounded-lg text-white font-semibold text-[16px] w-full xl:hover:bg-transparent xl:hover:text-main transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isLoading ? content.saving : content.save}
+          </button>
+        </div>
       </div>
-    )}
-
-    {/* ── Save button ───────────────────────────────────── */}
-    <div className="flex flex-col w-full gap-2">
-      <button
-        onClick={handleSave}
-        disabled={isLoading}
-        className="bg-main border border-main py-2 px-8 rounded-lg text-white font-semibold text-[16px] w-full transition-all duration-300 hover:bg-transparent hover:text-main disabled:opacity-70 disabled:cursor-not-allowed"
-      >
-        {isLoading ? 'Saving…' : 'Save'}
-      </button>
+  
+      {/* ─────────── Success popup ─────────── */}
+      <Popup>
+        <SuccessAnimation />
+      </Popup>
     </div>
-  </div>
-
-  {/* ── Success popup ───────────────────────────────────── */}
-  <Popup>
-    <SuccessAnimation />
-  </Popup>
-</div>
-
   );
+  
 }

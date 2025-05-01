@@ -52,6 +52,7 @@ export const searchJobsSlice = createSlice({
         niceToHave: string[];
         alsoSearchFor: string[];
         showOnlyPropertiesFor: string[];
+        point?: [number, number];
       }>
     ) => {
       const { payload } = action;
@@ -72,6 +73,7 @@ export const searchJobsSlice = createSlice({
         niceToHave: payload.niceToHave,
         alsoSearchFor: payload.alsoSearchFor,
         showOnlyPropertiesFor: payload.showOnlyPropertiesFor,
+        point: payload.point
       };
       state.jobs.push(newJob);
 
@@ -129,6 +131,7 @@ export const searchJobsSlice = createSlice({
       state,
       action: PayloadAction<{
         id: number;
+        type?: string;
         minPrice: number;
         maxPrice: number;
         selectedCity: string;
@@ -143,6 +146,7 @@ export const searchJobsSlice = createSlice({
         selectedNiceToHave: string[];
         selectedAlsoSearchFor: string[];
         selectedShowOnlyPropertiesFor: string[];
+        point?: [number, number];
       }>
     ) => {
       const { payload } = action;
@@ -167,6 +171,8 @@ export const searchJobsSlice = createSlice({
           niceToHave: payload.selectedNiceToHave,
           alsoSearchFor: payload.selectedAlsoSearchFor,
           showOnlyPropertiesFor: payload.selectedShowOnlyPropertiesFor,
+          type: payload.type as "NEIGHBOURHOODS" | "RADIUS" | "TRAVEL_TIME" | undefined,
+          point: payload.point
         };
         
         // Replace the job in the array

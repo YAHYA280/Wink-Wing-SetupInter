@@ -124,10 +124,12 @@ export type UserInfo = {
 };
 
 // searchjob
+// searchjob
 export type SearchJob = {
   id: number;
   title: string;
   city: string;
+  point?: [number, number];
   neighbourhoods: Neighbourhood[];
   radius: number;
   address: string;
@@ -141,4 +143,6 @@ export type SearchJob = {
   niceToHave: string[];
   alsoSearchFor: string[];
   showOnlyPropertiesFor: string[];
+  geometry?: any; 
+  type?: "NEIGHBOURHOODS" | "RADIUS" | "TRAVEL_TIME"; // Added type property
 };
