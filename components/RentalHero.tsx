@@ -62,15 +62,16 @@ export default function RentalHero({ bg }: { bg: string }) {
             </h1>
 
             <h1 className="flex items-center justify-center font-extrabold  text-4xl md:text-[60px] md:leading-[70px] text-[#0485C6]">
-              {content.subtitle_let}
-              <Image
+              {content.subtitle_let}{" "}
+              {/* <Image
                 className="w-[200px] mx-3 mt-2"
                 src="/winkwing-logo.svg"
                 alt="Logo"
                 width={200}
                 height={41}
                 loading="lazy"
-              />
+              /> */}
+              WinkWing{" "}
               {content.subtitle_help}
             </h1>
           </div>

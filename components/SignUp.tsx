@@ -63,11 +63,13 @@ export default function SignUp({ bg }: { bg: string }) {
           <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-3xl xs:text-4xl md:text-5xl md:leading-[60px] text-[#003956]">
             {/* Handle WinkWing in the title by splitting and rendering with the logo */}
             {content.title.split("WinkWing")[0]}
-            <img
+            {/* <img
               className="w-[250px] mt-[10px]"
               src="/winkwing-logo.svg"
               alt="Logo"
-            />{" "}
+            /> */}
+            WinkWing
+            {" "}
             {content.title.includes("WinkWing")
               ? content.title.split("WinkWing")[1]
               : ""}

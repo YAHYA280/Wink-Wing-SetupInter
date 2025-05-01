@@ -153,7 +153,7 @@ export default function Footer() {
       <div className="flex flex-col items-center w-full mb-5">
         <Link className="cursor-pointer" href={`/${locale}`}>
           <Image
-            src="/winkwing-logo.svg"
+            src="/Logo_white.svg"
             alt="Logo"
             width={150}
             height={40}

@@ -157,14 +157,15 @@ export default function Login() {
         </h5>
         <h1 className="flex flex-col sm:flex-row items-center gap-4 font-extrabold text-[#003956] text-3xl xs:text-4xl md:text-5xl">
           {content.title}{" "}
-          <Image
+          {/* <Image
             className="mt-[10px]"
             src="/winkwing-logo.svg"
             alt="Logo"
             width={250}
             height={70}
             loading="lazy"
-          />
+          /> */}
+          WinkWing
         </h1>
       </div>
       <div className="w-full md:w-[730px] bg-white h-[500px] md:h-max rounded-lg p-6 relative z-10">

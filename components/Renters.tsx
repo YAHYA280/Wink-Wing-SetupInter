@@ -100,13 +100,14 @@ export default function Renters() {
         <h1 className="flex items-center gap-3 font-extrabold text-4xl md:text-5xl">
           {rentersContent.title}
           <span>
-            <Image
+            {/* <Image
               className="mt-2"
               src="/winkwing-logo.svg"
               width={200}
               height={50}
               alt="WinkWing Logo"
-            />
+            /> */}
+            WinkWing
           </span>
         </h1>
         <p className="text-base leading-6">{rentersContent.text}</p>
