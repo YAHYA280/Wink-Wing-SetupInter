@@ -150,96 +150,98 @@ export default function Footer() {
 
   return (
     <footer className="pt-24 pb-8 bg-[#1E1E1E] px-2 md:px-20">
-      <div className="flex flex-col items-center w-full mb-5">
-        <Link className="cursor-pointer" href={`/${locale}`}>
-          <Image
-            src="/Logo_white.svg"
-            alt="Logo"
-            width={150}
-            height={40}
-            className="w-[140px] h-auto"
-            priority
-          />
-        </Link>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
-        
-        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
-          <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
-            {footerContent.Links.title}
-          </h1>
-          
-          <div className="flex flex-col items-center md:items-start w-full">
-            {footerContent.Links.links.map((link) => (
-              <Link
-                className="text-lg text-white xl:hover:underline"
-                key={link.id}
-                href={`/${locale}${link.href}`}
-              >
-                {link.title}
-              </Link>
-            ))}
-          </div>
+      <div className="max-w-3xl mx-auto">
+        {/* Logo Section - Updated for better mobile centering */}
+        <div className="flex justify-center md:justify-start mb-5 w-full md:ml-3">
+          <Link className="cursor-pointer" href={`/${locale}`}>
+            <Image
+              src="/Logo_white.svg"
+              alt="Logo"
+              width={150}
+              height={40}
+              className="w-[140px] h-auto"
+              priority
+            />
+          </Link>
         </div>
-  
-        {/* Cities section */}
-        {footerContent.Cities.map((citySection) => (
-          <div
-            key={citySection.id}
-            className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto"
-          >
+        <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
+          
+          <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
             <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
-              {citySection.title}
+              {footerContent.Links.title}
             </h1>
+            
             <div className="flex flex-col items-center md:items-start w-full">
-              {citySection.cities.map((city) => (
-                <span className="text-lg text-white" key={city.id}>
-                  {city.title}
-                </span>
+              {footerContent.Links.links.map((link) => (
+                <Link
+                  className="text-lg text-white xl:hover:underline"
+                  key={link.id}
+                  href={`/${locale}${link.href}`}
+                >
+                  {link.title}
+                </Link>
               ))}
             </div>
           </div>
-        ))}
-  
-        {/* Socials section */}
-        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
-          <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
-            {footerContent.Socials.title}
-          </h1>
-          <div className="flex flex-col items-center md:items-start w-full">
-            {footerContent.Socials.socials.map((social) => (
-              <a
-                className="flex items-center gap-5 text-lg text-white xl:hover:underline"
-                key={social.id}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span>{getSocialIcon(social.icon)}</span> {social.title}
-              </a>
-            ))}
-          </div>
-        </div>
-  
-        {/* Language and Country section */}
-        <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto md:ml-8">
-          <div className="flex flex-col items-center md:items-start gap-7 w-full">
+    
+          {/* Cities section */}
+          {footerContent.Cities.map((citySection) => (
+            <div
+              key={citySection.id}
+              className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto"
+            >
+              <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
+                {citySection.title}
+              </h1>
+              <div className="flex flex-col items-center md:items-start w-full">
+                {citySection.cities.map((city) => (
+                  <span className="text-lg text-white" key={city.id}>
+                    {city.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+    
+          {/* Socials section */}
+          <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto">
             <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
-              {footerContent.language}
+              {footerContent.Socials.title}
             </h1>
-            <LanguageSwitcher />
+            <div className="flex flex-col items-center md:items-start w-full">
+              {footerContent.Socials.socials.map((social) => (
+                <a
+                  className="flex items-center gap-5 text-lg text-white xl:hover:underline"
+                  key={social.id}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>{getSocialIcon(social.icon)}</span> {social.title}
+                </a>
+              ))}
+            </div>
+          </div>
+    
+          {/* Language and Country section */}
+          <div className="flex flex-col items-center md:items-start gap-8 w-full md:w-auto md:ml-8">
+            <div className="flex flex-col items-center md:items-start gap-7 w-full">
+              <h1 className="font-bold text-[20px] text-white text-center md:text-left w-full">
+                {footerContent.language}
+              </h1>
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Suggestion banner */}
-      <div className="w-full mt-20 pt-6 border-t border-gray-700">
-        <div className="flex justify-center">
-          <div className="text-white text-center">
-            Let's make WinkWing better together! <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">Suggest your ideas.</a>
+        </div>
+        {/* Suggestion banner */}
+        <div className="w-full mt-20 pt-6 border-t border-gray-700">
+          <div className="flex justify-center">
+            <div className="text-white text-center">
+              Let's make WinkWing better together! <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">Suggest your ideas.</a>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
-  );
-}
+      </footer>
+    );
+  }
