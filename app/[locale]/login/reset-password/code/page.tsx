@@ -56,7 +56,7 @@ export default function ResetPasswordCode() {
     
     // Alternative approach using absolute path
     const absolutePath = "/" + locale + "/login/create-password";
-    console.log("Navigating to:", absolutePath); // Log for debugging
+    // console.log("Navigating to:", absolutePath); // Log for debugging
     router.push(absolutePath);
   };
 

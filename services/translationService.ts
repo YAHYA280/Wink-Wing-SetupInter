@@ -78,6 +78,12 @@ export interface ChangePasswordData {
   password_placeholder: string;
   repeatpassword_placeholder: string;
   button: string;
+  password_requirements:string;
+  passwords_not_match:string;
+  password_too_weak:string;
+  reset_success:string;
+  back_to_login:string;
+  success_details:string;
 }
 export interface ResetPasswordData {
   Header: string;
@@ -85,6 +91,12 @@ export interface ResetPasswordData {
   text: string;
   PlaceHolder: string;
   btn: string;
+  successEmail : string;
+  sentEmail: string;
+  confirmationText:string;
+  backToLogin:string;
+  continueToCode:string;
+  invalidEmail:string;
 }
 export interface OtpCodeData {
   subtitle: string;
@@ -132,6 +144,11 @@ export interface MovingGuideData {
     wa_notification_btn: string;
     email_notifications_title: string;
     email_notifications_text: string;
+    Dialog_Text:string;
+    Dialog_UnderInput:string;
+    Dialog_Button:string;
+    noActiveNum:string;
+
   };
   PrepareYourStandardResponse: {
     id: number;

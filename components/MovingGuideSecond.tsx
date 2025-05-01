@@ -100,6 +100,14 @@ export default function MovingGuideSecond() {
   const emailNotificationsText =
     translations?.ActivateWhatsAppNotifications?.email_notifications_text ||
     "Receive notifications in your mailbox.";
+  const dialogText =  
+    translations?.ActivateWhatsAppNotifications?.Dialog_Text || "Enter your number to activate WhatsApp notifications.";
+  const dialogUderInput = 
+    translations?.ActivateWhatsAppNotifications?.Dialog_UnderInput || "Select the correct country code";
+  const dialogButton =
+    translations?.ActivateWhatsAppNotifications?.Dialog_Button || "Save phone number";
+  const noActiveNumber = 
+  translations?.ActivateWhatsAppNotifications?.noActiveNum || "No active number";
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -123,7 +131,7 @@ export default function MovingGuideSecond() {
               <span>
                 {user?.whatsappNumber
                   ? user?.whatsappNumber
-                  : "No active number"}
+                  : `${noActiveNumber}`}
               </span>
               <button
                 onClick={(e) => {
@@ -203,7 +211,7 @@ export default function MovingGuideSecond() {
                 {waNotificationsTitle}
               </h1>
             </div>
-            <p>Enter your number to activate WhatsApp notifications.</p>
+            <p>{dialogText}</p>
             <form
               onSubmit={handleChangeWhatsAppNumber}
               className="flex flex-col gap-3"
@@ -224,13 +232,13 @@ export default function MovingGuideSecond() {
                 }}
               />
               <button className="flex items-start mb-3">
-                Select the correct country code
+               {dialogUderInput}
               </button>
               <button
                 className="bg-main border border-main rounded-lg py-3 px-12 sm:px-[140px] text-white font-semibold text-[14px] xl:hover:bg-transparent xl:hover:text-main transition-all duration-300"
                 type="submit"
               >
-                Save phone number
+                {dialogButton}
               </button>
             </form>
           </div>

@@ -8,6 +8,7 @@ export default function DashboardInfoMovingGuide({
   translationData?: any;
 }) {
   const { currentStep, totalSteps } = useProgress();
+  
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="font-bold text-lg text-[#19191A]">

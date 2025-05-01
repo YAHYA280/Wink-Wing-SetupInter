@@ -71,7 +71,7 @@ export const updateSearchPreferences = async (
       }
     );
     
-    console.log("Update response:", response.data);
+    // console.log("Update response:", response.data);
     return response.data;
   } catch (error: any) {
     console.error("Error updating search preferences:", error);
@@ -87,9 +87,9 @@ export const updateSearchPreferences = async (
 // Get search job by ID
 export const getSearchJobById = async (searchJobId: number, token: string) => {
   try {
-    console.log(`Fetching search job with ID: ${searchJobId}`);
+    // console.log(`Fetching search job with ID: ${searchJobId}`);
     const url = `${process.env.NEXT_PUBLIC_API_URL}/search-jobs/${searchJobId}`;
-    console.log(`API URL: ${url}`);
+    // console.log(`API URL: ${url}`);
     
     const response = await axios.get(url, {
       headers: {
@@ -97,7 +97,7 @@ export const getSearchJobById = async (searchJobId: number, token: string) => {
       },
     });
     
-    console.log("Search job data retrieved successfully:", response.data);
+    // console.log("Search job data retrieved successfully:", response.data);
     return response.data;
   } catch (error: any) {
     // Simplified error logging to avoid excessive console errors
@@ -108,13 +108,13 @@ export const getSearchJobById = async (searchJobId: number, token: string) => {
     if (process.env.NODE_ENV === 'development') {
       if (error.response) {
         // Request made but server returned an error
-        console.log("Server returned error status:", error.response.status);
+        // console.log("Server returned error status:", error.response.status);
       } else if (error.request) {
         // Request made but no response received
-        console.log("No response received from server");
+        // console.log("No response received from server");
       } else {
         // Error during request setup
-        console.log("Error setting up request:", error.message);
+        // console.log("Error setting up request:", error.message);
       }
     }
     
