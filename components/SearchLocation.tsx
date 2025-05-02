@@ -72,7 +72,6 @@ export default function SearchLocation() {
             <ServicesCard key={service.id} service={service} />
           ))}
         </div>
-        {/* Pass the complete searchContent as props to SearchMenu */}
         <SearchMenu content={searchContent} />
       </div>
     </div>

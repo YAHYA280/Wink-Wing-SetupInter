@@ -502,50 +502,50 @@ export default function SearchMenu({
           {/* NEIGHBOURHOODS TAB */}
           <TabPanel className="mt-6">
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <CountryDropdown />
-                <CityDropdown />
-              </div>
-              <div className="w-full">
-                <NeighbourhoodDropdown />
-              </div>
-              <div className="w-full h-full">
-                <Map
-                  ref={mapRef}
-                  {...viewport}
-                  onMove={(evt) => setViewport(evt.viewState)}
-                  style={{
-                    width: "100%",
-                    height: "300px",
-                    cursor: "grab",
-                    borderRadius: "8px",
-                  }}
-                  mapStyle="mapbox://styles/mapbox/streets-v11"
-                  mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                />
-              </div>
+    <         div className="flex flex-col md:flex-row items-start justify-between gap-4 w-full">
+             <CountryDropdown />
+               <CityDropdown />
             </div>
-          </TabPanel>
+            <div className="w-full">
+            <NeighbourhoodDropdown />
+          </div>
+           <div className="w-full h-full">
+           <Map
+        ref={mapRef}
+        {...viewport}
+        onMove={(evt) => setViewport(evt.viewState)}
+        style={{
+          width: "100%",
+          height: "300px",
+          cursor: "grab",
+          borderRadius: "8px",
+        }}
+        mapStyle="mapbox://styles/mapbox/streets-v11"
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+      />
+    </div>
+  </div>
+</TabPanel>
 
           {/* RADIUS TAB */}
           <TabPanel className="mt-6">
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-4 w-full">
                 <CountryDropdown />
                 <CityDropdown />
               </div>
               <div className="w-full">
-                <div className="flex flex-col gap-1 items-start">
+                <div className="flex flex-col gap-1 items-start w-full">
                   <h3 className="font-semibold text-lg text-[#808080] mb-2">
                     {content.radius_dropdown_label || "Radius"}
                   </h3>
-                  <div className="relative z-20">
+                  <div className="relative z-20 w-full">
                     <div
                       onClick={(e) => {
                         setIsRadiusActive(!isRadiusActive);
                         e.stopPropagation();
                       }}
-                      className="flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-[320px]"
+                      className="flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-full md:w-[320px]"
                     >
                       <h1 className="font-medium text-lg text-[#808080]">
                         {selectedRadius}
@@ -568,7 +568,7 @@ export default function SearchMenu({
                     {isRadiusActive && (
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="absolute top-[110%] w-[320px] z-20 border bg-white shadow-xl rounded-lg"
+                        className="absolute top-[110%] w-full md:w-[320px] z-20 border bg-white shadow-xl rounded-lg"
                       >
                         <div className="p-4">
                           <div className="flex flex-col justify-start items-start">

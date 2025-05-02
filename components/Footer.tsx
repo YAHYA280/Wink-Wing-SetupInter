@@ -4,7 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 // icons
 import { FaInstagram, FaTiktok, FaFacebookF } from "react-icons/fa";
@@ -16,6 +16,18 @@ import LanguageSwitcher from "./LanguageSwitcher";
 
 // service for translations
 import { useFooterData } from "@/services/translationService";
+
+// context
+import { useUserPreferences } from "@/context/userPreferencesContext";
+
+// Define city coordinates for the Netherlands cities
+const cityCoordinates: Record<string, { lat: number; lng: number }> = {
+  "Amsterdam": { lat: 52.3675734, lng: 4.9041389 },
+  "Rotterdam": { lat: 51.9244, lng: 4.4777 },
+  "Utrecht": { lat: 52.0907, lng: 5.1214 },
+  "Haarlem": { lat: 52.3874, lng: 4.6462 },
+  "Den Haag": { lat: 52.0705, lng: 4.3007 },
+};
 
 // Default footer content (fallback)
 const defaultFooterContent = {
@@ -40,11 +52,6 @@ const defaultFooterContent = {
         title: "Pricing",
         href: "/pricing",
       },
-      // {
-      //   id: 4,
-      //   title: "Guides",
-      //   href: "/guides",
-      // },
       {
         id: 4,
         title: "Contact",
@@ -131,8 +138,19 @@ const getSocialIcon = (iconName: string) => {
 export default function Footer() {
   // Get translations
   const pathname = usePathname();
+  const router = useRouter();
   const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
   const { data: footerData, status } = useFooterData();
+
+  // Get user preferences context
+  const {
+    setCountry,
+    setSelectedCountryValue,
+    setSelectedCity,
+    setSelectedLat,
+    setSelectedLng,
+    setSelectedNeighbourhood,
+  } = useUserPreferences();
 
   // Merge API data with defaults using useMemo
   const footerContent = useMemo(() => {
@@ -148,11 +166,35 @@ export default function Footer() {
     return defaultFooterContent;
   }, [footerData, status]);
 
+  // Handle city selection from footer
+  const handleCityClick = (cityName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Set the country to Netherlands
+    setCountry("Netherlands");
+    setSelectedCountryValue("NL");
+    
+    // Set the selected city
+    setSelectedCity(cityName);
+    
+    // Reset neighborhoods
+    setSelectedNeighbourhood([]);
+    
+    // Set map coordinates based on the selected city
+    if (cityCoordinates[cityName]) {
+      setSelectedLat(cityCoordinates[cityName].lat);
+      setSelectedLng(cityCoordinates[cityName].lng);
+    }
+    
+    // Navigate to homepage
+    router.push(`/${locale}`);
+  };
+
   return (
     <footer className="pt-24 pb-8 bg-[#1E1E1E] px-2 md:px-20">
       <div className="max-w-3xl mx-auto">
         {/* Logo Section - Updated for better mobile centering */}
-        <div className="flex justify-center md:justify-start mb-5 w-full md:ml-3">
+        <div className="flex justify-center md:justify-start mb-5 w-full  md:w-36 md:ml-8">
           <Link className="cursor-pointer" href={`/${locale}`}>
             <Image
               src="/Logo_white.svg"
@@ -195,9 +237,14 @@ export default function Footer() {
               </h1>
               <div className="flex flex-col items-center md:items-start w-full">
                 {citySection.cities.map((city) => (
-                  <span className="text-lg text-white" key={city.id}>
+                  <a 
+                    className="text-lg text-white cursor-pointer xl:hover:underline" 
+                    key={city.id}
+                    href="#"
+                    onClick={(e) => handleCityClick(city.title, e)}
+                  >
                     {city.title}
-                  </span>
+                  </a>
                 ))}
               </div>
             </div>

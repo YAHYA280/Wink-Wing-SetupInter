@@ -59,15 +59,15 @@ export default function CityDropdown({ cityLabel }: CityDropdownProps) {
   }
 
   return (
-    <div className="flex flex-col gap-1 items-start">
+    <div className="flex flex-col gap-1 items-start w-full">
       <h3 className="font-semibold text-lg text-[#615D5D]">{displayLabel}</h3>
-      <div className="relative z-30">
+      <div className="relative z-30 w-full">
         <div
           onClick={(e) => {
             setIsCityActive(!isCityActive);
             e.stopPropagation();
           }}
-          className={`flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-[320px]`}
+          className={`flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-full md:w-[320px]`}
         >
           <h1 className="font-medium text-lg text-[#808080]">{selectedCity}</h1>
           <span>
@@ -90,11 +90,11 @@ export default function CityDropdown({ cityLabel }: CityDropdownProps) {
         {isCityActive && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-[110%] w-[320px] border bg-white shadow-xl rounded-lg"
+            className="absolute top-[110%] w-full md:w-[320px] border bg-white shadow-xl rounded-lg"
           >
             <div className="p-4">
               <input
-                className="border-2 border-main rounded-lg  px-4 py-1 w-full outline-none mb-4 text-[#484848]"
+                className="border-2 border-main rounded-lg px-4 py-1 w-full outline-none mb-4 text-[#484848]"
                 type="text"
                 autoFocus
                 value={searchCityQuery}

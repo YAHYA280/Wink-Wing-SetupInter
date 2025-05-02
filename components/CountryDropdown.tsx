@@ -36,6 +36,7 @@ export default function CountryDropdown({
     setSelectedCity,
     setSelectedLat,
     setSelectedLng,
+    setSelectedNeighbourhood,
   } = useUserPreferences();
 
   // Get translations (use this as a fallback if the prop isn't provided)
@@ -64,16 +65,16 @@ export default function CountryDropdown({
   }, []);
 
   return (
-    <div className="flex flex-col gap-1 items-start">
+    <div className="flex flex-col gap-1 items-start w-full">
       <h3 className="font-semibold text-lg text-[#615D5D]">{displayLabel}</h3>
-      <div className="relative z-40">
+      <div className="relative z-40 w-full">
         <div
           onClick={(e) => {
             // Toggle dropdown visibility and stop propagation
             setIsCountryActive(!isCountryActive);
             e.stopPropagation();
           }}
-          className="flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-[320px]"
+          className="flex items-center justify-between cursor-pointer bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-full md:w-[320px]"
         >
           <h1 className="font-medium text-lg text-[#808080]">{country}</h1>
           <span>
@@ -96,7 +97,7 @@ export default function CountryDropdown({
         {isCountryActive && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-[110%] w-[320px] border bg-white shadow-xl rounded-lg"
+            className="absolute top-[110%] w-full md:w-[320px] border bg-white shadow-xl rounded-lg"
           >
             <div className="p-4">
               <div className="flex flex-col justify-start items-start">
@@ -113,6 +114,8 @@ export default function CountryDropdown({
                           setSelectedCountryValue(country.value);
                           setCountry(country.label);
                           setSelectedCity("Select a city");
+                          // Reset neighborhood when country changes
+                          setSelectedNeighbourhood([]);
 
                           // Update map coordinates based on selected country
                           const countryCode = country.value as CountryCode;

@@ -50,9 +50,9 @@ export default function NeighbourhoodDropdown({
   };
 
   return (
-    <div className="flex flex-col gap-1 items-start">
+    <div className="flex flex-col gap-1 items-start w-full">
       <h3 className="font-semibold text-lg text-[#615D5D]">{displayLabel}</h3>
-      <div className="relative z-10">
+      <div className="relative z-10 w-full">
         <MultiSelect
           value={selectedNeighbourhood.map((n) => n.id)}
           onChange={handleNeighbourhoodChange}
@@ -63,7 +63,7 @@ export default function NeighbourhoodDropdown({
           placeholder={`Select ${displayLabel}`}
           selectedItemTemplate={selectedItemsLabel}
           maxSelectedLabels={2}
-          className="bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-[320px] cursor-pointer"
+          className="bg-[#efefef] xl:hover:bg-[#c1bfbf] transition-all duration-300 rounded-lg py-3 px-4 w-full md:w-[320px] cursor-pointer"
         />
       </div>
     </div>
