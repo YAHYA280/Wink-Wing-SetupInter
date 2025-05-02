@@ -197,6 +197,7 @@ export interface DashboardData {
   TrialMessage: {
     id: number;
     text: string;
+    trialText?: string;
   };
   DashboardMovingGuide: {
     id: number;

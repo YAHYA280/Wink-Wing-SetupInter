@@ -10,6 +10,7 @@ interface TrialMessageProps {
   translationData?: {
     id: number;
     text: string;
+    trialText?: string;
   };
 }
 
@@ -38,63 +39,95 @@ export default function TrialMessage({ translationData }: TrialMessageProps) {
       : "trial";
 
   const formatedDate = formatDate(subscription?.currentPeriodEnd || "");
+  
+  // Check if user is on trial to control messaging
+  const isTrialUser = planLabel === "trial";
 
-  /**
-   * Replaces placeholders in the provided text with dynamic elements.
-   * Placeholders:
-   * - "two-month" → subscription plan label (e.g. "one-month")
-   * - "28 March 2100" → formatted date string
-   */
-  const renderMessage = (text: string) => {
-    const placeholders: { [key: string]: JSX.Element } = {
-      "two-month": (
-        <span className="text-main" key="plan">
-          {planLabel}
-        </span>
-      ),
-      "28 March 2100": (
-        <span className="text-main" key="date">
-          {formatedDate}
-        </span>
-      ),
+  const messageToShow = isTrialUser 
+    ? translationData?.trialText 
+    : translationData?.text;
+
+    const renderMultilingualMessage = (text: string) => {
+      if (!text) return null;
+      
+      // For trial users, handle the {{trial}} placeholder
+      if (isTrialUser && text.includes("{{trial}}")) {
+        const parts = text.split("{{trial}}");
+        return (
+          <>
+            {parts[0]}
+            <span className="text-main">trial</span>
+            {parts[1] || ""}
+          </>
+        );
+      }
+      
+      // For regular subscriptions, handle {{plan}} and {{date}} placeholders
+      if (text.includes("{{plan}}") && text.includes("{{date}}")) {
+        // Split by plan first
+        const planParts = text.split("{{plan}}");
+        
+        // Split second part by date
+        const dateParts = planParts[1].split("{{date}}");
+        
+        return (
+          <>
+            {planParts[0]}
+            <span className="text-main">{planLabel}</span>
+            {dateParts[0]}
+            <span className="text-main">{formatedDate}</span>
+            {dateParts[1] || ""}
+          </>
+        );
+      }
+      
+      // Fallback for text without placeholders
+      return (
+        <>
+          {isTrialUser ? (
+            <>🏠 You are currently on a <span className="text-main">trial</span> subscription.</>
+          ) : (
+            <>
+              🏠 You are currently on the <span className="text-main">{planLabel}</span>{" "}
+              subscription, and you'll have access until{" "}
+              <span className="text-main">{formatedDate}</span>. After that, you'll
+              typically be charged for the next period unless you decide to cancel or
+              modify your plan.
+            </>
+          )}
+        </>
+      );
     };
-
-    // Build a regex that matches any of the placeholders
-    const regex = new RegExp(Object.keys(placeholders).join("|"), "g");
-
-    // Split the text so that we capture both plain text and placeholders.
-    const parts = text.split(regex);
-    const matches = text.match(regex) || [];
-
-    return parts.map((part, index) => (
-      <span key={`part-${index}`}>
-        {part}
-        {index < matches.length && placeholders[matches[index]]}
-      </span>
-    ));
-  };
-
-  const messageContent = translationData?.text ? (
-    renderMessage(translationData.text)
-  ) : (
-    <>
-      🏠 You are currently on the <span className="text-main">{planLabel}</span>{" "}
-      subscription, and you'll have access until{" "}
-      <span className="text-main">{formatedDate}</span>. After that, you'll
-      typically be charged for the next period unless you decide to cancel or
-      modify your plan.
-    </>
-  );
-
-  return (
-    <div className="border border-[#AEAEAE] rounded-lg p-5 w-full">
-      {loading ? (
-        <h1 className="text-center text-[16px]">Loading...</h1>
+  
+    // Process message with the rendering function if available
+    let messageContent: JSX.Element | null = null;
+    
+    if (messageToShow) {
+      messageContent = renderMultilingualMessage(messageToShow);
+    } else {
+      // Fallback if no translation is available
+      messageContent = isTrialUser ? (
+        <>🏠 You are currently on a <span className="text-main">trial</span> subscription.</>
       ) : (
-        <p className="text-[16px] leading-[24px] text-center">
-          {messageContent}
-        </p>
-      )}
-    </div>
-  );
-}
+        <>
+          🏠 You are currently on the <span className="text-main">{planLabel}</span>{" "}
+          subscription, and you'll have access until{" "}
+          <span className="text-main">{formatedDate}</span>. After that, you'll
+          typically be charged for the next period unless you decide to cancel or
+          modify your plan.
+        </>
+      );
+    }
+  
+    return (
+      <div className="border border-[#AEAEAE] rounded-lg p-5 w-full">
+        {loading ? (
+          <h1 className="text-center text-[16px]">Loading...</h1>
+        ) : (
+          <p className="text-[16px] leading-[24px] text-center">
+            {messageContent}
+          </p>
+        )}
+      </div>
+    );
+  }
