@@ -4,13 +4,12 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   // A list of all locales that are supported
   locales: ["en", "nl"],
-  // Hide the language prefix
+  // Always show the language prefix in URLs
   localePrefix: "always",
-  // Used when no locale matches
-  defaultLocale: "nl",
+  // Use English as the default fallback
+  defaultLocale: "en"
 });
 
 // Lightweight wrappers around Next.js' navigation APIs
-// that will consider the routing configuration
 export const { Link, redirect, usePathname, useRouter, getPathname } =
   createNavigation(routing);
