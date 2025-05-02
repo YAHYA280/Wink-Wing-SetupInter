@@ -28,6 +28,9 @@ export interface MatchesPageData {
     save_button: string;
     default_letter: string;
     no_image_text: string;
+    bedrooms:string;
+    on:string;
+    viewMatch:string;
   };
 }
 export interface SearchData {

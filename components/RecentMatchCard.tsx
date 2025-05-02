@@ -1,18 +1,48 @@
 // next
 import Link from "next/link";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // types
 import { RecentMatches } from "@/types/types";
 
 // utils
 import { formatDate } from "@/utils/formatDate";
+import { useMatchesData } from "@/services/translationService";
 
 interface RecentMatchCardProps {
   match: RecentMatches;
 }
 
 export default function RecentMatchCard({ match }: RecentMatchCardProps) {
+  const pathname = usePathname();
+  const locale = useMemo(() => pathname?.split("/")[1] || "en", [pathname]);
+  const { data: matchesData, status } = useMatchesData();
+  
   const formattedDate = formatDate(match.found);
+  
+  // Default translations (English fallback)
+  const defaultTranslations = {
+    noImage: "no image",
+    month: "month",
+    bedrooms: "bedrooms",
+    on: "On",
+    viewMatch: "View match"
+  };
+  
+  // Get translations from API if available
+  const translations = useMemo(() => {
+    if (status === "success" && matchesData?.details) {
+      return {
+        noImage: matchesData.details.no_image_text || defaultTranslations.noImage,
+        month: matchesData.details.month_label || defaultTranslations.month,
+        bedrooms: matchesData.details.bedrooms || defaultTranslations.bedrooms,
+        on: matchesData.details.on || defaultTranslations.on,
+        viewMatch: matchesData.details.viewMatch || defaultTranslations.viewMatch,
+      };
+    }
+    return defaultTranslations;
+  }, [matchesData, status]);
 
   return (
     <div className="flex flex-col sm:w-[380px] relative">
@@ -25,7 +55,7 @@ export default function RecentMatchCard({ match }: RecentMatchCardProps) {
           />
         ) : (
           <div className="w-[380px] h-[192px] bg-[#e5e5e5] font-medium flex items-center justify-center text-lg uppercase rounded-t-lg">
-            no image
+            {translations.noImage}
           </div>
         )}
         <button className="absolute right-3 top-3">
@@ -74,7 +104,7 @@ export default function RecentMatchCard({ match }: RecentMatchCardProps) {
         </div>
         <div>
           <span className="font-bold text-lg">€{match.price}</span> /{" "}
-          <span className="font-bold text-lg text-[#707070]">month</span>
+          <span className="font-bold text-lg text-[#707070]">{translations.month}</span>
         </div>
         <div className="flex items-center gap-2">
           <h3 className="flex items-center gap-1 font-semibold">
@@ -83,17 +113,17 @@ export default function RecentMatchCard({ match }: RecentMatchCardProps) {
           </h3>
 
           {match.bedrooms && (
-            <h3 className="font-semibold">/ {match.bedrooms} bedrooms</h3>
+            <h3 className="font-semibold">/ {match.bedrooms} {translations.bedrooms}</h3>
           )}
         </div>
         <div>
-          <h3 className="text-[16px] text-[#707070]">On {formattedDate}</h3>
+          <h3 className="text-[16px] text-[#707070]">{translations.on} {formattedDate}</h3>
         </div>
         <Link
           className="flex items-end justify-end bg-main border border-main py-2 text-white rounded-lg font-semibold xl:hover:bg-transparent xl:hover:text-main transition-all duration-300 px-5 w-max"
           href={`/matches/${match.id}`}
         >
-          View match
+          {translations.viewMatch}
         </Link>
       </div>
     </div>
