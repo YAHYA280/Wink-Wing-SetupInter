@@ -19,32 +19,19 @@ export default function MovingGuideThird() {
     "Show registration letter for each property";
   const buttonText = translations?.PrepareYourStandardResponse?.btn || "Save";
 
+  const textLetter = " Dear Landlord, I recently came across your property on [[ADDRESS]] and I'm very interested. I would love to apply for the viewing of the apartment. I work as a [OCCUPATION] and my monthly income is €[INCOME]. I have all the required documents available.I would appreciate it if you could let me know the viewing schedule and if I may attend.Best regards,[NAME]"
+  const letterHodler = translations?.PrepareYourStandardResponse?.letter_Holder || textLetter;
+
   return (
     <div className="flex flex-col gap-8 py-4">
       <h1 className="font-bold text-[24px] leading-[24px]">{title}</h1>
       <div className="text-[16px] leading-[24px]">
-        {/* {text.split("\n").map((line, index) => (
-          <React.Fragment key={index}>
-            {line}
-            <br />
-          </React.Fragment>
-        ))} */}
-
+        
         <Markdown>{text}</Markdown>
       </div>
 
       <textarea
-        defaultValue={`Dear Landlord, 
-        
-I recently came across your property on [[ADDRESS]] and I'm very interested. I would love to apply for the viewing of the apartment.
-
-I work as a [OCCUPATION] and my monthly income is €[INCOME]. I have all the required documents available.
-
-I would appreciate it if you could let me know the viewing schedule and if I may attend.
-
-
-Best regards,
-[NAME]`}
+        defaultValue={`${letterHodler}`}
         className="w-full h-[300px] border rounded-lg resize-none p-4"
       />
 

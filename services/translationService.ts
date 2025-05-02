@@ -156,6 +156,7 @@ export interface MovingGuideData {
     text: string;
     checkbox_text: string;
     btn: string;
+    letter_Holder:string;
   };
   CollectAllNecessaryDocuments: {
     id: number;
