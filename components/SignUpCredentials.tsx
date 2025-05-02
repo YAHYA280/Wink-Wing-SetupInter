@@ -290,7 +290,7 @@ export default function SignUpCredentials() {
             has_preferences: selectedNiceToHave.length > 0 || selectedAlsoSearchFor.length > 0
           });
         }
-        router.push(`${locale}/welcome`);
+        router.push(`/${locale}/welcome`);
       }
     } catch (e: any) {
       console.error("Registration failed:", e);
