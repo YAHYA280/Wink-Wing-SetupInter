@@ -79,7 +79,7 @@ export default function DashboardRightMenu({
       title: "Recent matches",
       text_part1:
         "All matches will be sent to your phone, but an overview of your matches can be found",
-      text_part2: "here.",
+      button: "here.",
     },
     danger_zone: {
       title: "Danger zone",
@@ -137,7 +137,8 @@ export default function DashboardRightMenu({
       text_part1:
         services?.ServiceFive?.text ||
         defaultTranslations.recent_matches.text_part1,
-      text_part2: "", // Provided text is a single string so we leave this empty
+      button: services?.ServiceFive?.button ||
+      defaultTranslations.recent_matches.button, 
     },
     danger_zone: {
       title:
@@ -216,7 +217,7 @@ export default function DashboardRightMenu({
         )}
         <Link
           href={`/${locale}/search`}
-          className="font-bold text-lg text-main xl:hover:underline ml-auto"
+          className="font-bold text-lg text-main xl:hover:underline"
         >
           {translations.searchjobs.add_search}
         </Link>
@@ -370,7 +371,7 @@ export default function DashboardRightMenu({
             href={`/${locale}/matches`}
             className="font-bold text-[#1C46D9] xl:hover:underline"
           >
-            {translations.recent_matches.text_part2 || "here."}
+            {translations.recent_matches.button || "here."}
           </Link>
         </p>
       </div>

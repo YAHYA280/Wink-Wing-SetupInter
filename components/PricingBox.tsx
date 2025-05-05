@@ -19,6 +19,7 @@ import { GrClose } from "react-icons/gr";
 
 // service for translations
 import { usePricingData } from "@/services/translationService";
+import axios from "axios";
 
 export default function PricingBox() {
   // Get translations
@@ -43,6 +44,11 @@ export default function PricingBox() {
           pricingData.PricingBox.text_two ||
           "If you are not satisfied, you will simply get your money back.",
         referralCode: pricingData.PricingBox.referralCode || "Referral Code",
+        succcesReferral: pricingData.PricingBox.succcesReferral || " You’ll get an extra free month with this referral",
+        
+        succesResponse:pricingData.PricingBox.succesResponse || "Referral code applied!",
+        warningResponse:pricingData.PricingBox.warningResponse || "Please log in first to apply this referral code.",
+        failResponse:pricingData.PricingBox.failResponse || "Invalid referral code. Please check and try again.",
       };
     }
     return {
@@ -55,6 +61,11 @@ export default function PricingBox() {
       text_two:
         "If you are not satisfied, you will simply get your money back.",
       referralCode: "Referral Code",
+      succcesReferral:"You’ll get an extra free month with this referral",
+      succesResponse:"Referral code applied!",
+      warningResponse:"Please log in first to apply this referral code.",
+      failResponse:"Invalid referral code. Please check and try again.",
+
     };
   }, [pricingData, status]);
 
@@ -94,7 +105,6 @@ export default function PricingBox() {
   const { token } = useAppSelector((state) => state.auth);
   const { error, loading } = useAppSelector((state) => state.payment);
 
-  // Simulate validation of referral code
   useEffect(() => {
     if (referralCode.trim() === "") {
       setReferralStatus("idle");
@@ -106,26 +116,55 @@ export default function PricingBox() {
     const timer = setTimeout(() => {
       setReferralStatus("checking");
 
-      // call an API to validate the code
-      // For now, we'll simulate a validation check
-      setTimeout(() => {
-        // Simple validation for demo purposes - consider a valid code as being 6-10 characters
-        if (referralCode.length >= 6 && referralCode.length <= 10) {
+      // Call the API to validate the code
+      const validateReferralCode = async () => {
+        try {
+          console.log(`Validating referral code: ${referralCode}`);
+          
+          // Include the token in the request if available
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/payment/referral-code/${referralCode}`,
+            { headers }
+          );
+          
+          console.log('API Response:', response);
+          
+          // If we reach here, the API call was successful with a 2xx status code
           setReferralStatus("valid");
           setReferralMessage(
-            "Referral code applied! You'll receive a discount."
+            `${pricingContent.succesResponse}`
           );
-        } else {
-          setReferralStatus("invalid");
-          setReferralMessage(
-            "Invalid referral code. Please check and try again."
-          );
+        } catch (error: any) { // Type the error as 'any' to access properties
+          console.error("Referral code validation error:", error);
+          
+          // Check if the error is due to authentication (401)
+          if (error.response && error.response.status === 401) {
+            console.log('Error response: 401', error.response.data);
+            // Warning state for login required
+            setReferralStatus("invalid"); // Use "invalid" to show the warning style
+            setReferralMessage(
+              `${pricingContent.warningResponse}`
+            );
+          } else {
+            // Other error cases - invalid code
+            if (error.response) {
+              console.log('Error response:', error.response.status, error.response.data);
+            }
+            setReferralStatus("invalid");
+            setReferralMessage(
+              `${pricingContent.failResponse}`
+            );
+          }
         }
-      }, 600);
+      };
+
+      validateReferralCode();
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [referralCode]);
+  }, [referralCode, token]);
 
   const handleCheckout = async () => {
     if (!token) {
@@ -302,7 +341,7 @@ export default function PricingBox() {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    {pricingContent.button} with discount
+                    {pricingContent.button}
                   </span>
                 </>
               ) : (
@@ -356,7 +395,7 @@ export default function PricingBox() {
                     ></path>
                   </svg>
                   <span>
-                    Discount will be applied at checkout with code:{" "}
+                  {pricingContent.succcesReferral}:{" "}
                     <strong>{referralCode}</strong>
                   </span>
                 </p>

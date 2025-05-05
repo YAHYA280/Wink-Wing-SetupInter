@@ -11,7 +11,6 @@ import { FaInstagram, FaTiktok, FaFacebookF } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 
 // components
-import FooterDropDown from "./FooterDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 // service for translations
@@ -33,6 +32,8 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
 const defaultFooterContent = {
   language: "Language",
   country: "Country",
+  feedbackTitle:"Let's make WinkWing better together!",
+  feedbackLink:"Suggest your ideas.",
   Links: {
     id: 1,
     title: "More WinkWing",
@@ -117,6 +118,7 @@ const defaultFooterContent = {
       },
     ],
   },
+  
 };
 
 // Helper function to get social icon component
@@ -161,6 +163,10 @@ export default function Footer() {
         Links: footerData.Links || defaultFooterContent.Links,
         Cities: footerData.Cities || defaultFooterContent.Cities,
         Socials: footerData.Socials || defaultFooterContent.Socials,
+        feedbackTitle: footerData.feedbackTitle || defaultFooterContent.feedbackTitle,
+        feedbackLink : footerData.feedbackLink   || defaultFooterContent.feedbackLink,
+
+        
       };
     }
     return defaultFooterContent;
@@ -194,17 +200,17 @@ export default function Footer() {
     <footer className="pt-24 pb-8 bg-[#1E1E1E] px-2 md:px-20">
       <div className="max-w-3xl mx-auto">
         {/* Logo Section - Updated for better mobile centering */}
-        <div className="flex justify-center md:justify-start mb-5 w-full  md:w-36 md:ml-8">
-          <Link className="cursor-pointer" href={`/${locale}`}>
-            <Image
-              src="/Logo_white.svg"
-              alt="Logo"
-              width={150}
-              height={40}
-              className="w-[140px] h-auto"
-              priority
-            />
-          </Link>
+        <div className="flex justify-center  mb-5 w-full ">
+        <Link className="cursor-pointer" href={`/${locale}`}>
+    <Image
+      src="/Logo_white.svg"
+      alt="Logo"
+      width={225}
+      height={60}
+      className="w-[210px] h-auto"
+      priority
+    />
+  </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
           
@@ -285,7 +291,7 @@ export default function Footer() {
         <div className="w-full mt-20 pt-6 border-t border-gray-700">
           <div className="flex justify-center">
             <div className="text-white text-center">
-              Let's make WinkWing better together! <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">Suggest your ideas.</a>
+             {footerContent.feedbackTitle} <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">{footerContent.feedbackLink}</a>
             </div>
           </div>
         </div>

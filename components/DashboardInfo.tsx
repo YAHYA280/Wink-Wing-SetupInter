@@ -13,12 +13,10 @@ export default function DashboardInfo({
   translationData?: any;
 }) {
 
-  console.log("This is the data of dashboard", translationData);
   
   // Fix: Access the nested DashboardInfo object if it exists
   const dashboardTranslations = translationData?.DashboardInfo || {};
 
-  console.log("this is  dashboardTranslations", dashboardTranslations.Notifications)
 
   return (
     <div className="border border-[#AEAEAE] py-4 px-5 rounded-lg w-full">

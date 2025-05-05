@@ -32,7 +32,6 @@ export default function DashboardInfoNotifications({
   }
 
 
-  console.log("hna wst notificauion ..............", translationData)
   return (
     <div className="flex flex-col gap-4 w-full border-b pb-10 md:border-b-0 md:border-r md:pb-0 border-[#AEAEAE]">
       <h1 className="font-bold text-lg text-[#19191A]">

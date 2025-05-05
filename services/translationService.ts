@@ -47,6 +47,12 @@ export interface SearchData {
     adress_valid: string;
     success_title: string ;
     sucess_text:string;
+    loadingTitle :string;
+    loadingText :string;
+    unsavedChangesAlert :string;
+    tryAgainButton :string;
+    serverErrorMessage :string;
+    localSaveMessage :string;
 
   };
 }
@@ -289,6 +295,7 @@ export interface DashboardData {
       icon: string;
       title: string;
       text: string;
+      button:string;
     };
     ServiceSix: {
       id: number;
@@ -332,6 +339,8 @@ export interface SocialsSection {
 export interface FooterData {
   language: string;
   country: string;
+  feedbackTitle:string;
+  feedbackLink:string;
   Links: LinksSection;
   Cities: CitiesSection[];
   Socials: SocialsSection;
@@ -375,6 +384,10 @@ export interface PricingBoxData {
   text: string;
   text_two: string;
   referralCode: string;
+  succcesReferral:string;
+  succesResponse:string;
+  warningResponse:string;
+  failResponse:string;
 }
 export interface PricingData {
   subtitle: string;

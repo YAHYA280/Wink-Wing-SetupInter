@@ -75,6 +75,7 @@ export default function SignUpRequirements() {
   }, [minPrice, maxPrice, minBeds, minFloorArea]);
 
   // Handle changes to min price
+  // eslint-disable-next-line no-undef
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setLocalMinPrice(value);
@@ -82,6 +83,7 @@ export default function SignUpRequirements() {
   };
 
   // Handle changes to max price
+  // eslint-disable-next-line no-undef
   const handleMaxPriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setLocalMaxPrice(value);
@@ -89,6 +91,7 @@ export default function SignUpRequirements() {
   };
 
   // Handle changes to min beds
+  // eslint-disable-next-line no-undef
   const handleMinBedsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setLocalMinBeds(value);
@@ -96,6 +99,7 @@ export default function SignUpRequirements() {
   };
 
   // Handle changes to min floor area
+  // eslint-disable-next-line no-undef
   const handleMinFloorAreaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setLocalMinFloorArea(value);
