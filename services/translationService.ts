@@ -582,6 +582,125 @@ export interface CopyrightData {
   };
 }
 
+export interface PrivacyPolicyData {
+  title: string;
+  subtitle: string;
+  introduction: string;
+  sections?: {
+    information_we_collect: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    how_we_use: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    data_storage: {
+      title: string;
+      text: string;
+    };
+    sharing_information: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    your_rights: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    cookies: {
+      title: string;
+      text: string;
+    };
+    third_party: {
+      title: string;
+      text: string;
+    };
+    children: {
+      title: string;
+      text: string;
+    };
+    changes: {
+      title: string;
+      text: string;
+    };
+    contact: {
+      title: string;
+      text: string;
+      email: string;
+      address: string;
+    };
+  };
+}
+
+export interface TermsServiceData {
+  title: string;
+  subtitle: string;
+  introduction: string;
+  sections?: {
+    acceptance: {
+      title: string;
+      text: string;
+    };
+    description: {
+      title: string;
+      text: string;
+    };
+    user_accounts: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    subscription: {
+      title: string;
+      text: string;
+    };
+    user_conduct: {
+      title: string;
+      text: string;
+      items: string[];
+    };
+    intellectual_property: {
+      title: string;
+      text: string;
+    };
+    limitation: {
+      title: string;
+      text: string;
+    };
+    disclaimer: {
+      title: string;
+      text: string;
+    };
+    indemnification: {
+      title: string;
+      text: string;
+    };
+    termination: {
+      title: string;
+      text: string;
+    };
+    changes: {
+      title: string;
+      text: string;
+    };
+    governing_law: {
+      title: string;
+      text: string;
+    };
+    contact: {
+      title: string;
+      text: string;
+      email: string;
+      address: string;
+    };
+  };
+}
+
+
 // Status type for the fetching process
 type FetchStatus = "idle" | "loading" | "success" | "error";
 
@@ -770,4 +889,12 @@ export function useMatchesData() {
 }
 export function useCopyrightData() {
   return useStrapiContent<CopyrightData>("copyright");
+}
+
+export function usePrivacyPolicyData() {
+  return useStrapiContent<PrivacyPolicyData>("privacy-policy");
+}
+
+export function useTermsServiceData() {
+  return useStrapiContent<TermsServiceData>("terms-service");
 }
