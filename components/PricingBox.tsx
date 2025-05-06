@@ -112,16 +112,13 @@ export default function PricingBox() {
       return;
     }
 
-    // Debounce validation to avoid excessive validation on every keystroke
     const timer = setTimeout(() => {
       setReferralStatus("checking");
 
-      // Call the API to validate the code
       const validateReferralCode = async () => {
         try {
           console.log(`Validating referral code: ${referralCode}`);
           
-          // Include the token in the request if available
           const headers = token ? { Authorization: `Bearer ${token}` } : {};
           
           const response = await axios.get(
@@ -131,21 +128,26 @@ export default function PricingBox() {
           
           console.log('API Response:', response);
           
-          // If we reach here, the API call was successful with a 2xx status code
+         
           setReferralStatus("valid");
           setReferralMessage(
             `${pricingContent.succesResponse}`
           );
-        } catch (error: any) { // Type the error as 'any' to access properties
+        } catch (error: any) { 
           console.error("Referral code validation error:", error);
           
-          // Check if the error is due to authentication (401)
           if (error.response && error.response.status === 401) {
             console.log('Error response: 401', error.response.data);
             // Warning state for login required
-            setReferralStatus("invalid"); // Use "invalid" to show the warning style
+            setReferralStatus("invalid"); 
             setReferralMessage(
               `${pricingContent.warningResponse}`
+            );
+          } else if (error.response && error.response.status === 400) {
+            console.log('Error response: 400', error.response.data);
+            setReferralStatus("invalid");
+            setReferralMessage(
+              "Please enter a referral code first"
             );
           } else {
             // Other error cases - invalid code
@@ -166,11 +168,71 @@ export default function PricingBox() {
     return () => clearTimeout(timer);
   }, [referralCode, token]);
 
+
+  // this redirect to login page 
+  // const handleCheckout = async () => {
+  //   if (!token) {
+  //     router.push(`/${locale}/signup`);
+  //     return;
+  //   }
+  //   try {
+  //     const result = await dispatch(
+  //       createCheckoutSession({
+  //         token,
+  //         interval: selectedOption,
+  //         referralCode: referralStatus === "valid" ? referralCode : "",
+  //       } as { token: string; interval: number; referralCode: string })
+  //     );
+  
+  //     if (createCheckoutSession.fulfilled.match(result)) {
+  //       router.push(result.payload.url);
+  //     } else if (createCheckoutSession.rejected.match(result)) {
+  //       // Check if the error is due to authentication issues
+  //       if (result.payload && typeof result.payload === 'string' && 
+  //           (result.payload.includes('auth') || 
+  //            result.payload.includes('token') || 
+  //            result.payload.includes('login'))) {
+  //         // Authentication error
+  //         setReferralStatus("invalid");
+  //         setReferralMessage("Please log in or sign up to continue with checkout.");
+          
+  //         // Optional: Redirect to login after a short delay
+  //         setTimeout(() => {
+  //           router.push(`/${locale}/login`);
+  //         }, 2000);
+  //       }
+  //       // Other errors are handled by the error state in Redux
+  //     }
+  //   } catch (e: any) {
+  //     console.error("Checkout error:", e);
+      
+  //     // Handle 400 error specifically as an authentication issue
+  //     if (e.response && e.response.status === 400) {
+  //       console.error("400 Bad Request:", e.response.data);
+        
+  //       setReferralStatus("invalid");
+  //       setReferralMessage("Please log in or sign up to continue with checkout.");
+        
+  //       // Optional: Redirect to login after a short delay
+  //       setTimeout(() => {
+  //         router.push(`/${locale}/login`);
+  //       }, 2000);
+  //     }
+  //   }
+  // };
+
+
+// this show erro message
+
   const handleCheckout = async () => {
+    // Check if user is logged in
     if (!token) {
-      router.push(`${locale}/signup`);
+      // Instead of redirecting, show an error message
+      setReferralStatus("invalid");
+      setReferralMessage("Please login or sign up to proceed with checkout.");
       return;
     }
+    
     try {
       const result = await dispatch(
         createCheckoutSession({
@@ -179,14 +241,22 @@ export default function PricingBox() {
           referralCode: referralStatus === "valid" ? referralCode : "",
         } as { token: string; interval: number; referralCode: string })
       );
-
+  
       if (createCheckoutSession.fulfilled.match(result)) {
         router.push(result.payload.url);
       } else if (createCheckoutSession.rejected.match(result)) {
         // Error is handled by the error state
       }
     } catch (e: any) {
-      console.error(e);
+      console.error("Checkout error:", e);
+      
+      // Handle 400 error specifically as an authentication issue
+      if (e.response && e.response.status === 400) {
+        console.error("400 Bad Request:", e.response.data);
+        
+        setReferralStatus("invalid");
+        setReferralMessage("Please login or sign up to proceed with checkout.");
+      }
     }
   };
 
