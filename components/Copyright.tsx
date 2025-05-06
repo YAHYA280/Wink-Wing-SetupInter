@@ -44,10 +44,10 @@ export default function Copyright() {
         </span>
         <span className="text-white text-[20px]">{content.coc_text}</span>
         <span className="text-white text-[20px]">{content.email}</span>
-        <Link className="text-white text-[20px]" href="/">
+        <Link className="text-white text-[20px] hover:underline" href={`/${locale}/privacy-policy`}>
           {content.links.privacy}
         </Link>
-        <Link className="text-white text-[20px]" href="/">
+        <Link className="text-white text-[20px] hover:underline" href={`/${locale}/terms-service`}>
           {content.links.terms}
         </Link>
         <Link className="text-white text-[20px]" href="/">
