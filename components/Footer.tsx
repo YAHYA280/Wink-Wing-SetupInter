@@ -28,99 +28,6 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
   "Den Haag": { lat: 52.0705, lng: 4.3007 },
 };
 
-// Default footer content (fallback)
-const defaultFooterContent = {
-  language: "Language",
-  country: "Country",
-  feedbackTitle:"Let's make WinkWing better together!",
-  feedbackLink:"Suggest your ideas.",
-  Links: {
-    id: 1,
-    title: "More WinkWing",
-    links: [
-      {
-        id: 1,
-        title: "How it works",
-        href: "/how-it-works",
-      },
-      {
-        id: 2,
-        title: "Reviews",
-        href: "/reviews",
-      },
-      {
-        id: 3,
-        title: "Pricing",
-        href: "/pricing",
-      },
-      {
-        id: 4,
-        title: "Contact",
-        href: "/contact",
-      },
-    ],
-  },
-  Cities: [
-    {
-      id: 1,
-      title: "Find your next home in",
-      cities: [
-        {
-          id: 1,
-          title: "Amsterdam",
-        },
-        {
-          id: 2,
-          title: "Rotterdam",
-        },
-        {
-          id: 3,
-          title: "Utrecht",
-        },
-        {
-          id: 4,
-          title: "Haarlem",
-        },
-        {
-          id: 5,
-          title: "Den Haag",
-        },
-      ],
-    },
-  ],
-  Socials: {
-    id: 1,
-    title: "Follow us",
-    socials: [
-      {
-        id: 1,
-        title: "Instagram",
-        icon: "FaInstagram",
-        href: "https://www.instagram.com/winkwingwinkwing/",
-      },
-      {
-        id: 2,
-        title: "X",
-        icon: "RiTwitterXFill",
-        href: "https://x.com/winkwing",
-      },
-      {
-        id: 3,
-        title: "Tiktok",
-        icon: "FaTiktok",
-        href: "https://www.tiktok.com/@winkwingwinkwing",
-      },
-      {
-        id: 4,
-        title: "Facebook",
-        icon: "FaFacebookF",
-        href: "https://www.facebook.com/winkwingwink/",
-      },
-    ],
-  },
-  
-};
-
 // Helper function to get social icon component
 const getSocialIcon = (iconName: string) => {
   switch (iconName) {
@@ -154,6 +61,98 @@ export default function Footer() {
     setSelectedNeighbourhood,
   } = useUserPreferences();
 
+  // Default footer content (fallback)
+  const defaultFooterContent = {
+    language: "Language",
+    country: "Country",
+    feedbackTitle: "Let's make WinkWing better together!",
+    feedbackLink: "Suggest your ideas.",
+    Links: {
+      id: 1,
+      title: "More WinkWing",
+      links: [
+        {
+          id: 1,
+          title: "How it works",
+          href: "/how-it-works",
+        },
+        {
+          id: 2,
+          title: "Reviews",
+          href: "/reviews",
+        },
+        {
+          id: 3,
+          title: "Pricing",
+          href: "/pricing",
+        },
+        {
+          id: 4,
+          title: "Contact",
+          href: "/contact",
+        },
+      ],
+    },
+    Cities: [
+      {
+        id: 1,
+        title: "Find your next home in",
+        cities: [
+          {
+            id: 1,
+            title: "Amsterdam",
+          },
+          {
+            id: 2,
+            title: "Rotterdam",
+          },
+          {
+            id: 3,
+            title: "Utrecht",
+          },
+          {
+            id: 4,
+            title: "Haarlem",
+          },
+          {
+            id: 5,
+            title: "Den Haag",
+          },
+        ],
+      },
+    ],
+    Socials: {
+      id: 1,
+      title: "Follow us",
+      socials: [
+        {
+          id: 1,
+          title: "Instagram",
+          icon: "FaInstagram",
+          href: "https://www.instagram.com/winkwingwinkwing/",
+        },
+        {
+          id: 2,
+          title: "X",
+          icon: "RiTwitterXFill",
+          href: "https://x.com/winkwing",
+        },
+        {
+          id: 3,
+          title: "Tiktok",
+          icon: "FaTiktok",
+          href: "https://www.tiktok.com/@winkwingwinkwing",
+        },
+        {
+          id: 4,
+          title: "Facebook",
+          icon: "FaFacebookF",
+          href: "https://www.facebook.com/winkwingwink/",
+        },
+      ],
+    },
+  };
+
   // Merge API data with defaults using useMemo
   const footerContent = useMemo(() => {
     if (status === "success" && footerData) {
@@ -164,15 +163,13 @@ export default function Footer() {
         Cities: footerData.Cities || defaultFooterContent.Cities,
         Socials: footerData.Socials || defaultFooterContent.Socials,
         feedbackTitle: footerData.feedbackTitle || defaultFooterContent.feedbackTitle,
-        feedbackLink : footerData.feedbackLink   || defaultFooterContent.feedbackLink,
-
-        
+        feedbackLink: footerData.feedbackLink || defaultFooterContent.feedbackLink,
       };
     }
     return defaultFooterContent;
   }, [footerData, status]);
 
-  // Handle city selection from footer
+  // Handle city click with improved functionality
   const handleCityClick = (cityName: string, e: React.MouseEvent) => {
     e.preventDefault();
     
@@ -192,25 +189,29 @@ export default function Footer() {
       setSelectedLng(cityCoordinates[cityName].lng);
     }
     
+    // Use a unique key with timestamp for reliable scroll trigger
+    const scrollKey = `scrollToSearch_${Date.now()}`;
+    sessionStorage.setItem(scrollKey, cityName);
+    
     // Navigate to homepage
-    router.push(`/${locale}`);
+    router.push(`/${locale}?scroll=${scrollKey}`);
   };
 
   return (
     <footer className="pt-24 pb-8 bg-[#1E1E1E] px-2 md:px-20">
       <div className="max-w-3xl mx-auto">
         {/* Logo Section - Updated for better mobile centering */}
-        <div className="flex justify-center  mb-5 w-full ">
-        <Link className="cursor-pointer" href={`/${locale}`}>
-    <Image
-      src="/Logo_white.svg"
-      alt="Logo"
-      width={225}
-      height={60}
-      className="w-[210px] h-auto"
-      priority
-    />
-  </Link>
+        <div className="flex justify-center mb-5 w-full">
+          <Link className="cursor-pointer" href={`/${locale}`}>
+            <Image
+              src="/Logo_white.svg"
+              alt="Logo"
+              width={225}
+              height={60}
+              className="w-[210px] h-auto"
+              priority
+            />
+          </Link>
         </div>
         <div className="flex flex-col items-center justify-center gap-12 md:flex-row md:flex-wrap md:items-start">
           
@@ -286,15 +287,15 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        </div>
+      </div>
         {/* Suggestion banner */}
         <div className="w-full mt-20 pt-6 border-t border-gray-700">
-          <div className="flex justify-center">
-            <div className="text-white text-center">
-             {footerContent.feedbackTitle} <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">{footerContent.feedbackLink}</a>
-            </div>
+        <div className="flex justify-center">
+          <div className="text-white text-center">
+           {footerContent.feedbackTitle} <a href="https://winkwing.featurebase.app/" target="_blank" rel="noopener noreferrer" className="text-[#FF4907] hover:underline">{footerContent.feedbackLink}</a>
           </div>
         </div>
-      </footer>
+      </div>
+    </footer>
     );
   }

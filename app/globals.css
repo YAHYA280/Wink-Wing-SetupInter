@@ -141,3 +141,22 @@ body[data-loading-translations="true"] .main-content {
 	min-width: 795px;
 	max-width: 795px;
 }
+
+
+@media screen and (max-width: 768px) {
+  body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  /* This targets any main container elements */
+  .container, .wrapper, main, [class*="container"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
