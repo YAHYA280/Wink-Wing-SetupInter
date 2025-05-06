@@ -824,6 +824,59 @@ export function useStrapiMultiPartContent<T>(
 
   return { data, status, error, refetch: fetchContent };
 }
+
+
+export function useStrapiNestedContent<T>(contentType: string) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "en";
+
+  const [data, setData] = useState<T | null>(null);
+  const [status, setStatus] = useState<FetchStatus>("idle");
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchContent = useCallback(async () => {
+    try {
+      setStatus("loading");
+      const apiUrl =
+        process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
+      const apiToken = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "";
+
+      // Use the nested population format
+      const response = await axios.get<{ data: T }>(
+        `${apiUrl}/api/${contentType}?populate[sections][populate]=*&locale=${locale}`,
+        {
+          headers: {
+            Authorization: `Bearer ${apiToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data && response.data.data) {
+        const formattedData = response.data.data;
+        setData(formattedData as T);
+        setStatus("success");
+      } else {
+        throw new Error("Invalid data format received from API");
+      }
+    } catch (err) {
+      console.error(`Error fetching ${contentType}:`, err);
+      setError(
+        err instanceof Error ? err : new Error("An unknown error occurred")
+      );
+      setStatus("error");
+    }
+  }, [contentType, locale]);
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
+
+  return { data, status, error, refetch: fetchContent };
+}
+
+
+
 // Custom hooks for specific content types
 export function useNavbarData() {
   return useStrapiContent<{ Navbar: NavbarData[] }>("navbar");
@@ -892,9 +945,9 @@ export function useCopyrightData() {
 }
 
 export function usePrivacyPolicyData() {
-  return useStrapiContent<PrivacyPolicyData>("privacy-policy");
+  return useStrapiNestedContent<PrivacyPolicyData>("privacy-policy");
 }
 
 export function useTermsServiceData() {
-  return useStrapiContent<TermsServiceData>("terms-service");
+  return useStrapiNestedContent<TermsServiceData>("terms-service");
 }
