@@ -233,6 +233,20 @@ export default function Nav() {
                         strokeWidth="2"
                         strokeLinejoin="round"
                       />
+                      <path
+                        d="M15.5 15.5L20.5 20.5"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M15.5 15.5L20.5 20.5"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </span>
                   <span className="text-white font-semibold truncate">
