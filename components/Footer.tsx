@@ -152,7 +152,7 @@ export default function Footer() {
       ],
     },
   };
-
+  // test
   // Merge API data with defaults using useMemo
   const footerContent = useMemo(() => {
     if (status === "success" && footerData) {
