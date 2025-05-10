@@ -586,120 +586,15 @@ export interface PrivacyPolicyData {
   title: string;
   subtitle: string;
   introduction: string;
-  sections?: {
-    information_we_collect: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    how_we_use: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    data_storage: {
-      title: string;
-      text: string;
-    };
-    sharing_information: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    your_rights: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    cookies: {
-      title: string;
-      text: string;
-    };
-    third_party: {
-      title: string;
-      text: string;
-    };
-    children: {
-      title: string;
-      text: string;
-    };
-    changes: {
-      title: string;
-      text: string;
-    };
-    contact: {
-      title: string;
-      text: string;
-      email: string;
-      address: string;
-    };
-  };
+  content: string; 
 }
 
 export interface TermsServiceData {
   title: string;
   subtitle: string;
   introduction: string;
-  sections?: {
-    acceptance: {
-      title: string;
-      text: string;
-    };
-    description: {
-      title: string;
-      text: string;
-    };
-    user_accounts: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    subscription: {
-      title: string;
-      text: string;
-    };
-    user_conduct: {
-      title: string;
-      text: string;
-      items: string[];
-    };
-    intellectual_property: {
-      title: string;
-      text: string;
-    };
-    limitation: {
-      title: string;
-      text: string;
-    };
-    disclaimer: {
-      title: string;
-      text: string;
-    };
-    indemnification: {
-      title: string;
-      text: string;
-    };
-    termination: {
-      title: string;
-      text: string;
-    };
-    changes: {
-      title: string;
-      text: string;
-    };
-    governing_law: {
-      title: string;
-      text: string;
-    };
-    contact: {
-      title: string;
-      text: string;
-      email: string;
-      address: string;
-    };
-  };
+  content: string; 
 }
-
 
 // Status type for the fetching process
 type FetchStatus = "idle" | "loading" | "success" | "error";
@@ -826,54 +721,6 @@ export function useStrapiMultiPartContent<T>(
 }
 
 
-export function useStrapiNestedContent<T>(contentType: string) {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "en";
-
-  const [data, setData] = useState<T | null>(null);
-  const [status, setStatus] = useState<FetchStatus>("idle");
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchContent = useCallback(async () => {
-    try {
-      setStatus("loading");
-      const apiUrl =
-        process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
-      const apiToken = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "";
-
-      // Use the nested population format
-      const response = await axios.get<{ data: T }>(
-        `${apiUrl}/api/${contentType}?populate[sections][populate]=*&locale=${locale}`,
-        {
-          headers: {
-            Authorization: `Bearer ${apiToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data && response.data.data) {
-        const formattedData = response.data.data;
-        setData(formattedData as T);
-        setStatus("success");
-      } else {
-        throw new Error("Invalid data format received from API");
-      }
-    } catch (err) {
-      console.error(`Error fetching ${contentType}:`, err);
-      setError(
-        err instanceof Error ? err : new Error("An unknown error occurred")
-      );
-      setStatus("error");
-    }
-  }, [contentType, locale]);
-
-  useEffect(() => {
-    fetchContent();
-  }, [fetchContent]);
-
-  return { data, status, error, refetch: fetchContent };
-}
 
 
 
@@ -945,9 +792,9 @@ export function useCopyrightData() {
 }
 
 export function usePrivacyPolicyData() {
-  return useStrapiNestedContent<PrivacyPolicyData>("privacy-policy");
+  return useStrapiContent<PrivacyPolicyData>("privacy-policy");
 }
 
 export function useTermsServiceData() {
-  return useStrapiNestedContent<TermsServiceData>("terms-service");
+  return useStrapiContent<TermsServiceData>("terms-service");
 }
